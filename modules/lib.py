@@ -156,6 +156,9 @@ def parse_literature_references(genome_property_record):
                                                                  title=current_literature_reference.get('RT'),
                                                                  authors=current_literature_reference.get('RA'),
                                                                  citation=current_literature_reference.get('RL')))
+                if marker == 'RN':
+                    content = int(content.strip('[]'))
+
                 current_literature_reference = {marker: content}
             else:
                 if marker == 'RN':
@@ -188,6 +191,10 @@ def parse_steps(genome_property_record):
                                   name=current_step.get('DN'), evidence=current_step.get('EV'),
                                   gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
                                   sufficient=current_step.get('SF')))
+
+                if marker == 'SN':
+                    content = int(content)
+
                 current_step = {marker: content}
             else:
                 if marker == 'SN':
