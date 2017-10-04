@@ -90,40 +90,6 @@ def collapse_step_evidence_and_gene_ontologys(genome_property_record):
     return final_genome_property_record
 
 
-def parse_literature_references(genome_property_record):
-    """
-    Parses literature references from a genome properties record.
-    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
-    :return: A list of LiteratureReference objects.
-    """
-    # A list of record markers related to literature references.
-    literature_reference_markers = ['RN', 'RM', 'RT', 'RA', 'RL']
-
-    literature_references = []
-    current_literature_reference = {}
-    for marker, content in genome_property_record:
-        if marker in literature_reference_markers:
-            if marker in current_literature_reference:
-                literature_references.append(LiteratureReference(number=current_literature_reference.get('RN'),
-                                                                 pubmed_id=current_literature_reference.get('RM'),
-                                                                 title=current_literature_reference.get('RT'),
-                                                                 authors=current_literature_reference.get('RA'),
-                                                                 citation=current_literature_reference.get('RL')))
-                current_literature_reference = {marker: content}
-            else:
-                if marker == 'RN':
-                    content = int(content.strip('[]'))
-
-                current_literature_reference[marker] = content
-
-    literature_references.append(LiteratureReference(number=current_literature_reference.get('RN'),
-                                                     pubmed_id=current_literature_reference.get('RM'),
-                                                     title=current_literature_reference.get('RT'),
-                                                     authors=current_literature_reference.get('RA'),
-                                                     citation=current_literature_reference.get('RL')))
-    return literature_references
-
-
 def parse_genome_property(genome_property_record):
     """
     Parses a single genome property from a genome property record.
@@ -169,6 +135,40 @@ def parse_genome_property(genome_property_record):
                                          databases=databases,
                                          steps=steps)
     return new_genome_property
+
+
+def parse_literature_references(genome_property_record):
+    """
+    Parses literature references from a genome properties record.
+    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
+    :return: A list of LiteratureReference objects.
+    """
+    # A list of record markers related to literature references.
+    literature_reference_markers = ['RN', 'RM', 'RT', 'RA', 'RL']
+
+    literature_references = []
+    current_literature_reference = {}
+    for marker, content in genome_property_record:
+        if marker in literature_reference_markers:
+            if marker in current_literature_reference:
+                literature_references.append(LiteratureReference(number=current_literature_reference.get('RN'),
+                                                                 pubmed_id=current_literature_reference.get('RM'),
+                                                                 title=current_literature_reference.get('RT'),
+                                                                 authors=current_literature_reference.get('RA'),
+                                                                 citation=current_literature_reference.get('RL')))
+                current_literature_reference = {marker: content}
+            else:
+                if marker == 'RN':
+                    content = int(content.strip('[]'))
+
+                current_literature_reference[marker] = content
+
+    literature_references.append(LiteratureReference(number=current_literature_reference.get('RN'),
+                                                     pubmed_id=current_literature_reference.get('RM'),
+                                                     title=current_literature_reference.get('RT'),
+                                                     authors=current_literature_reference.get('RA'),
+                                                     citation=current_literature_reference.get('RL')))
+    return literature_references
 
 
 def parse_steps(genome_property_record):
