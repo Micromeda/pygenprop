@@ -102,12 +102,15 @@ def parse_genome_property(genome_property_record):
 
     has_references = False
     has_databases = False
+    has_steps = False
 
     for marker, content in genome_property_record:
         if marker == 'RN':
             has_references = True
         elif marker == 'DC':
             has_databases = True
+        elif marker == 'SN':
+            has_steps = True
         elif marker in core_genome_property_markers:
             if marker == 'TH':
                 content = int(content)
@@ -117,12 +120,16 @@ def parse_genome_property(genome_property_record):
         references = parse_literature_references(genome_property_record)
     else:
         references = []
+
     if has_databases:
         databases = parse_database_references(genome_property_record)
     else:
         databases = []
 
-    steps = parse_steps(genome_property_record)
+    if has_steps:
+        steps = parse_steps(genome_property_record)
+    else:
+        steps = []
 
     new_genome_property = GenomeProperty(accession_id=gathered_core_genome_property_markers.get('AC'),
                                          name=gathered_core_genome_property_markers.get('DE'),
@@ -181,46 +188,48 @@ def parse_steps(genome_property_record):
     :return: A list of Step objects.
     """
     step_markers = ['SN', 'ID', 'DN', 'RQ', 'EV', 'TG']
-
     steps = []
-    current_step = {}
-    for marker, content in genome_property_record:
-        if marker in step_markers:
-            if marker in current_step:
-                steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
-                                  name=current_step.get('DN'), evidence=current_step.get('EV'),
-                                  gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
-                                  sufficient=current_step.get('SF')))
+    try:
+        current_step = {}
+        for marker, content in genome_property_record:
+            if marker in step_markers:
+                if marker in current_step:
+                    steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
+                                      name=current_step.get('DN'), evidence=current_step.get('EV'),
+                                      gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
+                                      sufficient=current_step.get('SF')))
 
-                if marker == 'SN':
-                    content = int(content)
+                    if marker == 'SN':
+                        content = int(content)
 
-                current_step = {marker: content}
-            else:
-                if marker == 'SN':
-                    content = int(content)
-                elif marker == 'EV':
-                    split_content = filter(None, content.split(';'))
-                    cleaned_content = list(map(lambda evidence: evidence.strip(), split_content))
-                    if 'sufficient' in cleaned_content:
-                        current_step['SF'] = True
-                    else:
-                        current_step['SF'] = False
-                    content = [evidence for evidence in cleaned_content if evidence != 'sufficient']
-                elif marker == 'RQ':
-                    if int(content) == 1:
-                        content = True
-                    else:
-                        content = False
+                    current_step = {marker: content}
+                else:
+                    if marker == 'SN':
+                        content = int(content)
+                    elif marker == 'EV':
+                        split_content = filter(None, content.split(';'))
+                        cleaned_content = list(map(lambda evidence: evidence.strip(), split_content))
+                        if 'sufficient' in cleaned_content:
+                            current_step['SF'] = True
+                        else:
+                            current_step['SF'] = False
+                        content = [evidence for evidence in cleaned_content if evidence != 'sufficient']
+                    elif marker == 'RQ':
+                        if int(content) == 1:
+                            content = True
+                        else:
+                            content = False
 
-                current_step[marker] = content
+                    current_step[marker] = content
 
-    steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
-                      name=current_step.get('DN'), evidence=current_step.get('EV'),
-                      gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
-                      sufficient=current_step.get('SF')))
-
-    return steps
+        steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
+                          name=current_step.get('DN'), evidence=current_step.get('EV'),
+                          gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
+                          sufficient=current_step.get('SF')))
+    except TypeError:
+        print('yolo')
+    finally:
+        return steps
 
 
 def parse_database_references(genome_property_record):
