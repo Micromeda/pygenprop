@@ -123,13 +123,21 @@ def parse_genome_property(genome_property_record):
         current_index = current_index + 1
 
     if reference_index:
-        reference_rows = genome_property_record[reference_index:database_index]
+        if database_index:
+            reference_rows = genome_property_record[reference_index:database_index]
+        else:
+            reference_rows = genome_property_record[reference_index:]
+
         references = parse_literature_references(reference_rows)
     else:
         references = []
 
     if database_index:
-        database_rows = genome_property_record[database_index:step_index - 1]
+        if step_index:
+            database_rows = genome_property_record[database_index:step_index - 1]
+        else:
+            database_rows = genome_property_record[database_index:]
+
         databases = parse_database_references(database_rows)
     else:
         databases = []
