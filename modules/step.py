@@ -54,7 +54,7 @@ def parse_steps(genome_property_record):
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of Step objects.
     """
-    step_markers = ['SN', 'ID', 'DN', 'RQ', 'EV', 'TG']
+    step_markers = ('SN', 'ID', 'DN', 'RQ', 'EV', 'TG')
     steps = []
     current_step = {}
     for marker, content in genome_property_record:
