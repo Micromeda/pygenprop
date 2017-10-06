@@ -28,6 +28,10 @@ class Step(object):
             evidence = set
         if gene_ontology_id is None:
             gene_ontology_id = set
+        if required is None:
+            required = False
+        if sufficient is None:
+            sufficient = False
 
         self.number = int(number)
         self.id = identifier
