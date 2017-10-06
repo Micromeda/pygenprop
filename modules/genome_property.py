@@ -101,9 +101,9 @@ def parse_genome_property(genome_property_record):
         elif marker == 'DC':
             if not database_index:
                 database_index = current_index
-        elif marker == 'SN':
-            if not step_index:
-                step_index = current_index
+        elif marker == '--':
+            step_index = current_index + 1
+            break  # If we have reach steps we have covered all core_genome_property_markers and can leave the loop.
         elif marker in core_genome_property_markers:
             if marker == 'TH':
                 content = int(content)
