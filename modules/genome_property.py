@@ -86,7 +86,7 @@ def parse_genome_property(genome_property_record):
     :return: A single genome property object.
     """
     # A list of record markers related to the genome property.
-    core_genome_property_markers = ['AC', 'DE', 'TP', 'TH', 'PN', 'CC', '**']
+    core_genome_property_markers = ('AC', 'DE', 'TP', 'TH', 'PN', 'CC', '**')
     gathered_core_genome_property_markers = {}
 
     reference_index = False

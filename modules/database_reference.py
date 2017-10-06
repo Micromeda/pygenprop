@@ -34,7 +34,7 @@ def parse_database_references(genome_property_record):
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of DatabaseReference objects.
     """
-    database_reference_markers = ['DC', 'DR']
+    database_reference_markers = ('DC', 'DR')
 
     database_references = []
     current_database_reference = {}

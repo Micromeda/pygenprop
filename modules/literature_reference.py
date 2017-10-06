@@ -41,7 +41,7 @@ def parse_literature_references(genome_property_record):
     :return: A list of LiteratureReference objects.
     """
     # A list of record markers related to literature references.
-    literature_reference_markers = ['RN', 'RM', 'RT', 'RA', 'RL']
+    literature_reference_markers = ('RN', 'RM', 'RT', 'RA', 'RL')
 
     literature_references = []
     current_literature_reference = {}
