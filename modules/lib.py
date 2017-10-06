@@ -267,22 +267,21 @@ def parse_database_references(genome_property_record):
     return database_references
 
 
-def parse_genome_property_file(genome_property_flat_file_path):
+def parse_genome_property_file(gen_prop_file):
     """
     A parses a genome property flat file.
-    :param genome_property_flat_file_path: The path to the genome property flat file.
+    :param gen_prop_file: A genome property file object.
     :return: A list of GenomeProperty objects.
     """
     genome_properties = []
     current_genome_property_record = []
-    with open(genome_property_flat_file_path) as gen_prop_file:
-        for line in gen_prop_file:
-            if not line.strip() == '//':
-                current_genome_property_record.append(create_marker_and_content(line))
-            else:
-                collapsed_genome_property_record = collapse_genome_property_record(current_genome_property_record)
-                new_genome_property = parse_genome_property(collapsed_genome_property_record)
-                genome_properties.append(new_genome_property)
-                current_genome_property_record = []
+    for line in gen_prop_file:
+        if not line.strip() == '//':
+            current_genome_property_record.append(create_marker_and_content(line))
+        else:
+            collapsed_genome_property_record = collapse_genome_property_record(current_genome_property_record)
+            new_genome_property = parse_genome_property(collapsed_genome_property_record)
+            genome_properties.append(new_genome_property)
+            current_genome_property_record = []
 
     return genome_properties

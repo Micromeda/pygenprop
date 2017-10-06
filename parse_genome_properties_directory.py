@@ -8,6 +8,10 @@ Description: The genome property class.
 
 from modules.lib import parse_genome_property_file
 
-global_gen_prop_dir = '../genome-properties/docs/release/genomeProperties.txt'
+genome_property_flat_file_path = '../genome-properties/docs/release/genomeProperties.txt'
 
-properties = parse_genome_property_file(global_gen_prop_dir)
+with open(genome_property_flat_file_path) as gen_prop_file:
+    properties = parse_genome_property_file(gen_prop_file)
+
+# print(properties)
+
