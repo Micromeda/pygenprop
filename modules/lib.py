@@ -100,34 +100,51 @@ def parse_genome_property(genome_property_record):
     core_genome_property_markers = ['AC', 'DE', 'TP', 'TH', 'PN', 'CC', '**']
     gathered_core_genome_property_markers = {}
 
-    has_references = False
-    has_databases = False
-    has_steps = False
+    reference_index = False
+    database_index = False
+    step_index = False
 
+    current_index = 0
     for marker, content in genome_property_record:
         if marker == 'RN':
-            has_references = True
+            if not reference_index:
+                reference_index = current_index
         elif marker == 'DC':
-            has_databases = True
+            if not database_index:
+                database_index = current_index
         elif marker == 'SN':
-            has_steps = True
+            if not step_index:
+                step_index = current_index
         elif marker in core_genome_property_markers:
             if marker == 'TH':
                 content = int(content)
             gathered_core_genome_property_markers[marker] = content
 
-    if has_references:
-        references = parse_literature_references(genome_property_record)
+        current_index = current_index + 1
+
+    if reference_index:
+        if database_index:
+            reference_rows = genome_property_record[reference_index:database_index]
+        else:
+            reference_rows = genome_property_record[reference_index:]
+
+        references = parse_literature_references(reference_rows)
     else:
         references = []
 
-    if has_databases:
-        databases = parse_database_references(genome_property_record)
+    if database_index:
+        if step_index:
+            database_rows = genome_property_record[database_index:step_index - 1]
+        else:
+            database_rows = genome_property_record[database_index:]
+
+        databases = parse_database_references(database_rows)
     else:
         databases = []
 
-    if has_steps:
-        steps = parse_steps(genome_property_record)
+    if step_index:
+        step_rows = genome_property_record[step_index:]
+        steps = parse_steps(step_rows)
     else:
         steps = []
 
