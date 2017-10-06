@@ -206,14 +206,18 @@ def parse_steps(genome_property_record):
                 else:
                     if marker == 'SN':
                         content = int(content)
-                    elif marker == 'EV':
+                    elif marker == 'EV' or marker == 'TG':
                         split_content = filter(None, content.split(';'))
-                        cleaned_content = list(map(lambda evidence: evidence.strip(), split_content))
-                        if 'sufficient' in cleaned_content:
-                            current_step['SF'] = True
+                        cleaned_content = set(map(lambda evidence: evidence.strip(), split_content))
+                        if marker == 'EV':
+                            if 'sufficient' in cleaned_content:
+                                current_step['SF'] = True
+                            else:
+                                current_step['SF'] = False
+
+                            content = set(evidence for evidence in cleaned_content if evidence != 'sufficient')
                         else:
-                            current_step['SF'] = False
-                        content = [evidence for evidence in cleaned_content if evidence != 'sufficient']
+                            content = cleaned_content
                     elif marker == 'RQ':
                         if int(content) == 1:
                             content = True

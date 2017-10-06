@@ -22,8 +22,11 @@ class Step(object):
         :param required: Is this a required step for this genome property?
         :param sufficient: IS this step sufficient? (TODO: figure out what this means?)
         """
+
         if evidence is None:
-            evidence = []
+            evidence = set
+        if gene_ontology_id is None:
+            gene_ontology_id = set
 
         self.number = int(number)
         self.id = identifier
