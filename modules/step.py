@@ -9,6 +9,7 @@ Description: The step class.
 
 class Step(object):
     """A class representing a step that supports the existence of a genome property."""
+
     def __init__(self, number, identifier, name, gene_ontology_id=None, evidence=None, required=False,
                  sufficient=False):
         """
@@ -45,3 +46,55 @@ class Step(object):
                      'Required: ' + str(self.required),
                      'Sufficient: ' + str(self.sufficient)]
         return ', '.join(repr_data)
+
+
+def parse_steps(genome_property_record):
+    """
+    Parses steps from a genome properties record.
+    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
+    :return: A list of Step objects.
+    """
+    step_markers = ['SN', 'ID', 'DN', 'RQ', 'EV', 'TG']
+    steps = []
+    current_step = {}
+    for marker, content in genome_property_record:
+        if marker in step_markers:
+            if marker in current_step:
+                steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
+                                  name=current_step.get('DN'), evidence=current_step.get('EV'),
+                                  gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
+                                  sufficient=current_step.get('SF')))
+
+                if marker == 'SN':
+                    content = int(content)
+
+                current_step = {marker: content}
+            else:
+                if marker == 'SN':
+                    content = int(content)
+                elif marker == 'EV' or marker == 'TG':
+                    split_content = filter(None, content.split(';'))
+                    cleaned_content = set(map(lambda evidence: evidence.strip(), split_content))
+                    if marker == 'EV':
+                        if 'sufficient' in cleaned_content:
+                            current_step['SF'] = True
+                        else:
+                            current_step['SF'] = False
+
+                        content = set(evidence for evidence in cleaned_content if evidence != 'sufficient')
+                    else:
+                        content = cleaned_content
+                elif marker == 'RQ':
+                    if int(content) == 1:
+                        content = True
+                    else:
+                        content = False
+
+                current_step[marker] = content
+
+    steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
+                      name=current_step.get('DN'), evidence=current_step.get('EV'),
+                      gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
+                      sufficient=current_step.get('SF')))
+
+    return steps

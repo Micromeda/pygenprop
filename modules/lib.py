@@ -6,10 +6,7 @@ Created by: Lee Bergstrand (2017)
 Description: A set of helper functions.
 """
 
-from modules.database_reference import DatabaseReference
-from modules.genome_property import GenomeProperty
-from modules.literature_reference import LiteratureReference
-from modules.step import Step
+from modules.genome_property import parse_genome_property
 
 
 def create_marker_and_content(genome_property_flat_file_line):
@@ -90,213 +87,15 @@ def collapse_step_evidence_and_gene_ontologys(genome_property_record):
     return final_genome_property_record
 
 
-def parse_genome_property(genome_property_record):
-    """
-    Parses a single genome property from a genome property record.
-    :param genome_property_record:  A list of marker, content tuples representing genome property flat file lines.
-    :return: A single genome property object.
-    """
-    # A list of record markers related to the genome property.
-    core_genome_property_markers = ['AC', 'DE', 'TP', 'TH', 'PN', 'CC', '**']
-    gathered_core_genome_property_markers = {}
-
-    reference_index = False
-    database_index = False
-    step_index = False
-
-    current_index = 0
-    for marker, content in genome_property_record:
-        if marker == 'RN':
-            if not reference_index:
-                reference_index = current_index
-        elif marker == 'DC':
-            if not database_index:
-                database_index = current_index
-        elif marker == 'SN':
-            if not step_index:
-                step_index = current_index
-        elif marker in core_genome_property_markers:
-            if marker == 'TH':
-                content = int(content)
-            gathered_core_genome_property_markers[marker] = content
-
-        current_index = current_index + 1
-
-    if reference_index:
-        if database_index:
-            reference_rows = genome_property_record[reference_index:database_index]
-        else:
-            reference_rows = genome_property_record[reference_index:]
-
-        references = parse_literature_references(reference_rows)
-    else:
-        references = []
-
-    if database_index:
-        if step_index:
-            database_rows = genome_property_record[database_index:step_index - 1]
-        else:
-            database_rows = genome_property_record[database_index:]
-
-        databases = parse_database_references(database_rows)
-    else:
-        databases = []
-
-    if step_index:
-        step_rows = genome_property_record[step_index:]
-        steps = parse_steps(step_rows)
-    else:
-        steps = []
-
-    new_genome_property = GenomeProperty(accession_id=gathered_core_genome_property_markers.get('AC'),
-                                         name=gathered_core_genome_property_markers.get('DE'),
-                                         property_type=gathered_core_genome_property_markers.get('TP'),
-                                         threshold=gathered_core_genome_property_markers.get('TH'),
-                                         parent=gathered_core_genome_property_markers.get('PN'),
-                                         description=gathered_core_genome_property_markers.get('CC'),
-                                         private_notes=gathered_core_genome_property_markers.get('**'),
-                                         references=references,
-                                         databases=databases,
-                                         steps=steps)
-    return new_genome_property
-
-
-def parse_literature_references(genome_property_record):
-    """
-    Parses literature references from a genome properties record.
-    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
-    :return: A list of LiteratureReference objects.
-    """
-    # A list of record markers related to literature references.
-    literature_reference_markers = ['RN', 'RM', 'RT', 'RA', 'RL']
-
-    literature_references = []
-    current_literature_reference = {}
-    for marker, content in genome_property_record:
-        if marker in literature_reference_markers:
-            if marker in current_literature_reference:
-                literature_references.append(LiteratureReference(number=current_literature_reference.get('RN'),
-                                                                 pubmed_id=current_literature_reference.get('RM'),
-                                                                 title=current_literature_reference.get('RT'),
-                                                                 authors=current_literature_reference.get('RA'),
-                                                                 citation=current_literature_reference.get('RL')))
-                if marker == 'RN':
-                    content = int(content.strip('[]'))
-
-                current_literature_reference = {marker: content}
-            else:
-                if marker == 'RN':
-                    content = int(content.strip('[]'))
-
-                current_literature_reference[marker] = content
-
-    literature_references.append(LiteratureReference(number=current_literature_reference.get('RN'),
-                                                     pubmed_id=current_literature_reference.get('RM'),
-                                                     title=current_literature_reference.get('RT'),
-                                                     authors=current_literature_reference.get('RA'),
-                                                     citation=current_literature_reference.get('RL')))
-    return literature_references
-
-
-def parse_steps(genome_property_record):
-    """
-    Parses steps from a genome properties record.
-    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
-    :return: A list of Step objects.
-    """
-    step_markers = ['SN', 'ID', 'DN', 'RQ', 'EV', 'TG']
-    steps = []
-    try:
-        current_step = {}
-        for marker, content in genome_property_record:
-            if marker in step_markers:
-                if marker in current_step:
-                    steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
-                                      name=current_step.get('DN'), evidence=current_step.get('EV'),
-                                      gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
-                                      sufficient=current_step.get('SF')))
-
-                    if marker == 'SN':
-                        content = int(content)
-
-                    current_step = {marker: content}
-                else:
-                    if marker == 'SN':
-                        content = int(content)
-                    elif marker == 'EV' or marker == 'TG':
-                        split_content = filter(None, content.split(';'))
-                        cleaned_content = set(map(lambda evidence: evidence.strip(), split_content))
-                        if marker == 'EV':
-                            if 'sufficient' in cleaned_content:
-                                current_step['SF'] = True
-                            else:
-                                current_step['SF'] = False
-
-                            content = set(evidence for evidence in cleaned_content if evidence != 'sufficient')
-                        else:
-                            content = cleaned_content
-                    elif marker == 'RQ':
-                        if int(content) == 1:
-                            content = True
-                        else:
-                            content = False
-
-                    current_step[marker] = content
-
-        steps.append(Step(number=current_step.get('SN'), identifier=current_step.get('ID'),
-                          name=current_step.get('DN'), evidence=current_step.get('EV'),
-                          gene_ontology_id=current_step.get('TG'), required=current_step.get('RQ'),
-                          sufficient=current_step.get('SF')))
-    except TypeError:
-        print('yolo')
-    finally:
-        return steps
-
-
-def parse_database_references(genome_property_record):
-    """
-    Parses database reference from a genome properties record.
-    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
-    :return: A list of DatabaseReference objects.
-    """
-    database_reference_markers = ['DC', 'DR']
-
-    database_references = []
-    current_database_reference = {}
-    for marker, content in genome_property_record:
-        if marker in database_reference_markers:
-            if marker in current_database_reference:
-                database_references.append(DatabaseReference(record_title=current_database_reference.get('DC'),
-                                                             database_name=current_database_reference.get('DN'),
-                                                             record_ids=current_database_reference.get('DI')))
-
-                current_database_reference = {marker: content}
-            else:
-                if marker == 'DR':
-                    split_content = filter(None, content.split(';'))
-                    cleaned_content = list(map(lambda evidence: evidence.strip(), split_content))
-                    database_name = cleaned_content[0]
-                    database_records = cleaned_content[1:]
-                    current_database_reference['DN'] = database_name
-                    current_database_reference['DI'] = database_records
-
-                current_database_reference[marker] = content
-
-    database_references.append(DatabaseReference(record_title=current_database_reference.get('DC'),
-                                                 database_name=current_database_reference.get('DN'),
-                                                 record_ids=current_database_reference.get('DI')))
-    return database_references
-
-
-def parse_genome_property_file(gen_prop_file):
+def parse_genome_property_file(genome_property_file):
     """
     A parses a genome property flat file.
-    :param gen_prop_file: A genome property file object.
+    :param genome_property_file: A genome property file handle object.
     :return: A list of GenomeProperty objects.
     """
     genome_properties = []
     current_genome_property_record = []
-    for line in gen_prop_file:
+    for line in genome_property_file:
         if not line.strip() == '//':
             current_genome_property_record.append(create_marker_and_content(line))
         else:
