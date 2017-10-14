@@ -34,7 +34,7 @@ class TestLiteratureReference(unittest.TestCase):
         self.assertEqual(first_step.id, 'Aferr subtype specific proteins')
         self.assertEqual(first_step.name, 'Crispy Proteins')
         self.assertEqual(first_step.evidence, {'IPR017545', 'TIGR03114', 'TIGR03111'})
-        self.assertEqual(first_step.gene_ontology_id, {'GO:0043571', 'GO:0043579'})
+        self.assertEqual(first_step.gene_ontology_ids, {'GO:0043571', 'GO:0043579'})
         self.assertEqual(first_step.required, False)
         self.assertEqual(first_step.sufficient, True)
 
@@ -84,7 +84,7 @@ class TestLiteratureReference(unittest.TestCase):
         self.assertEqual(second_step.required, False)
         self.assertEqual(second_step.sufficient, False)
         self.assertEqual(second_step.evidence, set)
-        self.assertEqual(second_step.gene_ontology_id, set)
+        self.assertEqual(second_step.gene_ontology_ids, set)
 
     def test_parse_multiple_steps(self):
         """Test that literature reference rows consisting of multiple references can be parsed."""
