@@ -3,7 +3,7 @@
 """
 Created by: Lee Bergstrand (2017)
 
-Description: The genome property class.
+Description: Parses EBI genome properties flat files.
 """
 
 from modules.lib import parse_genome_property_file
