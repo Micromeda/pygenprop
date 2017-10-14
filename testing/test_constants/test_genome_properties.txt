@@ -1,0 +1,408 @@
+AC  GenProp0033
+DE  TCA cycle
+TP  METAPATH
+AU  Haft DH
+TH  5
+DC  Citric acid cycle
+DR  IUBMB; misc; CAcycle;
+DC  Citrate Cycle (TCA cycle)
+DR  KEGG; map00020;
+CC  The TCA cycle (also known as the Krebs cycle, citrate acid cycle, and
+CC  tricarboxylic acid cycle) is performed in eukaryotic mitochondria and
+CC  in many prokaryotes. This property refers to the forward direction:
+CC  from oxaloacetate and acetate to citrate, to isocitrate, to
+CC  2-oxoglutarate, to succinate, to fumarate, to malate, to oxaloacetate,
+CC  with the release of two molecules of CO2. It runs only under aerobic
+CC  conditions. The state YES means the cycle is complete. A complete TCA
+CC  cycle may correlate with use of TCA intermediates as biosynthetic
+CC  precursors and with anaplerotic (TCA cycle intermediate-replenishing)
+CC  reactions such as the glyoxylate shunt. The state PARTIAL indicates
+CC  the pathway does not form a full cycle but may contain several
+CC  consecutive steps. The direction of flux through this arc is not
+CC  specified when the PARTIAL state is set, and so it may be in the
+CC  reductive (reverse) direction. The full reverse TCA cycle, an
+CC  alternative to the Calvin cycle for carbon dioxide fixation, is
+CC  covered by a separate property.
+--
+SN  1
+ID  Citrate synthase
+DN  Citrate (Si)-synthase (EC 2.3.3.1)
+RQ  1
+EV  IPR010953; TIGR01798; sufficient;
+TG  GO:0006099;
+EV  IPR011278; TIGR01800; sufficient;
+TG  GO:0006099;
+EV  IPR010109; TIGR01793; sufficient;
+TG  GO:0006099;
+--
+SN  2
+ID  Aconitate hydratase
+DN  Aconitate hydratase (EC 4.2.1.3)
+RQ  1
+EV  IPR006249; TIGR01341; sufficient;
+TG  GO:0006099;
+EV  IPR004406; TIGR00117; sufficient;
+TG  GO:0006099;
+EV  IPR006248; TIGR01340; sufficient;
+TG  GO:0006099;
+--
+SN  3
+ID  Isocitrate dehydrogenase
+DN  Isocitrate dehydrogenase (EC 1.1.1.42 1.1.1.41)
+RQ  1
+EV  IPR004434; TIGR00175; sufficient;
+TG  GO:0006099;
+EV  IPR004790; TIGR00127; sufficient;
+TG  GO:0006099;
+EV  IPR004436; TIGR00178; sufficient;
+TG  GO:0006099;
+EV  IPR004439; TIGR00183; sufficient;
+TG  GO:0006099;
+EV  IPR014273; TIGR02924; sufficient;
+TG  GO:0006099;
+--
+SN  4
+ID  2-oxoglutarate dehydrogenase system
+DN  Oxoglutarate dehydrogenase (succinyl-transferring) (EC 1.2.4.2)
+RQ  1
+EV  GenProp0630;
+TG  GO:0006099;
+--
+SN  5
+ID  Succinyl-CoA synthetase, alpha subunit
+DN  Succinate--CoA ligase, alpha subunit (EC 6.2.1.-)
+RQ  1
+EV  IPR005810; TIGR01019; sufficient;
+TG  GO:0006099;
+--
+SN  6
+ID  Succinyl-CoA synthetase, beta subunit
+DN  Succinate--CoA ligase, beta subunit (EC 6.2.1.-)
+RQ  1
+EV  IPR005809; TIGR01016; sufficient;
+TG  GO:0006099;
+--
+SN  7
+ID  Succinate dehydrogenase, flavoprotein subunit
+DN  Succinate dehydrogenase, flavoprotein subunit (EC 1.3.5.1)
+RQ  1
+EV  IPR011281; TIGR01816; sufficient;
+TG  GO:0006099;
+EV  IPR011280; TIGR01811; sufficient;
+TG  GO:0006099;
+--
+SN  8
+ID  Succinate dehydrogenase, iron-sulfur protein
+DN  Succinate dehydrogenase, iron-sulfur subunit (EC 1.3.5.1)
+RQ  1
+EV  IPR004489; TIGR00384; sufficient;
+TG  GO:0006099;
+--
+SN  9
+ID  Succinate dehydrogenase, cytochrome b subunit
+DN  Succinate dehydrogenase, cytochrome b subunit (EC 1.3.5.1)
+RQ  1
+EV  IPR014314; TIGR02970; sufficient;
+TG  GO:0006099;
+EV  IPR011138; TIGR02046; sufficient;
+--
+SN  10
+ID  Succinate dehydrogenase, hydrophobic membrane anchor
+DN  Succinate dehydrogenase, hydrophobic membrane anchor protein (EC 1.3.5.1)
+RQ  0
+EV  IPR014312; TIGR02968; sufficient;
+TG  GO:0006099;
+--
+SN  11
+ID  Fumarate hydratase, class I C-term or class II
+DN  Fumarate hydratase (EC 4.2.1.2)
+RQ  1
+EV  IPR005677; TIGR00979; sufficient;
+TG  GO:0006099;
+EV  IPR004647; PF05683; sufficient;
+TG  GO:0006099;
+--
+SN  12
+ID  Fumarate hydratase, class I N-term or class II
+DN  Fumarate hydratase (EC 4.2.1.2)
+RQ  1
+EV  IPR005677; TIGR00979; sufficient;
+TG  GO:0006099;
+EV  IPR004646; PF05681; sufficient;
+--
+SN  13
+ID  Malate dehydrogenase
+DN  Malate dehydrogenase (EC 1.1.1.37)
+RQ  1
+EV  IPR010945; TIGR01759; sufficient;
+EV  IPR011274; TIGR01758; sufficient;
+TG  GO:0006099;
+EV  IPR011275; TIGR01763; sufficient;
+TG  GO:0006099;
+EV  IPR010097; TIGR01772; sufficient;
+TG  GO:0006099;
+EV  IPR006231; TIGR01320; sufficient;
+TG  GO:0006099;
+//
+AC  GenProp0036
+DE  Biotin biosynthesis
+TP  PATHWAY
+AU  Haft DH
+TH  1
+RN  [1]
+RM  21437340
+RT  Closing in on complete pathways of biotin biosynthesis.
+RA  Lin S, Cronan JE;
+RL  Mol Biosyst. 2011;7(6):1811-1821.
+DC  Biotin Metabolism
+DR  KEGG; map00780;
+CC  Biotin is an essential cofactor for many carboxylation (addition of
+CC  CO2) reactions. This property reflects biosynthesis of biotin from
+CC  pimeloyl-CoA, although the source of pimeloyl-CoA may vary.
+CC  8-amino-7-oxononanoate synthase (also called 7-keto-8-aminopelargonic
+CC  acid synthetase, AONS, gene BioF) converts pimeloyl-CoA to
+CC  8-amino-7-oxononanoate (AON). Adenosylmethionine-8-amino-7-oxononanoate
+CC  aminotransferase (gene BioA) converts the product to
+CC  7,8-diaminononanoate, from which dethiobiotin synthase (gene BioD)
+CC  makes dethiobiotin. Biotin synthase (gene BioB) then makes biotin
+CC  itself[1]. Enzymes such as carboxylesterase (gene BioH), which are
+CC  involved in pimeloyl-CoA biosynthesis typically receive biotin-related
+CC  annotations, but may also appear in genomes in which biotin is not
+CC  synthesized and pimeloyl-CoA is used for something else.
+--
+SN  1
+ID  8-amino-7-oxononanoate synthase
+DN  8-amino-7-oxononanoate synthase (EC 2.3.1.47)
+RQ  1
+EV  IPR004723; TIGR00858; sufficient;
+TG  GO:0009102;
+--
+SN  2
+ID  Adenosylmethionine-8-amino-7-oxononanoate aminotransferase
+DN  Adenosylmethionine-8-amino-7-oxononanoate aminotransferase (EC 2.6.1.62)
+RQ  1
+EV  IPR005815; TIGR00508; sufficient;
+TG  GO:0009102;
+--
+SN  3
+ID  Dethiobiotin synthase
+DN  Dethiobiotin synthase (EC 6.3.3.3)
+RQ  1
+EV  IPR004472; TIGR00347; sufficient;
+TG  GO:0009102;
+--
+SN  4
+ID  Biotin synthase
+DN  Biotin synthase (EC 2.8.1.6)
+RQ  1
+EV  IPR002684; TIGR00433; sufficient;
+TG  GO:0009102;
+--
+SN  5
+ID  BioC
+DN  Biotin biosynthesis protein BioC
+RQ  0
+EV  IPR011814; TIGR02072; sufficient;
+TG  GO:0009102;
+--
+SN  6
+ID  BioH protein
+DN  Carboxylesterase BioH protein (EC 3.1.1.1)
+RQ  0
+EV  IPR010076; TIGR01738; sufficient;
+TG  GO:0009102;
+--
+SN  7
+ID  BioY family protein
+DN  BioY family protein
+RQ  0
+EV  IPR003784; PF02632; sufficient;
+TG  GO:0009102;
+--
+SN  8
+ID  Biotin ligase domain protein
+DN  Biotin-[acetyl-CoA-carboxylase] ligase (EC 6.3.4.15)
+RQ  0
+EV  IPR004408; TIGR00121; sufficient;
+TG  GO:0018065;
+--
+SN  9
+ID  Biotin repressor
+DN  Biotin operon repressor
+RQ  0
+EV  IPR004409; TIGR00122; sufficient;
+TG  GO:0009102;
+//
+AC  GenProp0037
+DE  Tryptophan biosynthesis from ribose-5-phosphate
+TP  PATHWAY
+AU  Haft DH
+TH  2
+RN  [1]
+RM  12966138
+RT  Ancient origin of the tryptophan operon and the dynamics of
+RT  evolutionary change.
+RA  Xie G, Keyhani NO, Bonner CA, Jensen RA;
+RL  Microbiol Mol Biol Rev. 2003;67:303-42.
+DC  Tryptophan Biosynthesis
+DR  IUBMB; AminoAcid; Trp;
+DC  Tryptophan metabolism
+DR  KEGG; map00380;
+CC  The essential amino acid tryptophan is synthesized in prokaryotes,
+CC  plants, and fungi via a conserved six step pathway from the branchpoint
+CC  compound chrosimate, a common precursor in the biosynthesis of aromatic
+CC  amino acids. Seven catalytic domains and two alpha/beta subunit
+CC  complexes comprise this pathway. Individually expressed in some
+CC  organisms, gene fusions encoding single proteins possessing two or more
+CC  of these catalytic domains have been observed for every trp gene.
+CC  Although the occurance of gene fusions have been shown to be
+CC  phylogenetically unrelated, a conserved gene order can be discerned
+CC  within the domain Bacteria. Occasionally gene(s) dissociations disrupt
+CC  gene order as in Campylobacter jejuni and Deinococcus radiodurans, or
+CC  the pathway is found split between two separate chromosomes as in
+CC  Rhodobacter sphaeroides. In cyanobacteria, such as Nostoc and Anabaena,
+CC  it is not uncommon to observe paralogous trp genes as part of a larger
+CC  "supraoperon" including other aromatic amino acid synthesizing genes as
+CC  well as their trp counterparts [1].
+--
+SN  1
+ID  Ribose-phosphate pyrophosphokinase
+DN  Ribose-phosphate pyrophosphokinase (EC 2.7.6.1)
+RQ  1
+EV  IPR005946; TIGR01251; sufficient;
+TG  GO:0000162;
+--
+SN  2
+ID  Anthranilate synthase component I
+DN  Anthranilate synthase component I (EC 4.1.3.27)
+RQ  1
+EV  IPR005256; TIGR00564; sufficient;
+TG  GO:0000162;
+EV  IPR005257; TIGR00565; sufficient;
+TG  GO:0000162;
+EV  IPR010112; TIGR01815; sufficient;
+TG  GO:0000162;
+EV  IPR010116; TIGR01820; sufficient;
+TG  GO:0000162;
+--
+SN  3
+ID  Anthranilate synthase component II
+DN  Anthranilate synthase component II (EC 4.1.3.27)
+RQ  1
+EV  IPR006221; TIGR00566; sufficient;
+TG  GO:0000162;
+--
+SN  4
+ID  Anthranilate phosphoribosyltransferase
+DN  Anthranilate phosphoribosyltransferase (EC 2.4.2.18)
+RQ  1
+EV  IPR005940; TIGR01245; sufficient;
+TG  GO:0000162;
+--
+SN  5
+ID  N-(5'phosphoribosyl)anthranilate isomerase
+DN  N-(5'phosphoribosyl)anthranilate isomerase (EC 5.3.1.24)
+RQ  1
+EV  IPR001240; PF00697; sufficient;
+TG  GO:0000162;
+EV  IPR010188; TIGR01919; sufficient;
+TG  GO:0000162;
+--
+SN  6
+ID  Indole-3-glycerol phosphate synthase
+DN  Indole-3-glycerol phosphate synthase (EC 4.1.1.48)
+RQ  1
+EV  IPR013798; PF00218; sufficient;
+TG  GO:0000162;
+--
+SN  7
+ID  Tryptophan synthase, alpha subunit
+DN  Tryptophan synthase, alpha subunit (EC 4.2.1.20)
+RQ  1
+EV  IPR002028; TIGR00262; sufficient;
+TG  GO:0000162;
+--
+SN  8
+ID  Tryptophan synthase, beta subunit
+DN  Tryptophan synthase, beta subunit (EC 4.2.1.20)
+RQ  1
+EV  IPR006654; TIGR00263; sufficient;
+TG  GO:0000162;
+EV  IPR006316; TIGR01415; sufficient;
+--
+SN  9
+ID  Trp operon repressor
+DN  Trp operon repressor
+RQ  0
+EV  IPR013335; TIGR01321; sufficient;
+TG  GO:0006355;
+//
+AC  GenProp0038
+DE  Tetrahydrofolate biosynthesis from GTP and PABA
+TP  PATHWAY
+AU  Haft DH
+TH  2
+RN  [1]
+RM  14982635
+RT  Transfection studies to explore essential folate metabolism and
+RT  antifolate drug synergy in the human malaria parasite Plasmodium
+RT  falciparum.
+RA  Wang P, Wang Q, Aspinall TV, Sims PF, Hyde JE;
+RL  Mol Microbiol. 2004;51:1425-1438.
+DC  Folate Biosynthesis (early stages)
+DR  IUBMB; misc; folate1;
+DC  Folate Biosynthesis (late stages)
+DR  IUBMB; misc; folate2;
+DC  Folate Biosynthesis
+DR  KEGG; map00790;
+CC  Polyglutamylated tetrahydrofolate is the central cofactor of one-carbon
+CC  metabolism, and is biosynthesized from GTP, para-aminobenzoate (from
+CC  chorismate), and glutamate in a six step reaction [1]. The first enzyme
+CC  (GTP cyclohydrolase I) catalizes dihydroneopterin triphosphate from GTP
+CC  in the biosynthesis of tetrahydrofolate in prokaryotes, of
+CC  tetrahydrobiopterin in vertebrates, and of pteridine-containing pigments
+CC  in insects. This pathway is carried out by 6 enzymes, the complete
+CC  pathway being absent in animals.
+--
+SN  1
+ID  GTP cyclohydrolase I
+DN  GTP cyclohydrolase I (EC 3.5.4.16)
+RQ  0
+EV  IPR001474; TIGR00063; sufficient;
+TG  GO:0046654;
+--
+SN  2
+ID  Dihydroneopterin aldolase
+DN  Dihydroneopterin aldolase (EC 4.1.2.25)
+RQ  1
+EV  IPR006156; TIGR00525; sufficient;
+TG  GO:0046654;
+--
+SN  3
+ID  2-amino-4-hydroxy-6-hydroxymethyldihydropteridine pyrophosphokinase
+DN  2-amino-4-hydroxy-6-hydroxymethyldihydropteridine diphosphokinase (EC 2.7.6.3)
+RQ  1
+EV  IPR000550; TIGR01498; sufficient;
+TG  GO:0046654;
+--
+SN  4
+ID  Dihydropteroate synthase
+DN  Dihydropteroate synthase (EC 2.5.1.15)
+RQ  1
+EV  IPR006390; TIGR01496; sufficient;
+TG  GO:0046654;
+--
+SN  5
+ID  Dihydrofolate synthase
+DN  Dihydrofolate synthase/folylpolyglutamate synthase (EC 6.3.2.12 6.3.2.17)
+RQ  1
+EV  IPR001645; TIGR01499; sufficient;
+TG  GO:0046654;
+--
+SN  6
+ID  Dihydrofolate reductase
+DN  Dihydrofolate reductase (EC 1.5.1.3)
+RQ  1
+EV  IPR001796; PF00186; sufficient;
+TG  GO:0046654;
+//
