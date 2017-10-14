@@ -20,7 +20,7 @@ class LiteratureReference(object):
         :param citation: A citation for the literature reference.
         """
         self.number = int(number)
-        self.pubmed_id = pubmed_id
+        self.pubmed_id = int(pubmed_id)
         self.title = title
         self.authors = authors
         self.citation = citation
