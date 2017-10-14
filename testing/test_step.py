@@ -71,7 +71,7 @@ class TestLiteratureReference(unittest.TestCase):
         self.assertEqual(first_step.sufficient, False)
 
     def test_parse_missing_rows(self):
-
+        """Test that steps can be parsed if they are missing non essential rows."""
         step = [
             ('--', ''),
             ('SN', '2'),
