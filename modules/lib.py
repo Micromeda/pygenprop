@@ -84,6 +84,11 @@ def collapse_step_evidence_and_gene_ontologys(genome_property_record):
             else:
                 final_genome_property_record.append((marker, content))
 
+    if current_evidence:
+        final_genome_property_record.append(('EV', ' '.join(current_evidence)))
+    if current_go_terms:
+        final_genome_property_record.append(('TG', ' '.join(current_go_terms)))
+
     return final_genome_property_record
 
 
