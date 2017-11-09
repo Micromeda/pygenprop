@@ -7,10 +7,8 @@ Description: A simple unittest for testing functions from the lib module.
 """
 
 import unittest
-from modules.lib import create_marker_and_content, collapse_step_evidence_and_gene_ontologys, \
-    collapse_genome_property_record, parse_genome_property_file
-from modules.step import parse_steps
 from modules.genome_property import parse_genome_property
+from modules.lib import create_marker_and_content, collapse_genome_property_record, parse_genome_property_file
 
 
 class TestLib(unittest.TestCase):
@@ -23,29 +21,6 @@ class TestLib(unittest.TestCase):
 
         self.assertEqual(marker, 'RL')
         self.assertEqual(content, 'EMBO J. 2001;20:6561-6569.')
-
-    def test_collapse_step_evidence_and_gene_ontologys(self):
-        """Test that we can clean up evidences and GO ids."""
-        step = [
-            ('--', ''),
-            ('SN', '1'),
-            ('ID', 'Aferr subtype specific proteins'),
-            ('DN', 'Crispy Proteins'),
-            ('RQ', '1'),
-            ('EV', 'IPR017545; TIGR03114; TIGR03111;'),
-            ('TG', 'GO:0043571;GO:0043579;'),
-            ('EV', 'IPR017546; TIGR03114; TIGR03112;'),
-            ('TG', 'GO:0043577;GO:0043579;')
-        ]
-
-        collapsed = collapse_step_evidence_and_gene_ontologys(step)
-        parsed_step = parse_steps(collapsed)[0]
-
-        expected_evidences = {'IPR017545', 'TIGR03114', 'TIGR03111', 'IPR017546', 'TIGR03112'}
-        expected_gene_ontologies = {'GO:0043571', 'GO:0043579', 'GO:0043577'}
-
-        self.assertEqual(parsed_step.evidence, expected_evidences)
-        self.assertEqual(parsed_step.gene_ontology_ids, expected_gene_ontologies)
 
     def test_collapse_genome_property_record(self):
         """Test that we can clean up the overall genome property file."""
