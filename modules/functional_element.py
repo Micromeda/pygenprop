@@ -6,10 +6,11 @@ Created by: Lee Bergstrand (2017)
 Description: The functional element class.
 """
 
-from modules.evidence import parse_evidence
+from modules.evidence import parse_evidences
+
 
 class FunctionalElement(object):
-    """A functional element (enzyme, structural component or sub-genome property) that can carry out a functional_element."""
+    """A functional element (enzyme, structural component or sub-genome property) that can carry out a step."""
 
     def __init__(self, identifier, name, evidence=None, required=False):
         """
@@ -38,7 +39,7 @@ class FunctionalElement(object):
         return ', '.join(repr_data)
 
 
-def parse_functional_element(genome_property_record):
+def parse_functional_elements(genome_property_record):
     """
     Parses functional_elements from a genome properties record.
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
@@ -54,19 +55,15 @@ def parse_functional_element(genome_property_record):
     for marker, content in genome_property_record:
         if marker in functional_element_markers:
             if marker in current_functional_element:
-                evidence = parse_evidence(current_evidence)
+                found_evidence = parse_evidences(current_evidence)
                 evidence_markers = []
 
                 functional_elements.append(FunctionalElement(identifier=current_functional_element.get('ID'),
                                                              name=current_functional_element.get('DN'),
-                                                             evidence=evidence))
-                if marker == 'ID':
-                    content = int(content)
+                                                             evidence=found_evidence))
                 current_functional_element = {marker, content}
             else:
-                if marker == 'ID':
-                    content = int(content)
-                elif marker == 'RQ':  # Required should true marker is 1.
+                if marker == 'RQ':  # Required should true content is 1.
                     if int(content) == 1:
                         content = True
                     else:
@@ -79,7 +76,7 @@ def parse_functional_element(genome_property_record):
         else:
             continue  # Move on if marker is not a functional element marker or evidence marker.
 
-    evidence = parse_evidence(current_evidence)
+    evidence = parse_evidences(current_evidence)
     functional_elements.append(FunctionalElement(identifier=current_functional_element.get('ID'),
                                                  name=current_functional_element.get('DN'),
                                                  evidence=evidence))
