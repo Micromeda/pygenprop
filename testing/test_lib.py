@@ -57,7 +57,16 @@ class TestLib(unittest.TestCase):
             ('SN', '3'),
             ('ID', 'PPOX-class probable F420-dependent enzyme'),
             ('RQ', '0'),
-            ('EV', 'IPR019920; TIGR03618; sufficient;')
+            ('EV', 'IPR019920; TIGR03618; sufficient;'),
+            ('SN', '10'),
+            ('ID', 'F420-dependent oxidoreductase families'),
+            ('RQ', '0'),
+            ('EV', 'IPR019944; TIGR03554; sufficient;'),
+            ('EV', 'IPR019946; TIGR03555; sufficient;'),
+            ('EV', 'IPR019945; TIGR03557; sufficient;'),
+            ('EV', 'IPR019951; TIGR03559; sufficient;'),
+            ('EV', 'IPR019952; TIGR03560; sufficient;'),
+            ('EV', 'IPR031017; TIGR04465; sufficient;'),
         ]
 
         clean_genome_property_record = collapse_genome_property_record(property_rows)
@@ -70,6 +79,12 @@ class TestLib(unittest.TestCase):
         self.assertEqual(first_genome_property.private_notes, 'Yo_Dog_its_Yolo a new film by the cool dudes!')
         self.assertEqual(first_reference.title, 'Structures of F420H2:NADP+ oxidoreductase with and without its janky '
                                                 'structure! I surprised that worked!')
+
+        final_step = first_genome_property.steps[-1]
+        functional_elements = final_step.functional_elements
+
+        self.assertEqual(len(functional_elements), 1)
+        self.assertEqual(len(functional_elements[0].evidence), 6)
 
     def test_parse_genome_property_file(self):
         """Test if a physical genome properties file can be parsed."""

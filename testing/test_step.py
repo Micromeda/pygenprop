@@ -82,5 +82,11 @@ class TestStep(unittest.TestCase):
         ]
 
         parsed_steps = parse_steps(steps)
+        step_one = parsed_steps[0]
+        step_two = parsed_steps[1]
 
         self.assertEqual(len(parsed_steps), 2)
+        self.assertEqual(step_one.number, 1)
+        self.assertEqual(step_two.number, 2)
+        self.assertEqual(len(step_two.functional_elements), 1)
+        self.assertEqual(len(step_two.functional_elements[0].evidence), 1)
