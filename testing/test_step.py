@@ -11,10 +11,9 @@ import unittest
 from modules.step import parse_steps
 
 
-class TestLiteratureReference(unittest.TestCase):
+class TestStep(unittest.TestCase):
     """A unit testing class for testing the step.py module. To be called by nosetests."""
 
-    @unittest.skip
     def test_parse_step(self):
         """Test that step rows can be parsed."""
         step = [
@@ -23,7 +22,7 @@ class TestLiteratureReference(unittest.TestCase):
             ('ID', 'Aferr subtype specific proteins'),
             ('DN', 'Crispy Proteins'),
             ('RQ', '0'),
-            ('EV', 'IPR017545; TIGR03114; sufficient; sufficient; TIGR03111;'),
+            ('EV', 'IPR017545; TIGR03114; sufficient;'),
             ('TG', 'GO:0043571;GO:0043579;')
         ]
 
@@ -32,14 +31,8 @@ class TestLiteratureReference(unittest.TestCase):
         self.assertEqual(len(parsed_step), 1)
         first_step = parsed_step[0]
         self.assertEqual(first_step.number, 1)
-        self.assertEqual(first_step.id, 'Aferr subtype specific proteins')
-        self.assertEqual(first_step.name, 'Crispy Proteins')
-        self.assertEqual(first_step.evidence, {'IPR017545', 'TIGR03114', 'TIGR03111'})
-        self.assertEqual(first_step.gene_ontology_ids, {'GO:0043571', 'GO:0043579'})
         self.assertEqual(first_step.required, False)
-        self.assertEqual(first_step.sufficient, True)
 
-    @unittest.skip
     def test_parse_step_required(self):
         """Test that the step rows can be properly parsed if the step is required."""
         step = [
@@ -48,32 +41,14 @@ class TestLiteratureReference(unittest.TestCase):
             ('ID', 'Aferr subtype specific proteins'),
             ('DN', 'Crispy Proteins'),
             ('RQ', '1'),
-            ('EV', 'IPR017545; TIGR03114; sufficient; sufficient; TIGR03111;'),
-            ('TG', 'GO:0043571;GO:0043579;')
+            ('EV', 'IPR017545; TIGR03114; sufficient;'),
+            ('TG', 'GO:0043571; GO:0043579;')
         ]
 
         parsed_step = parse_steps(step)
         first_step = parsed_step[0]
         self.assertEqual(first_step.required, True)
 
-    @unittest.skip
-    def test_parse_step_insufficient(self):
-        """Test that the step rows can be properly parsed if the step is insufficient."""
-        step = [
-            ('--', ''),
-            ('SN', '1'),
-            ('ID', 'Aferr subtype specific proteins'),
-            ('DN', 'Crispy Proteins'),
-            ('RQ', '1'),
-            ('EV', 'IPR017545; TIGR03114; TIGR03111;'),
-            ('TG', 'GO:0043571;GO:0043579;')
-        ]
-
-        parsed_step = parse_steps(step)
-        first_step = parsed_step[0]
-        self.assertEqual(first_step.sufficient, False)
-
-    @unittest.skip
     def test_parse_missing_rows(self):
         """Test that steps can be parsed if they are missing non essential rows."""
         step = [
@@ -86,12 +61,10 @@ class TestLiteratureReference(unittest.TestCase):
 
         second_step = parsed_steps[0]
         self.assertEqual(second_step.required, False)
-        self.assertEqual(second_step.sufficient, False)
-        self.assertEqual(second_step.evidence, set)
-        self.assertEqual(second_step.gene_ontology_ids, set)
+        self.assertEqual(len(second_step.functional_elements), 1)
 
     def test_parse_multiple_steps(self):
-        """Test that literature reference rows consisting of multiple references can be parsed."""
+        """Test that steps rows consisting of multiple references can be parsed."""
 
         steps = [
             ('--', ''),
