@@ -10,7 +10,7 @@ import unittest
 from modules.genome_property import parse_genome_property
 
 
-class TestDatabaseReference(unittest.TestCase):
+class TestGenomeProperty(unittest.TestCase):
     """A unit testing class for testing the genome_properties.py module. To be called by nosetests."""
 
     def test_parse_genome_property(self):
