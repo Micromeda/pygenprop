@@ -60,8 +60,10 @@ def parse_functional_elements(genome_property_record):
 
                 functional_elements.append(FunctionalElement(identifier=current_functional_element.get('ID'),
                                                              name=current_functional_element.get('DN'),
+                                                             required=current_functional_element.get('RQ'),
                                                              evidence=found_evidence))
-                current_functional_element = {marker, content}
+
+                current_functional_element = {marker: content}
             else:
                 if marker == 'RQ':  # Required should true content is 1.
                     if int(content) == 1:
@@ -76,9 +78,13 @@ def parse_functional_elements(genome_property_record):
         else:
             continue  # Move on if marker is not a functional element marker or evidence marker.
 
-    evidence = parse_evidences(current_evidence)
+    if current_evidence:
+        evidence = parse_evidences(current_evidence)
+    else:
+        evidence = None
+
     functional_elements.append(FunctionalElement(identifier=current_functional_element.get('ID'),
                                                  name=current_functional_element.get('DN'),
+                                                 required=current_functional_element.get('RQ'),
                                                  evidence=evidence))
-
     return functional_elements

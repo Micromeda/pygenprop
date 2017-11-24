@@ -73,17 +73,17 @@ def parse_single_evidence(current_evidence_dictionary):
     evidence_string = current_evidence_dictionary.get('EV')
     gene_ontology_string = current_evidence_dictionary.get('TG')
 
+    sufficient = False
     if evidence_string:
         evidence_identifiers = extract_identifiers(evidence_string)
-    else:
-        evidence_identifiers = None
-
-    sufficient = False
-    if gene_ontology_string:
-        gene_ontology_identifiers = extract_identifiers(gene_ontology_string)
 
         if 'sufficient' in evidence_string:
             sufficient = True
+    else:
+        evidence_identifiers = None
+
+    if gene_ontology_string:
+        gene_ontology_identifiers = extract_identifiers(gene_ontology_string)
     else:
         gene_ontology_identifiers = None
 
