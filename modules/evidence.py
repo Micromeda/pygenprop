@@ -35,7 +35,7 @@ class Evidence(object):
         repr_data = ['Evidence_IDs: ' + str(self.evidence_identifiers),
                      'GO Terms: ' + str(self.gene_ontology_terms),
                      'Sufficient: ' + str(self.sufficient)]
-        return ', '.join(repr_data)
+        return '(' + ', '.join(repr_data) + ')'
 
 
 def parse_evidences(genome_property_record):

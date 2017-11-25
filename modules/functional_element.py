@@ -36,7 +36,7 @@ class FunctionalElement(object):
                      'Name: ' + str(self.name),
                      'Evidences: ' + str(self.evidence),
                      'Required: ' + str(self.required)]
-        return ', '.join(repr_data)
+        return '(' + ', '.join(repr_data) + ')'
 
 
 def parse_functional_elements(genome_property_record):
