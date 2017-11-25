@@ -27,7 +27,7 @@ class Step(object):
 
     def __repr__(self):
         repr_data = ['Step ' + str(self.number),
-                     'Evidences: ' + str(self.functional_elements)]
+                     'Functional_Elements: ' + str(self.functional_elements)]
         return ', '.join(repr_data)
 
     @property
