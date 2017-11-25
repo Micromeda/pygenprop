@@ -13,7 +13,7 @@ genome_property_flat_file_path = '../genome-properties/docs/release/genomeProper
 with open(genome_property_flat_file_path) as genome_property_file:
     properties = parse_genome_property_file(genome_property_file)
 
-for genome_property in properties:
+for genome_property in properties.values():
     print("\n" + genome_property.id + " (" + genome_property.name + ")" + " [" + genome_property.type + "]")
     print('====================================================')
     for step in genome_property.steps:
