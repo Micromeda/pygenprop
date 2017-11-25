@@ -65,6 +65,7 @@ def parse_steps(genome_property_record):
                     functional_elements = parse_functional_elements(current_step_markers)
                     steps.append(Step(number=step_number, functional_elements=functional_elements))
                     current_step_markers = []
+                    step_number = int(content)
                 else:
                     step_number = int(content)
 
