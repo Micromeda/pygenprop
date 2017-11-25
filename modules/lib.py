@@ -33,8 +33,11 @@ def collapse_genome_property_record(genome_property_record):
 
     trailing_marker_content = []
     previous_marker = genome_property_record[0][0]
+    no_collapse_makers = ['EV']
     for marker, content in genome_property_record:
-        if marker == previous_marker:
+        if marker in no_collapse_makers:
+            collapsed_genome_property_record.append((marker, content))
+        elif marker == previous_marker:
             trailing_marker_content.append(content)
         else:
             collapsed_marker_content = ' '.join(trailing_marker_content)
