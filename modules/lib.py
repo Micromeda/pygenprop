@@ -33,8 +33,11 @@ def collapse_genome_property_record(genome_property_record):
 
     trailing_marker_content = []
     previous_marker = genome_property_record[0][0]
+    no_collapse_makers = ['EV']
     for marker, content in genome_property_record:
-        if marker == previous_marker:
+        if marker in no_collapse_makers:
+            collapsed_genome_property_record.append((marker, content))
+        elif marker == previous_marker:
             trailing_marker_content.append(content)
         else:
             collapsed_marker_content = ' '.join(trailing_marker_content)
@@ -45,51 +48,7 @@ def collapse_genome_property_record(genome_property_record):
             previous_marker = marker
             trailing_marker_content = [content]
 
-    final_genome_property_record = collapse_step_evidence_and_gene_ontologys(collapsed_genome_property_record)
-    return final_genome_property_record
-
-
-def collapse_step_evidence_and_gene_ontologys(genome_property_record):
-    """
-    Pile up multiple consecutive 'EV' and 'TG' pairs to a single set of 'EV' and 'TG' pairs.
-    Example:
-        EV  C1
-        TG  C2  ==== Goes To ====>> EV C1; C3;
-        EV  C3                      TG C2; C4;
-        EV  C4
-    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
-    :return:    A list of reduced redundancy markers, content tuples representing genome property flat file lines.
-                Inside steps, multiple 'EV' and 'TG' markers are piled up to two markers. See above for final layout.
-
-    TODO:   There may be an issue with this and the sufficient key word. The sufficient key word may be only for one
-            piece of evidence only.
-    """
-    current_evidence = []
-    current_go_terms = []
-    final_genome_property_record = []
-    for marker, content in genome_property_record:
-        if marker == '--':
-            if current_evidence:
-                final_genome_property_record.append(('EV', ' '.join(current_evidence)))
-                current_evidence = []
-            if current_go_terms:
-                final_genome_property_record.append(('TG', ' '.join(current_go_terms)))
-                current_go_terms = []
-            final_genome_property_record.append(('--', ''))
-        else:
-            if marker == 'EV':
-                current_evidence.append(content)
-            elif marker == 'TG':
-                current_go_terms.append(content)
-            else:
-                final_genome_property_record.append((marker, content))
-
-    if current_evidence:
-        final_genome_property_record.append(('EV', ' '.join(current_evidence)))
-    if current_go_terms:
-        final_genome_property_record.append(('TG', ' '.join(current_go_terms)))
-
-    return final_genome_property_record
+    return collapsed_genome_property_record
 
 
 def parse_genome_property_file(genome_property_file):
