@@ -37,6 +37,32 @@ class Evidence(object):
                      'Sufficient: ' + str(self.sufficient)]
         return '(' + ', '.join(repr_data) + ')'
 
+    @property
+    def has_genome_property(self):
+        """
+        Is the evidence a genome property?
+        :return: Return True if evidence is a genome property.
+        """
+        genome_property = False
+        for identifier in self.evidence_identifiers:
+            if "genprop" in identifier.lower():
+                genome_property = True
+                break
+        return genome_property
+
+    @property
+    def genome_property_identifiers(self):
+        """
+        Gets genome properties identifiers for representing a piece of evidence.
+        :return: A list of genome properties.
+        """
+        genome_property_identifiers = []
+        for identifier in self.evidence_identifiers:
+            if "genprop" in identifier.lower():
+                genome_property_identifiers.append(identifier)
+
+        return genome_property_identifiers
+
 
 def parse_evidences(genome_property_record):
     """
