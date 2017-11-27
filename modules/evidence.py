@@ -21,9 +21,9 @@ class Evidence(object):
         """
 
         if evidence_identifiers is None:
-            evidence_identifiers = set
+            evidence_identifiers = []
         if gene_ontology_terms is None:
-            gene_ontology_terms = set
+            gene_ontology_terms = []
         if sufficient is None:
             sufficient = False
 
@@ -125,6 +125,6 @@ def extract_identifiers(identifier_string):
     :return: A list of identifiers.
     """
     split_content = filter(None, identifier_string.split(';'))
-    cleaned_content = set(map(lambda evidence: evidence.strip(), split_content))
-    identifiers = set(evidence for evidence in cleaned_content if evidence != 'sufficient')
+    cleaned_content = map(lambda evidence: evidence.strip(), split_content)
+    identifiers = list([evidence for evidence in cleaned_content if evidence != 'sufficient'])
     return identifiers

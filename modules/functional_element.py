@@ -22,7 +22,7 @@ class FunctionalElement(object):
         """
 
         if evidence is None:
-            evidence = set
+            evidence = []
         if required is None:
             required = False
 

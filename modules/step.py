@@ -20,7 +20,7 @@ class Step(object):
         """
 
         if functional_elements is None:
-            functional_elements = set
+            functional_elements = []
 
         self.number = int(number)
         self.functional_elements = functional_elements

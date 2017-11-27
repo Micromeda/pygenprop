@@ -54,7 +54,7 @@ class TestGenomeProperty(unittest.TestCase):
         self.assertEqual(new_property.name, 'Coenzyme F420 utilization')
         self.assertEqual(new_property.type, 'GUILD')
         self.assertEqual(new_property.threshold, 0)
-        self.assertEqual(new_property.parent, None)
+        self.assertEqual(new_property.parents, [])
         self.assertEqual(new_property.description, 'Coenzyme F420 (a 7,8-didemethyl-8-hydroxy 5-deazaflavin)')
         self.assertEqual(new_property.private_notes, 'Yo_Dog_its_Yolo')
         self.assertEqual(new_property.public, False)
