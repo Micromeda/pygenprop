@@ -91,3 +91,31 @@ class TestEvidence(unittest.TestCase):
         self.assertEqual(first_evidence.gene_ontology_terms, [])
         self.assertEqual(second_evidence.evidence_identifiers, ['IPR017547', 'TIGR03117'])
         self.assertEqual(third_evidence.gene_ontology_terms, ['GO:0043573'])
+
+    def test_has_genome_property(self):
+        """Test that we can determine that an evidence is a genome property."""
+
+        evidences = [
+            ('--', ''),
+            ('SN',  '3'),
+            ('ID',  'Selfish genetic elements'),
+            ('RQ',  '0'),
+            ('EV', 'GenProp0066;')
+        ]
+
+        evidence = parse_evidences(evidences)[0]
+        self.assertEqual(evidence.has_genome_property, True)
+
+    def test_get_genome_property_identifiers(self):
+        """Test that we can determine that an evidence is a genome property."""
+
+        evidences = [
+            ('--', ''),
+            ('SN', '3'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0066; GenProp0067;')
+        ]
+
+        evidence = parse_evidences(evidences)[0]
+        self.assertEqual(evidence.genome_property_identifiers, ['GenProp0066', 'GenProp0067'])
