@@ -21,9 +21,9 @@ class Evidence(object):
         """
 
         if evidence_identifiers is None:
-            evidence_identifiers = set
+            evidence_identifiers = []
         if gene_ontology_terms is None:
-            gene_ontology_terms = set
+            gene_ontology_terms = []
         if sufficient is None:
             sufficient = False
 
@@ -35,7 +35,33 @@ class Evidence(object):
         repr_data = ['Evidence_IDs: ' + str(self.evidence_identifiers),
                      'GO Terms: ' + str(self.gene_ontology_terms),
                      'Sufficient: ' + str(self.sufficient)]
-        return ', '.join(repr_data)
+        return '(' + ', '.join(repr_data) + ')'
+
+    @property
+    def has_genome_property(self):
+        """
+        Is the evidence a genome property?
+        :return: Return True if evidence is a genome property.
+        """
+        genome_property = False
+        for identifier in self.evidence_identifiers:
+            if "genprop" in identifier.lower():
+                genome_property = True
+                break
+        return genome_property
+
+    @property
+    def genome_property_identifiers(self):
+        """
+        Gets genome properties identifiers for representing a piece of evidence.
+        :return: A list of genome properties.
+        """
+        genome_property_identifiers = []
+        for identifier in self.evidence_identifiers:
+            if "genprop" in identifier.lower():
+                genome_property_identifiers.append(identifier)
+
+        return genome_property_identifiers
 
 
 def parse_evidences(genome_property_record):
@@ -99,6 +125,6 @@ def extract_identifiers(identifier_string):
     :return: A list of identifiers.
     """
     split_content = filter(None, identifier_string.split(';'))
-    cleaned_content = set(map(lambda evidence: evidence.strip(), split_content))
-    identifiers = set(evidence for evidence in cleaned_content if evidence != 'sufficient')
+    cleaned_content = map(lambda evidence: evidence.strip(), split_content)
+    identifiers = list([evidence for evidence in cleaned_content if evidence != 'sufficient'])
     return identifiers

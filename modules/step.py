@@ -20,14 +20,14 @@ class Step(object):
         """
 
         if functional_elements is None:
-            functional_elements = set
+            functional_elements = []
 
         self.number = int(number)
         self.functional_elements = functional_elements
 
     def __repr__(self):
         repr_data = ['Step ' + str(self.number),
-                     'Evidences: ' + str(self.functional_elements)]
+                     'Functional_Elements: ' + str(self.functional_elements)]
         return ', '.join(repr_data)
 
     @property

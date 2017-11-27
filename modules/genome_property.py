@@ -5,6 +5,7 @@ Created by: Lee Bergstrand (2017)
 
 Description: The genome property class.
 """
+
 from modules.database_reference import parse_database_references
 from modules.literature_reference import parse_literature_references
 from modules.step import parse_steps
@@ -17,15 +18,15 @@ class GenomeProperty(object):
     """
 
     def __init__(self, accession_id, name, property_type, threshold=0,
-                 parent=None, references=None, databases=None, steps=None,
-                 public=False, description=None, private_notes=None):
+                 parents=None, children=None, references=None, databases=None,
+                 steps=None, public=False, description=None, private_notes=None):
         """
         Creates a new GenomeProperty object.
         :param accession_id: The genome property accession (i.e. "GenProp00286").
         :param name: The name of the genome property.
         :param property_type: The type of genome property (ex. "METAPATH").
         :param threshold: Is a threshold that the number of required steps must exceed.
-        :param parent: The parent genome property of the current genome property (parent accession or direct link).
+        :param parents: The parent genome property of the current genome property (parent accession or direct link).
         :param references: A list of reference objects which help support the existence of the property.
         :param databases: A list of database objects which represent database entries related to the property.
         :param steps: A list of step objects that are part of the property.
@@ -33,6 +34,10 @@ class GenomeProperty(object):
         :param description: A detailed description of the genome property.
         :param private_notes: Private notes about the property a potential problems with it.
         """
+        if children is None:
+            children = []
+        if parents is None:
+            parents = []
         if steps is None:
             steps = []
         if databases is None:
@@ -46,7 +51,8 @@ class GenomeProperty(object):
         self.threshold = threshold
         self.references = references
         self.databases = databases
-        self.parent = parent
+        self.parents = parents
+        self.children = children
         self.steps = steps
         self.public = public
         self.description = description
@@ -56,6 +62,8 @@ class GenomeProperty(object):
         has_references = False
         has_steps = False
         has_databases = False
+        has_parents = False
+        has_children = False
 
         if self.references:
             has_references = True
@@ -66,17 +74,54 @@ class GenomeProperty(object):
         if self.databases:
             has_databases = True
 
+        if self.parents:
+            has_parents = True
+
+        if self.children:
+            has_children = True
+
         repr_data = [str(self.id),
                      'Type: ' + str(self.type),
                      'Name: ' + str(self.name),
                      'Thresh: ' + str(self.threshold),
                      'References: ' + str(has_references),
-                     'Databases: ' + str(self.type),
+                     'Databases: ' + str(has_databases),
                      'Steps: ' + str(has_steps),
-                     'Parent: ' + str(has_databases),
+                     'Parents: ' + str(has_parents),
+                     'Children: ' + str(has_children),
                      'Public: ' + str(self.public)]
 
         return ', '.join(repr_data)
+
+    @property
+    def child_genome_property_identifiers(self):
+        """
+        Collects the genome property identifiers of child genome properties.
+        :return: A list of genome property identifiers.
+        """
+        child_genome_properties_identifiers = []
+
+        for step in self.steps:
+            for element in step.functional_elements:
+                for evidence in element.evidence:
+                    if evidence.has_genome_property:
+                        child_genome_properties_identifiers.extend(evidence.genome_property_identifiers)
+
+        return child_genome_properties_identifiers
+
+    def add_child_connections(self, genome_properties_dict):
+        """
+        Adds child genome properties.
+        :param genome_properties_dict: A dictionary of genome property ids / genome property object pairs.
+        """
+        child_identifiers = self.child_genome_property_identifiers
+
+        for identifier in child_identifiers:
+            child_genome_property = genome_properties_dict.get(identifier)
+
+            if child_genome_property:
+                self.children.append(child_genome_property)
+                child_genome_property.parents.append(self)
 
 
 def parse_genome_property(genome_property_record):
@@ -141,10 +186,19 @@ def parse_genome_property(genome_property_record):
                                          name=gathered_core_genome_property_markers.get('DE'),
                                          property_type=gathered_core_genome_property_markers.get('TP'),
                                          threshold=gathered_core_genome_property_markers.get('TH'),
-                                         parent=gathered_core_genome_property_markers.get('PN'),
+                                         parents=gathered_core_genome_property_markers.get('PN'),
                                          description=gathered_core_genome_property_markers.get('CC'),
                                          private_notes=gathered_core_genome_property_markers.get('**'),
                                          references=references,
                                          databases=databases,
                                          steps=steps)
     return new_genome_property
+
+
+def build_genome_property_connections(genome_properties_dict):
+    """
+    Creates connections between genome properties.
+    :param genome_properties_dict: A dictionary of genome property ids / genome property object pairs.
+    """
+    for genome_property in genome_properties_dict.values():
+        genome_property.add_child_connections(genome_properties_dict)
