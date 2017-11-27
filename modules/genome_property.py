@@ -62,6 +62,8 @@ class GenomeProperty(object):
         has_references = False
         has_steps = False
         has_databases = False
+        has_parents = False
+        has_children = False
 
         if self.references:
             has_references = True
@@ -72,14 +74,21 @@ class GenomeProperty(object):
         if self.databases:
             has_databases = True
 
+        if self.parents:
+            has_parents = True
+
+        if self.children:
+            has_children = True
+
         repr_data = [str(self.id),
                      'Type: ' + str(self.type),
                      'Name: ' + str(self.name),
                      'Thresh: ' + str(self.threshold),
                      'References: ' + str(has_references),
-                     'Databases: ' + str(self.type),
+                     'Databases: ' + str(has_databases),
                      'Steps: ' + str(has_steps),
-                     'Parent: ' + str(has_databases),
+                     'Parents: ' + str(has_parents),
+                     'Children: ' + str(has_children),
                      'Public: ' + str(self.public)]
 
         return ', '.join(repr_data)
