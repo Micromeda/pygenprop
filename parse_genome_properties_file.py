@@ -7,13 +7,11 @@ Description: Parses EBI genome properties flat files.
 """
 
 from modules.lib import parse_genome_property_file
-from modules.genome_property import build_genome_property_connections
 
 genome_property_flat_file_path = '../genome-properties/docs/release/genomeProperties.txt'
 
 with open(genome_property_flat_file_path) as genome_property_file:
     properties = parse_genome_property_file(genome_property_file)
-    build_genome_property_connections(properties)
 
 
 for genome_property in properties.values():

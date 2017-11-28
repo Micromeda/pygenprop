@@ -7,6 +7,7 @@ Description: A set of helper functions.
 """
 
 from modules.genome_property import parse_genome_property
+from modules.genome_property import build_genome_property_connections
 
 
 def create_marker_and_content(genome_property_flat_file_line):
@@ -67,5 +68,8 @@ def parse_genome_property_file(genome_property_file):
             new_genome_property = parse_genome_property(collapsed_genome_property_record)
             genome_properties[new_genome_property.id] = new_genome_property
             current_genome_property_record = []
+
+    # Build parent-child connections between genome properties in the dict.
+    build_genome_property_connections(genome_properties)
 
     return genome_properties
