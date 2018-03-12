@@ -73,3 +73,17 @@ def parse_genome_property_file(genome_property_file):
     build_genome_property_connections(genome_properties)
 
     return genome_properties
+
+
+"""
+# Code for finding all interpros in genome properties.
+
+interpros_in_model = []
+for genome_property in properties.values():
+    for step in genome_property.steps:
+        for element in step.functional_elements:
+            for evidence in element.evidence:
+                for identifier in evidence.evidence_identifiers:
+                    if 'ipr' in identifier.lower():
+                        interpros_in_model.append(identifier)
+"""
