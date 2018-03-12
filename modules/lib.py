@@ -8,6 +8,7 @@ Description: A set of helper functions.
 
 from modules.genome_property import parse_genome_property
 from modules.genome_property import build_genome_property_connections
+from os import path
 
 
 def create_marker_and_content(genome_property_flat_file_line):
@@ -73,3 +74,13 @@ def parse_genome_property_file(genome_property_file):
     build_genome_property_connections(genome_properties)
 
     return genome_properties
+
+
+def sanitize_cli_path(cli_path):
+    """
+    Performs expansion of '~' and shell variables such as "$HOME" into absolute paths.
+    :param cli_path: The path to expand
+    :return: An expanded path.
+    """
+    sanitized_path = path.expanduser(path.expandvars(cli_path))
+    return sanitized_path
