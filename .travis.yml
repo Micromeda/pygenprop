@@ -5,5 +5,9 @@ python:
   - "3.6"
   - "pypy"
   - "pypy3"
+before_script:
+  - git clone https://github.com/G2CView/genome-properties.git
 script:
   - nosetests -v ./
+  - ./testing/test_parse_genome_properties_file.py  -i ./genome-properties/flatfiles/genomeProperties.txt
+  
