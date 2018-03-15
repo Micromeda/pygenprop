@@ -57,7 +57,7 @@ def parse_genome_property_file(genome_property_file):
     """
     A parses a genome property flat file.
     :param genome_property_file: A genome property file handle object.
-    :return: A list of GenomeProperty objects.
+    :return: A dictionary of GenomeProperty objects.
     """
     genome_properties = {}
     current_genome_property_record = []
@@ -74,6 +74,29 @@ def parse_genome_property_file(genome_property_file):
     build_genome_property_connections(genome_properties)
 
     return genome_properties
+
+
+def print_genome_properties(properties):
+    """
+    Prints a human readable summery for all properties in a genome properties dictionary.
+    :param properties: A dictionary containing multiple genome properties objects.
+    """
+    for genome_property in properties.values():
+        parent_ids = [parent.id for parent in genome_property.parents]
+        child_ids = [child.id for child in genome_property.children]
+
+        if not parent_ids:
+            parent_ids = "[ No Parent Genome Properties ]"
+
+        if not child_ids:
+            child_ids = "[ No Child Properties ]"
+
+        print("\n" + genome_property.id + " (" + genome_property.name + ")" + " Type: [" + genome_property.type + "]" +
+              " Parents: " + str(parent_ids) + " Children: " + str(child_ids))
+        print(
+            '=========================================================================================================')
+        for step in genome_property.steps:
+            print(str(step) + "\n")
 
 
 def sanitize_cli_path(cli_path):
