@@ -6,8 +6,10 @@ Created by: Lee Bergstrand (2017)
 Description: Parses EBI genome properties flat files.
 """
 
-from modules.lib import parse_genome_property_file, sanitize_cli_path
 import argparse
+
+from modules.lib import parse_genome_property_file, sanitize_cli_path
+import sys
 
 
 def main(args):
@@ -21,22 +23,11 @@ def main(args):
     with open(genome_property_flat_file_path) as genome_property_file:
         properties = parse_genome_property_file(genome_property_file)
 
-    for genome_property in properties.values():
-        parent_ids = [parent.id for parent in genome_property.parents]
-        child_ids = [child.id for child in genome_property.children]
-
-        if not parent_ids:
-            parent_ids = "[ No Parent Genome Properties ]"
-
-        if not child_ids:
-            child_ids = "[ No Child Properties ]"
-
-        print("\n" + genome_property.id + " (" + genome_property.name + ")" + " Type: [" + genome_property.type + "]" +
-              " Parents: " + str(parent_ids) + " Children: " + str(child_ids))
-        print(
-            '=========================================================================================================')
-        for step in genome_property.steps:
-            print(str(step) + "\n")
+    if properties is not None:
+        print('Properties have been parsed.')
+    else:
+        print('Properties parsing has failed.')
+        sys.exit(1)
 
 
 if __name__ == '__main__':
