@@ -109,6 +109,13 @@ class GenomeProperty(object):
 
         return child_genome_properties_identifiers
 
+    def get_root(self):
+        """
+        Gets the top level genome properties object in a genome properties tree.
+        :return: The root genome property of the genome properties tree.
+        """
+        return find_root(self)
+
     def add_child_connections(self, genome_properties_dict):
         """
         Adds child genome properties.
@@ -202,3 +209,16 @@ def build_genome_property_connections(genome_properties_dict):
     """
     for genome_property in genome_properties_dict.values():
         genome_property.add_child_connections(genome_properties_dict)
+
+
+def find_root(genome_property):
+    """
+    Gets the top level genome properties object in a genome properties tree.
+    :param genome_property: A genome property object with parents.
+    :return: The root genome property of the genome properties tree.
+    """
+    if genome_property.parents:
+        root = find_root(genome_property.parents[0])
+        return root
+    else:
+        return genome_property
