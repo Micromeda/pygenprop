@@ -9,6 +9,7 @@ Description: A set of helper functions.
 from modules.genome_property import parse_genome_property
 from modules.genome_property import build_genome_property_connections
 from os import path
+import json
 
 
 def create_marker_and_content(genome_property_flat_file_line):
@@ -76,12 +77,12 @@ def parse_genome_property_file(genome_property_file):
     return genome_properties
 
 
-def print_genome_properties(properties):
+def print_genome_properties(properties_dict):
     """
     Prints a human readable summery for all properties in a genome properties dictionary.
-    :param properties: A dictionary containing multiple genome properties objects.
+    :param properties_dict: A dictionary containing multiple genome properties objects keyed by their ids.
     """
-    for genome_property in properties.values():
+    for genome_property in properties_dict.values():
         parent_ids = [parent.id for parent in genome_property.parents]
         child_ids = [child.id for child in genome_property.children]
 
@@ -97,6 +98,48 @@ def print_genome_properties(properties):
             '=========================================================================================================')
         for step in genome_property.steps:
             print(str(step) + "\n")
+
+
+def create_graph_node_json(properties_dict, to_list=False):
+    """
+    Creates a JSON representation of a genome property dictionary.
+    :param properties_dict: A dictionary containing multiple genome properties objects keyed by their ids.
+    :param to_list: Return as a list instead of a JSON formatted string.
+    :return: A JSON formatted string of a list of each properties JSON representation.
+    """
+    nodes = []
+    for genome_property in properties_dict.values():
+        genome_property_dict = genome_property.to_json(as_dict=True)
+        nodes.append(genome_property_dict)
+
+    if to_list:
+        output = nodes
+    else:
+        output = json.dumps(nodes)
+
+    return output
+
+
+def create_graph_links_json(properties_dict, to_list=False):
+    """
+    Creates a JSON representation of a genome property links.
+    :param properties_dict: A dictionary containing multiple genome properties objects keyed by their ids.
+    :param to_list: Return as a list instead of a JSON formatted string.
+    :return: A JSON formatted string of a list of each properties JSON representation.
+    """
+    links = []
+    for genome_property in properties_dict.values():
+        if genome_property.parents:
+            for parent in genome_property.parents:
+                link = {'source': parent.id, 'target': genome_property.id}
+                links.append(link)
+
+    if to_list:
+        output = links
+    else:
+        output = json.dumps(links)
+
+    return output
 
 
 def sanitize_cli_path(cli_path):

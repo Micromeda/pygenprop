@@ -9,6 +9,7 @@ Description: The genome property class.
 from modules.database_reference import parse_database_references
 from modules.literature_reference import parse_literature_references
 from modules.step import parse_steps
+import json
 
 
 class GenomeProperty(object):
@@ -122,6 +123,27 @@ class GenomeProperty(object):
             if child_genome_property:
                 self.children.append(child_genome_property)
                 child_genome_property.parents.append(self)
+
+    def to_json(self, as_dict=False):
+        """
+        Converts the object to a JSON representation.
+        :param as_dict: Return a dictionary for incorporation into other json objects.
+        :return: A JSON formatted string or dictionary representing the object.
+        """
+        json_dict = {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type,
+            'description': self.description,
+            'notes': self.private_notes
+        }
+
+        if as_dict:
+            output = json_dict
+        else:
+            output = json.dumps(json_dict)
+
+        return output
 
 
 def parse_genome_property(genome_property_record):
