@@ -8,7 +8,8 @@ Description: Parses EBI genome properties flat files.
 
 import argparse
 
-from modules.lib import parse_genome_property_file, sanitize_cli_path
+from modules.lib import sanitize_cli_path
+from modules.genome_properties_flat_file_parser import parse_genome_property_file
 import sys
 
 
