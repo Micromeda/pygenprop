@@ -5,13 +5,13 @@ Created by: Lee Bergstrand (2017)
 
 Description: A parser for parsing genome properties flat files into a polytree of genome properties.
 """
-from modules.database_reference import DatabaseReference
-from modules.evidence import Evidence
-from modules.functional_element import FunctionalElement
-from modules.genome_property import GenomeProperty
-from modules.literature_reference import LiteratureReference
 from modules.step import Step
+from modules.evidence import Evidence
+from modules.genome_property import GenomeProperty
+from modules.functional_element import FunctionalElement
+from modules.database_reference import DatabaseReference
 from modules.genome_property_tree import GenomePropertyTree
+from modules.literature_reference import LiteratureReference
 
 
 def parse_genome_property_file(genome_property_file):
