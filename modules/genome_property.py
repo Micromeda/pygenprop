@@ -107,20 +107,6 @@ class GenomeProperty(object):
 
         return child_genome_properties_identifiers
 
-    def add_child_connections(self, genome_properties_dict):
-        """
-        Adds child genome properties.
-        :param genome_properties_dict: A dictionary of genome property ids / genome property object pairs.
-        """
-        child_identifiers = self.child_genome_property_identifiers
-
-        for identifier in child_identifiers:
-            child_genome_property = genome_properties_dict.get(identifier)
-
-            if child_genome_property:
-                self.children.append(child_genome_property)
-                child_genome_property.parents.append(self)
-
     def to_json(self, as_dict=False):
         """
         Converts the object to a JSON representation.
