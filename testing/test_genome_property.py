@@ -13,10 +13,11 @@ from modules.genome_properties_flat_file_parser import parse_genome_property
 class TestGenomeProperty(unittest.TestCase):
     """A unit testing class for testing the genome_properties.py module. To be called by nosetests."""
 
-    def test_parse_genome_property(self):
-        """Test that we can parse genome property rows."""
+    @classmethod
+    def setUpClass(cls):
+        """Setup property rows for later parsing."""
 
-        property_rows = [
+        property_rows_one = [
             ('AC', 'GenProp0002'),
             ('DE', 'Coenzyme F420 utilization'),
             ('TP', 'GUILD'),
@@ -48,24 +49,7 @@ class TestGenomeProperty(unittest.TestCase):
             ('EV', 'IPR019920; TIGR03618; sufficient;')
         ]
 
-        new_property = parse_genome_property(property_rows)
-
-        self.assertEqual(new_property.id, 'GenProp0002')
-        self.assertEqual(new_property.name, 'Coenzyme F420 utilization')
-        self.assertEqual(new_property.type, 'GUILD')
-        self.assertEqual(new_property.threshold, 0)
-        self.assertEqual(new_property.parents, [])
-        self.assertEqual(new_property.description, 'Coenzyme F420 (a 7,8-didemethyl-8-hydroxy 5-deazaflavin)')
-        self.assertEqual(new_property.private_notes, 'Yo_Dog_its_Yolo')
-        self.assertEqual(new_property.public, False)
-        self.assertEqual(len(new_property.databases), 1)
-        self.assertEqual(len(new_property.references), 1)
-        self.assertEqual(len(new_property.steps), 3)
-
-    def test_child_genome_property_identifiers(self):
-        """Test that we can get child genome property identifiers."""
-
-        property_rows = [
+        property_rows_two = [
             ('AC', 'GenProp0002'),
             ('DE', 'Coenzyme F420 utilization'),
             ('TP', 'GUILD'),
@@ -86,9 +70,43 @@ class TestGenomeProperty(unittest.TestCase):
             ('EV', 'GenProp0068; GenProp0069;')
         ]
 
-        new_property = parse_genome_property(property_rows)
+        cls.property_rows = [property_rows_one, property_rows_two]
+
+    def test_parse_genome_property(self):
+        """Test that we can parse genome property rows."""
+
+        new_property = parse_genome_property(self.property_rows[0])
+
+        self.assertEqual(new_property.id, 'GenProp0002')
+        self.assertEqual(new_property.name, 'Coenzyme F420 utilization')
+        self.assertEqual(new_property.type, 'GUILD')
+        self.assertEqual(new_property.threshold, 0)
+        self.assertEqual(new_property.parents, [])
+        self.assertEqual(new_property.description, 'Coenzyme F420 (a 7,8-didemethyl-8-hydroxy 5-deazaflavin)')
+        self.assertEqual(new_property.private_notes, 'Yo_Dog_its_Yolo')
+        self.assertEqual(new_property.public, False)
+        self.assertEqual(len(new_property.databases), 1)
+        self.assertEqual(len(new_property.references), 1)
+        self.assertEqual(len(new_property.steps), 3)
+
+    def test_child_genome_property_identifiers(self):
+        """Test that we can get child genome property identifiers."""
+
+        new_property = parse_genome_property(self.property_rows[1])
         child_genome_property_identifiers = new_property.child_genome_property_identifiers
 
         self.assertEqual(child_genome_property_identifiers, ['GenProp0066', 'GenProp0067',
                                                              'GenProp0068', 'GenProp0069'])
 
+    def test_json_creation(self):
+        """Test that json can be created properly."""
+
+        new_property = parse_genome_property(self.property_rows[0])
+
+        json_dict = new_property.to_json(as_dict=True)
+
+        self.assertEqual(json_dict['id'], 'GenProp0002')
+        self.assertEqual(json_dict['name'], 'Coenzyme F420 utilization')
+        self.assertEqual(json_dict['type'], 'GUILD')
+        self.assertEqual(json_dict['description'], 'Coenzyme F420 (a 7,8-didemethyl-8-hydroxy 5-deazaflavin)')
+        self.assertEqual(json_dict['notes'], 'Yo_Dog_its_Yolo')
