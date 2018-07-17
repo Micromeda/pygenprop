@@ -117,7 +117,7 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         leaf_ids = [leaf.id for leaf in property_tree.leafs]
 
-        self.assertEqual(leaf_ids, ['GenProp0089', 'GenProp0092'])
+        self.assertCountEqual(leaf_ids, ['GenProp0089', 'GenProp0092'])
 
     def test_find_root_node(self):
         """Test that we can find the correct genome property root."""
