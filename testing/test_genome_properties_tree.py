@@ -106,8 +106,8 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         self.assertEqual(property_tree[property_one.id].children[0], property_three)
         self.assertEqual(property_tree[property_two.id].children[0], property_three)
-        self.assertEqual(property_tree[property_three.id].parents, [property_one, property_two])
-        self.assertEqual(property_tree[property_three.id].children, [property_four, property_five])
+        self.assertCountEqual(property_tree[property_three.id].parents, [property_one, property_two])
+        self.assertCountEqual(property_tree[property_three.id].children, [property_four, property_five])
         self.assertEqual(property_tree[property_four.id].parents[0], property_three)
         self.assertEqual(property_tree[property_five.id].parents[0], property_three)
 
