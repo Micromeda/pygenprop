@@ -74,7 +74,7 @@ class GenomePropertyTree(object):
         :return: A JSON formatted string representing the genome property tree.
         """
         if nodes_and_links:
-            nodes = self.create_graph_node_json(as_list=True)
+            nodes = self.create_graph_nodes_json(as_list=True)
             links = self.create_graph_links_json(as_list=True)
             final_json = json.dumps({'nodes': nodes, 'links': links})
         else:
@@ -110,7 +110,7 @@ class GenomePropertyTree(object):
 
         return output
 
-    def create_graph_node_json(self, as_list=False):
+    def create_graph_nodes_json(self, as_list=False):
         """
         Creates a JSON representation of a genome property dictionary.
         :param as_list: Return as a list instead of a JSON formatted string.
@@ -138,7 +138,7 @@ class GenomePropertyTree(object):
         for genome_property in self:
             if genome_property.parents:
                 for parent in genome_property.parents:
-                    link = {'source': parent.id, 'target': genome_property.id}
+                    link = {'parent': parent.id, 'child': genome_property.id}
                     links.append(link)
 
         if as_list:

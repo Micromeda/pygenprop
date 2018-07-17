@@ -144,3 +144,34 @@ class TestGenomePropertyTree(unittest.TestCase):
         # we cannot guarantee that GenProp0002 will always be returned as root.
         # Thus we check if the root node is either property.
         self.assertIn(root.id, ['GenProp0002', 'GenProp0003'])
+
+    def test_create_json_graph_links(self):
+        """Test that we can create parent child link json."""
+
+        property_tree = GenomePropertyTree(*self.properties)
+        json_links = property_tree.create_graph_links_json(as_list=True)
+
+        predicted_links = [{'parent': 'GenProp0002', 'child': 'GenProp0066'},
+                           {'parent': 'GenProp0003', 'child': 'GenProp0066'},
+                           {'parent': 'GenProp0066', 'child': 'GenProp0089'},
+                           {'parent': 'GenProp0066', 'child': 'GenProp0092'}]
+
+        self.assertCountEqual(json_links, predicted_links)
+
+    def test_create_json_graph_nodes(self):
+        """Test that we can create nodes json."""
+
+        property_tree = GenomePropertyTree(*self.properties)
+        json_nodes = property_tree.create_graph_nodes_json(as_list=True)
+
+        ids = {node['id'] for node in json_nodes}
+        names = {node['name'] for node in json_nodes}
+        types = {node['type'] for node in json_nodes}
+        descriptions = {node['description'] for node in json_nodes}
+        notes = {node['notes'] for node in json_nodes}
+
+        self.assertCountEqual(ids, {'GenProp0002', 'GenProp0003', 'GenProp0066', 'GenProp0089', 'GenProp0092'})
+        self.assertEqual(names, {'Coenzyme F420 utilization'})
+        self.assertEqual(types, {'GUILD'})
+        self.assertEqual(descriptions, {None})
+        self.assertEqual(notes, {None})
