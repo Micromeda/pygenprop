@@ -2,8 +2,8 @@ language: python
 python:
   - "3.5"
   - "3.6"
-  - "3.7"
-  - "pypy3"
+  # PyPy versions
+  - "pypy3.5"
 before_script:
   - git clone https://github.com/G2CView/genome-properties.git
 script:
