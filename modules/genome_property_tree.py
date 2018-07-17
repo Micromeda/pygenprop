@@ -33,7 +33,7 @@ class GenomePropertyTree(object):
         Gets the top level genome properties object in a genome properties tree.
         :return: The root genome property of the genome properties tree.
         """
-        genome_property = next(iter(self.genome_properties_dictionary))
+        genome_property = next(iter(self.genome_properties_dictionary.values()))
 
         while True:
             if genome_property.parents:
@@ -65,7 +65,7 @@ class GenomePropertyTree(object):
 
                 if child_genome_property:
                     genome_property.children.append(child_genome_property)
-                    child_genome_property.parents.append(self)
+                    child_genome_property.parents.append(genome_property)
 
     def to_json(self, nodes_and_links=False):
         """
