@@ -113,16 +113,16 @@ class TestGenomePropertyTree(unittest.TestCase):
 
     def test_find_leaf_nodes(self):
         """Test we can find the right leaf nodes."""
-        property_tree = GenomePropertyTree(*self.properties)
 
+        property_tree = GenomePropertyTree(*self.properties)
         leaf_ids = [leaf.id for leaf in property_tree.leafs]
 
         self.assertCountEqual(leaf_ids, ['GenProp0089', 'GenProp0092'])
 
     def test_find_root_node(self):
         """Test that we can find the correct genome property root."""
-        property_tree = GenomePropertyTree(*self.properties)
 
+        property_tree = GenomePropertyTree(*self.properties)
         root = property_tree.root
 
         # The structure of the property tree used above is not the common case.
@@ -130,5 +130,5 @@ class TestGenomePropertyTree(unittest.TestCase):
         # or GenProp0003 depending on which one is stored first in the property tree.
         # Since we are using a dict not an OrderedDict inside of GenomePropertyTree
         # we cannot guarantee that GenProp0002 will always be returned as root.
-        # Thus we check if the root is either.
+        # Thus we check if the root node is either property.
         self.assertIn(root.id, ['GenProp0002', 'GenProp0003'])
