@@ -5,6 +5,7 @@ Created by: Lee Bergstrand (2018)
 
 Description: The genome property tree class.
 """
+
 import json
 
 

@@ -5,6 +5,7 @@ Created by: Lee Bergstrand (2017)
 
 Description: A parser for parsing genome properties flat files into a polytree of genome properties.
 """
+
 from modules.step import Step
 from modules.evidence import Evidence
 from modules.genome_property import GenomeProperty
