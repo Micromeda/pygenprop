@@ -11,8 +11,8 @@ import json
 
 class GenomePropertyTree(object):
     """
-    This class contains a representation of the EBI InterPro Genome Properties database. Internally, the instantiated
-    object contains a polytree of all genome properties connected from root to leaf (parent to child). A dictionary is
+    This class contains a representation of a set of nested genome properties. Internally, the instantiated
+    object contains a polytree of genome properties connected from root to leaf (parent to child). A dictionary is
     also included which points to each tree node for fast lookups by genome property identifier.
     """
 
@@ -170,7 +170,7 @@ class GenomePropertyTree(object):
 
     def __str__(self):
         """
-        Prints a human readable summery for all properties in a genome properties dictionary.
+        Prints a human readable summary for all properties in a genome properties dictionary.
         """
         for genome_property in self:
             parent_ids = [parent.id for parent in genome_property.parents]
