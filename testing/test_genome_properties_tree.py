@@ -8,6 +8,8 @@ Description: A simple unittest for testing the genome_property_tree module.
 
 import unittest
 
+from copy import deepcopy
+
 from modules.genome_property_tree import GenomePropertyTree
 from modules.genome_properties_flat_file_parser import parse_genome_property
 
@@ -91,18 +93,28 @@ class TestGenomePropertyTree(unittest.TestCase):
         property_four = parse_genome_property(property_rows_four)
         property_five = parse_genome_property(property_rows_five)
 
-        cls.properties = [property_one, property_two, property_three, property_four, property_five]
+        cls.raw_properties = [property_one, property_two, property_three, property_four, property_five]
+
+    @property
+    def properties(self):
+        """
+        Returns a copy of the properties created during the setUpClass.
+        :return: A deep copy of the test genome properties.
+        """
+        return deepcopy(self.raw_properties)
 
     def test_build_genome_property_connections(self):
         """Test that we can add child and parent genome properties."""
 
-        property_one = self.properties[0]
-        property_two = self.properties[1]
-        property_three = self.properties[2]
-        property_four = self.properties[3]
-        property_five = self.properties[4]
+        test_properties = self.properties
 
-        property_tree = GenomePropertyTree(*self.properties)
+        property_one = test_properties[0]
+        property_two = test_properties[1]
+        property_three = test_properties[2]
+        property_four = test_properties[3]
+        property_five = test_properties[4]
+
+        property_tree = GenomePropertyTree(*test_properties)
 
         self.assertEqual(property_tree[property_one.id].children[0], property_three)
         self.assertEqual(property_tree[property_two.id].children[0], property_three)
