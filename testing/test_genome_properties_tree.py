@@ -253,4 +253,11 @@ class TestGenomePropertyTree(unittest.TestCase):
         test_json_parsed = json.loads(test_json)
         expected_json_parsed = json.loads(expected_json)
 
-        self.assertEqual(test_json_parsed, expected_json_parsed)
+        test_json_nodes = test_json_parsed['nodes']
+        expected_json_nodes = expected_json_parsed['nodes']
+
+        test_json_links = test_json_parsed['links']
+        expected_json_links = expected_json_parsed['links']
+
+        self.assertCountEqual(test_json_nodes, expected_json_nodes)
+        self.assertCountEqual(test_json_links, expected_json_links)
