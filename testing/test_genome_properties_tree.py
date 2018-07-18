@@ -8,10 +8,11 @@ Description: A simple unittest for testing the genome_property_tree module.
 
 import json
 import unittest
+
 from copy import deepcopy
 
-from modules.genome_properties_flat_file_parser import parse_genome_property
 from modules.genome_property_tree import GenomePropertyTree
+from modules.genome_properties_flat_file_parser import parse_genome_property
 
 
 class TestGenomePropertyTree(unittest.TestCase):
@@ -230,7 +231,7 @@ class TestGenomePropertyTree(unittest.TestCase):
         expected_json_parsed_two = json.loads(expected_json_two)
 
         self.assertIn(test_json_parsed, [expected_json_parsed_one, expected_json_parsed_two])
-       
+
     def test_json_string_creation_nodes_and_links(self):
         property_tree = GenomePropertyTree(*self.properties)
 
