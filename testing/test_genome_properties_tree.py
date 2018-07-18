@@ -26,6 +26,9 @@ class TestGenomePropertyTree(unittest.TestCase):
         GenProp0002 -->             --> GenProp0089
                         GenProp0066
         GenProp0003 -->             --> GenProp0092
+
+        Note 1: The structure of the property tree used above is not the common case.
+        Commonly there should be only a single root node.
         """
 
         property_rows_one = [
@@ -138,12 +141,11 @@ class TestGenomePropertyTree(unittest.TestCase):
         property_tree = GenomePropertyTree(*self.properties)
         root = property_tree.root
 
-        # The structure of the property tree used above is not the common case.
-        # Commonly there should be a single root node. The root could be GenProp0002
-        # or GenProp0003 depending on which one is stored first in the property tree.
-        # Since we are using a dict not an OrderedDict inside of GenomePropertyTree
-        # we cannot guarantee that GenProp0002 will always be returned as root.
-        # Thus we check if the root node is either property.
+        """
+        Note 2: The root could be GenProp0002 or GenProp0003 depending on which one is stored first in the property 
+        tree. Since we are using a dict not an OrderedDict inside of GenomePropertyTree we cannot guarantee that 
+        GenProp0002 will always be returned as root. Thus we check if the root node is either property.
+        """
         self.assertIn(root.id, ['GenProp0002', 'GenProp0003'])
 
     def test_create_json_graph_links(self):
@@ -184,6 +186,8 @@ class TestGenomePropertyTree(unittest.TestCase):
         json = property_tree.create_nested_json(as_dict=True)
 
         root_id = json['id']
+
+        """Root could be either GenProp0002 or GenProp0003. See Note 1 in test_find_root_node()."""
         self.assertIn(root_id, ['GenProp0002', 'GenProp0003'])
 
         tree_level_one_children = json['children']
@@ -218,17 +222,12 @@ class TestGenomePropertyTree(unittest.TestCase):
                  {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                   "notes": null, "children": []}]}]}'''
 
-        expected_json_two = '''{"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null, "notes": null,
-         "children": [{"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                       "notes": null, "children": [
-                 {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                  "notes": null, "children": []},
-                 {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                  "notes": null, "children": []}]}]}'''
-
         test_json_parsed = json.loads(test_json)
         expected_json_parsed_one = json.loads(expected_json_one)
-        expected_json_parsed_two = json.loads(expected_json_two)
+
+        """Root could be either GenProp0002 or GenProp0003. See Note 1 in test_find_root_node()."""
+        expected_json_parsed_two = deepcopy(expected_json_parsed_one)
+        expected_json_parsed_two['id'] = 'GenProp0003'
 
         self.assertIn(test_json_parsed, [expected_json_parsed_one, expected_json_parsed_two])
 
