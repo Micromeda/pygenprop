@@ -6,12 +6,12 @@ Created by: Lee Bergstrand (2018)
 Description: A simple unittest for testing the genome_property_tree module.
 """
 
+import json
 import unittest
-
 from copy import deepcopy
 
-from modules.genome_property_tree import GenomePropertyTree
 from modules.genome_properties_flat_file_parser import parse_genome_property
+from modules.genome_property_tree import GenomePropertyTree
 
 
 class TestGenomePropertyTree(unittest.TestCase):
@@ -175,3 +175,82 @@ class TestGenomePropertyTree(unittest.TestCase):
         self.assertEqual(types, {'GUILD'})
         self.assertEqual(descriptions, {None})
         self.assertEqual(notes, {None})
+
+    def test_create_nested_json(self):
+        """Test that we can create nested json."""
+
+        property_tree = GenomePropertyTree(*self.properties)
+        json = property_tree.create_nested_json(as_dict=True)
+
+        root_id = json['id']
+        self.assertIn(root_id, ['GenProp0002', 'GenProp0003'])
+
+        tree_level_one_children = json['children']
+        self.assertEqual(len(tree_level_one_children), 1)
+
+        level_one_child = tree_level_one_children[0]
+        self.assertEqual(level_one_child['id'], 'GenProp0066')
+
+        tree_level_two_children = level_one_child['children']
+        self.assertEqual(len(tree_level_two_children), 2)
+
+        level_two_child_one = tree_level_two_children[0]
+        level_two_child_two = tree_level_two_children[1]
+
+        self.assertIn(level_two_child_one['id'], ['GenProp0089', 'GenProp0092'])
+        self.assertIn(level_two_child_two['id'], ['GenProp0089', 'GenProp0092'])
+        self.assertNotEqual(level_two_child_one['id'], level_two_child_two['id'])
+
+        self.assertEqual(level_two_child_one['children'], [])
+        self.assertEqual(level_two_child_two['children'], [])
+
+    def test_json_string_creation(self):
+        property_tree = GenomePropertyTree(*self.properties)
+
+        test_json = property_tree.to_json()
+
+        expected_json_one = '''{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null, "notes": null,
+         "children": [{"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                       "notes": null, "children": [
+                 {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                  "notes": null, "children": []},
+                 {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                  "notes": null, "children": []}]}]}'''
+
+        expected_json_two = '''{"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null, "notes": null,
+         "children": [{"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                       "notes": null, "children": [
+                 {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                  "notes": null, "children": []},
+                 {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                  "notes": null, "children": []}]}]}'''
+
+        test_json_parsed = json.loads(test_json)
+        expected_json_parsed_one = json.loads(expected_json_one)
+        expected_json_parsed_two = json.loads(expected_json_two)
+
+        self.assertIn(test_json_parsed, [expected_json_parsed_one, expected_json_parsed_two])
+       
+    def test_json_string_creation_nodes_and_links(self):
+        property_tree = GenomePropertyTree(*self.properties)
+
+        test_json = property_tree.to_json(nodes_and_links=True)
+
+        expected_json = '''{"nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                    "notes": null},
+                   {"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                    "notes": null},
+                   {"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                    "notes": null},
+                   {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                    "notes": null},
+                   {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+                    "notes": null}],
+         "links": [{"parent": "GenProp0002", "child": "GenProp0066"}, {"parent": "GenProp0003", "child": "GenProp0066"},
+                   {"parent": "GenProp0066", "child": "GenProp0089"},
+                   {"parent": "GenProp0066", "child": "GenProp0092"}]}'''
+
+        test_json_parsed = json.loads(test_json)
+        expected_json_parsed = json.loads(expected_json)
+
+        self.assertEqual(test_json_parsed, expected_json_parsed)
