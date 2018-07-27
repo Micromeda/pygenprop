@@ -25,13 +25,13 @@ def parse_genome_property_longform_file(longform_file):
         elif 'STEP NUMBER:' in line:
             current_step_number = int(line.split(':')[1].strip())
         elif 'RESULT:' in line:
-            result = line.split(':')[1].strip().lower()
+            result_content = line.split(':')[1].strip().lower()
 
             partial = False
-            if 'no' in result:
+            if 'no' in result_content:
                 result = False
             else:
-                if 'partial' in result:
+                if 'partial' in result_content:
                     partial = True
                 result = True
 
