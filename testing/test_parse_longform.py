@@ -53,5 +53,8 @@ class TestParseLongform(unittest.TestCase):
         properties = parse_genome_property_longform_file(rows)
 
         self.assertEqual(len(properties.keys()), 2)
-        self.assertEqual(properties['GenProp0001'], [1, 2])
-        self.assertEqual(properties['GenProp0053'], [1, 10])
+        self.assertNotIn('GenProp0046', properties.keys())
+        self.assertEqual(properties['GenProp0001']['step_results'], [1, 2])
+        self.assertEqual(properties['GenProp0001']['partial'], False)
+        self.assertEqual(properties['GenProp0053']['step_results'], [1, 10])
+        self.assertEqual(properties['GenProp0053']['partial'], True)
