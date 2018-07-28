@@ -12,10 +12,12 @@ from modules.genome_properties_longform_file_parser import parse_genome_property
 
 
 class TestParseLongform(unittest.TestCase):
-    """A unit testing class for testing the literature_reference.py module. To be called by nosetests."""
+    """A unit testing class for testing the genome_properties_longform_file_parser.py module.
+    To be called by nosetests."""
 
     def test_parse_longform(self):
-        simulated_property_file = """ PROPERTY: GenProp0001
+        """Test parsing longform genome properties assignment files."""
+        simulated_property_file = '''PROPERTY: GenProp0001
                     Chorismate biosynthesis via shikimate
                     .	STEP NUMBER: 1
                     .	STEP NAME: Phospho-2-dehydro-3-deoxyheptonate aldolase
@@ -46,15 +48,15 @@ class TestParseLongform(unittest.TestCase):
                     .	.	required
                     .	STEP RESULT: no
                     RESULT: NO
-                """
+                '''
 
-        rows = list(row.strip() for row in simulated_property_file.splitlines())
+        rows = (row.strip() for row in simulated_property_file.splitlines())
 
         properties = parse_genome_property_longform_file(rows)
 
         self.assertEqual(len(properties.keys()), 2)
         self.assertNotIn('GenProp0046', properties.keys())
-        self.assertEqual(properties['GenProp0001']['step_results'], [1, 2])
+        self.assertEqual(properties['GenProp0001']['supported_steps'], [1, 2])
         self.assertEqual(properties['GenProp0001']['partial'], False)
-        self.assertEqual(properties['GenProp0053']['step_results'], [1, 10])
+        self.assertEqual(properties['GenProp0053']['supported_steps'], [1, 10])
         self.assertEqual(properties['GenProp0053']['partial'], True)

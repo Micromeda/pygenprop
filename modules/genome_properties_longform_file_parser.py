@@ -27,20 +27,18 @@ def parse_genome_property_longform_file(longform_file):
         elif 'RESULT:' in line:
             result_content = line.split(':')[1].strip().lower()
 
-            partial = False
-            if 'no' in result_content:
-                result = False
-            else:
-                if 'partial' in result_content:
-                    partial = True
-                result = True
-
-            if result:
-                if 'STEP' in line:
+            if 'STEP' in line:
+                if result_content == 'yes':
                     current_steps.append(current_step_number)
+            else:
+                if result_content == 'partial':
+                    partial = True
                 else:
+                    partial = False
+
+                if result_content in ['yes', 'partial']:
                     property_results = {'partial': partial,
-                                        'step_results': current_steps}
+                                        'supported_steps': current_steps}
 
                     organism_properties[current_property_id] = property_results
                     current_steps = []
