@@ -6,9 +6,6 @@ Created by: Lee Bergstrand (2017)
 Description: The genome property class.
 """
 
-from modules.database_reference import parse_database_references
-from modules.literature_reference import parse_literature_references
-from modules.step import parse_steps
 import json
 
 
@@ -110,20 +107,6 @@ class GenomeProperty(object):
 
         return child_genome_properties_identifiers
 
-    def add_child_connections(self, genome_properties_dict):
-        """
-        Adds child genome properties.
-        :param genome_properties_dict: A dictionary of genome property ids / genome property object pairs.
-        """
-        child_identifiers = self.child_genome_property_identifiers
-
-        for identifier in child_identifiers:
-            child_genome_property = genome_properties_dict.get(identifier)
-
-            if child_genome_property:
-                self.children.append(child_genome_property)
-                child_genome_property.parents.append(self)
-
     def to_json(self, as_dict=False):
         """
         Converts the object to a JSON representation.
@@ -146,81 +129,3 @@ class GenomeProperty(object):
         return output
 
 
-def parse_genome_property(genome_property_record):
-    """
-    Parses a single genome property from a genome property record.
-    :param genome_property_record:  A list of marker, content tuples representing genome property flat file lines.
-    :return: A single genome property object.
-    """
-    # A list of record markers related to the genome property.
-    core_genome_property_markers = ('AC', 'DE', 'TP', 'TH', 'PN', 'CC', '**')
-    gathered_core_genome_property_markers = {}
-
-    reference_index = False
-    database_index = False
-    step_index = False
-
-    current_index = 0
-    for marker, content in genome_property_record:
-        if marker == 'RN':
-            if not reference_index:
-                reference_index = current_index
-        elif marker == 'DC':
-            if not database_index:
-                database_index = current_index
-        elif marker == '--':
-            step_index = current_index + 1
-            break  # If we have reach steps we have covered all core_genome_property_markers and can leave the loop.
-        elif marker in core_genome_property_markers:
-            if marker == 'TH':
-                content = int(content)
-            gathered_core_genome_property_markers[marker] = content
-
-        current_index = current_index + 1
-
-    if reference_index:
-        if database_index:
-            reference_rows = genome_property_record[reference_index:database_index]
-        else:
-            reference_rows = genome_property_record[reference_index:]
-
-        references = parse_literature_references(reference_rows)
-    else:
-        references = []
-
-    if database_index:
-        if step_index:
-            database_rows = genome_property_record[database_index:step_index - 1]
-        else:
-            database_rows = genome_property_record[database_index:]
-
-        databases = parse_database_references(database_rows)
-    else:
-        databases = []
-
-    if step_index:
-        step_rows = genome_property_record[step_index:]
-        steps = parse_steps(step_rows)
-    else:
-        steps = []
-
-    new_genome_property = GenomeProperty(accession_id=gathered_core_genome_property_markers.get('AC'),
-                                         name=gathered_core_genome_property_markers.get('DE'),
-                                         property_type=gathered_core_genome_property_markers.get('TP'),
-                                         threshold=gathered_core_genome_property_markers.get('TH'),
-                                         parents=gathered_core_genome_property_markers.get('PN'),
-                                         description=gathered_core_genome_property_markers.get('CC'),
-                                         private_notes=gathered_core_genome_property_markers.get('**'),
-                                         references=references,
-                                         databases=databases,
-                                         steps=steps)
-    return new_genome_property
-
-
-def build_genome_property_connections(genome_properties_dict):
-    """
-    Creates connections between genome properties.
-    :param genome_properties_dict: A dictionary of genome property ids / genome property object pairs.
-    """
-    for genome_property in genome_properties_dict.values():
-        genome_property.add_child_connections(genome_properties_dict)

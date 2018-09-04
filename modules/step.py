@@ -6,8 +6,6 @@ Created by: Lee Bergstrand (2017)
 Description: The step class.
 """
 
-from modules.functional_element import parse_functional_elements
-
 
 class Step(object):
     """A class representing a step that supports the existence of a genome property."""
@@ -44,32 +42,3 @@ class Step(object):
                 break
 
         return required_step
-
-
-def parse_steps(genome_property_record):
-    """
-    Parses steps from a genome properties record.
-    :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
-    :return: A list of Step objects.
-    """
-    step_markers = ('SN', 'ID', 'DN', 'RQ', 'EV', 'TG')
-    steps = []
-    current_step_markers = []
-    step_number = 0
-    for marker, content in genome_property_record:
-        if marker in step_markers:
-            if not marker == 'SN':
-                current_step_markers.append((marker, content))
-            else:
-                if current_step_markers:
-                    functional_elements = parse_functional_elements(current_step_markers)
-                    steps.append(Step(number=step_number, functional_elements=functional_elements))
-                    current_step_markers = []
-                    step_number = int(content)
-                else:
-                    step_number = int(content)
-
-    functional_elements = parse_functional_elements(current_step_markers)
-    steps.append(Step(number=step_number, functional_elements=functional_elements))
-
-    return steps

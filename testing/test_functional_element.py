@@ -8,7 +8,7 @@ Description: A simple unittest for testing the functional_element module.
 
 import unittest
 
-from modules.functional_element import parse_functional_elements
+from modules.genome_properties_flat_file_parser import parse_functional_elements
 
 
 class TestFunctionalElement(unittest.TestCase):
