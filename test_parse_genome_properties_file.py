@@ -25,7 +25,7 @@ def main(args):
         properties = parse_genome_property_file(genome_property_file)
 
     if properties is not None:
-        print('Properties have been parsed.')
+        print(str(len(properties)) + ' properties have been parsed.')
     else:
         print('Properties parsing has failed.')
         sys.exit(1)
