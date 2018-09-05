@@ -7,6 +7,7 @@ Description: A simple unittest for testing the literature reference module.
 """
 
 import unittest
+from io import StringIO
 
 from modules.genome_properties_longform_file_parser import parse_genome_property_longform_file
 
@@ -50,13 +51,15 @@ class TestParseLongform(unittest.TestCase):
                     RESULT: NO
                 '''
 
-        rows = (row.strip() for row in simulated_property_file.splitlines())
+        rows = StringIO(simulated_property_file)
+        rows.name = './testing/test1'
 
         properties = parse_genome_property_longform_file(rows)
 
-        self.assertEqual(len(properties.keys()), 2)
+        self.assertEqual(len(properties.keys()), 3)
         self.assertNotIn('GenProp0046', properties.keys())
         self.assertEqual(properties['GenProp0001']['supported_steps'], [1, 2])
         self.assertEqual(properties['GenProp0001']['partial'], False)
         self.assertEqual(properties['GenProp0053']['supported_steps'], [1, 10])
         self.assertEqual(properties['GenProp0053']['partial'], True)
+        self.assertEqual(properties['name'], 'test1')

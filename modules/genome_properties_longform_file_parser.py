@@ -6,6 +6,8 @@ Created by: Lee Bergstrand (2017)
 Description: A parser for parsing genome properties longform files.
 """
 
+from os.path import basename
+
 
 def parse_genome_property_longform_file(longform_file):
     """
@@ -44,5 +46,7 @@ def parse_genome_property_longform_file(longform_file):
                     current_steps = []
         else:
             continue
+
+    organism_properties['name'] = basename(longform_file.name)
 
     return organism_properties
