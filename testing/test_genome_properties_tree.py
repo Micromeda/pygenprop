@@ -11,7 +11,7 @@ import unittest
 
 from copy import deepcopy
 
-from modules.genome_property_tree import GenomePropertyTree
+from modules.genome_properties_tree import GenomePropertiesTree
 from modules.genome_properties_flat_file_parser import parse_genome_property
 
 
@@ -118,7 +118,7 @@ class TestGenomePropertyTree(unittest.TestCase):
         property_four = test_properties[3]
         property_five = test_properties[4]
 
-        property_tree = GenomePropertyTree(*test_properties)
+        property_tree = GenomePropertiesTree(*test_properties)
 
         self.assertEqual(property_tree[property_one.id].children[0], property_three)
         self.assertEqual(property_tree[property_two.id].children[0], property_three)
@@ -130,7 +130,7 @@ class TestGenomePropertyTree(unittest.TestCase):
     def test_find_leaf_nodes(self):
         """Test we can find the right leaf nodes."""
 
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
         leaf_ids = [leaf.id for leaf in property_tree.leafs]
 
         self.assertCountEqual(leaf_ids, ['GenProp0089', 'GenProp0092'])
@@ -138,7 +138,7 @@ class TestGenomePropertyTree(unittest.TestCase):
     def test_find_root_node(self):
         """Test that we can find the correct genome property root."""
 
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
         root = property_tree.root
 
         """
@@ -151,7 +151,7 @@ class TestGenomePropertyTree(unittest.TestCase):
     def test_create_json_graph_links(self):
         """Test that we can create parent child link json."""
 
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
         json_links = property_tree.create_graph_links_json(as_list=True)
 
         predicted_links = [{'parent': 'GenProp0002', 'child': 'GenProp0066'},
@@ -164,7 +164,7 @@ class TestGenomePropertyTree(unittest.TestCase):
     def test_create_json_graph_nodes(self):
         """Test that we can create nodes json."""
 
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
         json_nodes = property_tree.create_graph_nodes_json(as_list=True)
 
         ids = {node['id'] for node in json_nodes}
@@ -182,7 +182,7 @@ class TestGenomePropertyTree(unittest.TestCase):
     def test_create_nested_json(self):
         """Test that we can create nested json."""
 
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
         json = property_tree.create_nested_json(as_dict=True)
 
         root_id = json['id']
@@ -210,7 +210,7 @@ class TestGenomePropertyTree(unittest.TestCase):
         self.assertEqual(level_two_child_two['children'], [])
 
     def test_json_string_creation(self):
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
 
         test_json = property_tree.to_json()
 
@@ -232,7 +232,7 @@ class TestGenomePropertyTree(unittest.TestCase):
         self.assertIn(test_json_parsed, [expected_json_parsed_one, expected_json_parsed_two])
 
     def test_json_string_creation_nodes_and_links(self):
-        property_tree = GenomePropertyTree(*self.properties)
+        property_tree = GenomePropertiesTree(*self.properties)
 
         test_json = property_tree.to_json(nodes_and_links=True)
 

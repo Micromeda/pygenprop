@@ -9,7 +9,7 @@ Description: The genome property tree class.
 import json
 
 
-class GenomePropertyTree(object):
+class GenomePropertiesTree(object):
     """
     This class contains a representation of a set of nested genome properties. Internally, the instantiated
     object contains a polytree of genome properties connected from root to leaf (parent to child). A dictionary is

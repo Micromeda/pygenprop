@@ -11,7 +11,7 @@ from modules.evidence import Evidence
 from modules.genome_property import GenomeProperty
 from modules.functional_element import FunctionalElement
 from modules.database_reference import DatabaseReference
-from modules.genome_property_tree import GenomePropertyTree
+from modules.genome_properties_tree import GenomePropertiesTree
 from modules.literature_reference import LiteratureReference
 
 
@@ -32,7 +32,7 @@ def parse_genome_property_file(genome_property_file):
             genome_properties.append(new_genome_property)
             current_genome_property_record = []
 
-    genome_properties_tree = GenomePropertyTree(*genome_properties)
+    genome_properties_tree = GenomePropertiesTree(*genome_properties)
 
     return genome_properties_tree
 
