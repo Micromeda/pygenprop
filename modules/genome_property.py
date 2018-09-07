@@ -46,7 +46,7 @@ class GenomeProperty(object):
         self.id = accession_id
         self.name = name
         self.type = property_type
-        self.threshold = threshold
+        self.threshold = int(threshold)
         self.references = references
         self.databases = databases
         self.parents = parents
