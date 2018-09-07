@@ -100,10 +100,7 @@ class GenomeProperty(object):
         child_genome_properties_identifiers = []
 
         for step in self.steps:
-            for element in step.functional_elements:
-                for evidence in element.evidence:
-                    if evidence.has_genome_property:
-                        child_genome_properties_identifiers.extend(evidence.genome_property_identifiers)
+            child_genome_properties_identifiers.extend(step.genome_property_identifiers)
 
         return child_genome_properties_identifiers
 
@@ -127,5 +124,3 @@ class GenomeProperty(object):
             output = json.dumps(json_dict)
 
         return output
-
-

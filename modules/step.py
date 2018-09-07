@@ -42,3 +42,17 @@ class Step(object):
                 break
 
         return required_step
+
+    @property
+    def genome_property_identifiers(self):
+        """
+        Collects all the genome properties identifiers supporting a step.
+        :return:
+        """
+        genome_properties_identifiers = []
+        for element in self.functional_elements:
+            for evidence in element.evidence:
+                if evidence.has_genome_property:
+                    genome_properties_identifiers.extend(evidence.genome_property_identifiers)
+
+        return genome_properties_identifiers
