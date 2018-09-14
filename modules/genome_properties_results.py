@@ -27,4 +27,4 @@ class GenomePropertiesResults(object):
 
         for sample_result in genome_properties_results:
             json_string = json.dumps(sample_result)
-            data =
+            # data =
