@@ -11,7 +11,7 @@ import json
 
 class GenomeProperty(object):
     """
-    Represents a EBI Interpro genome property. Each represents specific capabilities of an
+    Represents a EBI genome property. Each represents specific capabilities of an
     organism as proven by the presence of genes found in its genome.
     """
 
@@ -42,6 +42,8 @@ class GenomeProperty(object):
             databases = []
         if references is None:
             references = []
+        if threshold is None:
+            threshold = 0
 
         self.id = accession_id
         self.name = name
@@ -90,6 +92,15 @@ class GenomeProperty(object):
                      'Public: ' + str(self.public)]
 
         return ', '.join(repr_data)
+
+    @property
+    def required_steps(self):
+        """
+        Returns a list of all the required steps of the genome property.
+        :return: All required steps.
+        """
+
+        return [step for step in self.steps if step.required]
 
     @property
     def child_genome_property_identifiers(self):
