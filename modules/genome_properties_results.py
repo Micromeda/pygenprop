@@ -17,10 +17,11 @@ class GenomePropertiesResults(object):
     This class contains a representation of a table of results from one or more genome properties assignments.
     """
 
-    def __init__(self, global_genome_properties_tree: GenomePropertiesTree, *genome_properties_results: dict):
+    def __init__(self, *genome_properties_results: dict, genome_properties_tree: GenomePropertiesTree):
         """
+        Constructs the genome properties results object.
 
-        :param global_genome_properties_tree: The global genome properties tree.
+        :param genome_properties_tree: The global genome properties tree.
         :param genome_properties_results_dict: One or more parsed genome properties assignments.
         """
 
@@ -29,7 +30,7 @@ class GenomePropertiesResults(object):
         sample_names = []
         for result in genome_properties_results:
             sample_names.append(result.pop('name'))
-            property_table, step_table = create_assignment_tables(global_genome_properties_tree, result)
+            property_table, step_table = create_assignment_tables(genome_properties_tree, result)
             property_tables.append(property_table)
             step_tables.append(step_table)
 
@@ -38,15 +39,28 @@ class GenomePropertiesResults(object):
         combined_properties_table.columns = sample_names
         combined_step_table.columns = sample_names
 
-        self.tree = global_genome_properties_tree
+        self.tree = genome_properties_tree
         self.sample_names = sample_names
         self.property_results = combined_properties_table
         self.step_results = combined_step_table
 
     def get_property_result(self, genome_property_id):
+        """
+        Gets the assignment results for a given genome property.
+
+        :param genome_property_id: The id of the genome property to get results for.
+        :return: A list containing the assignment results for the genome property in question.
+        """
         return self.property_results.loc[genome_property_id].tolist()
 
     def get_step_result(self, genome_property_id, step_number):
+        """
+        Gets the assignment results for a given step of a genome property.
+
+        :param genome_property_id: The id of the genome property that the step belongs too.
+        :param step_number: The step number of the step.
+        :return: A list containing the assignment results for the step in question.
+        """
         return self.step_results.loc[genome_property_id].loc[step_number].tolist()
 
     def to_json(self):

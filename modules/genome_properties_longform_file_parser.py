@@ -8,6 +8,7 @@ Description: A parser for parsing genome properties longform files.
 
 from os.path import basename, splitext
 
+
 def parse_genome_property_longform_file(longform_file):
     """
     Parses longform genome properties assignment files.
