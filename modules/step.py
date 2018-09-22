@@ -32,6 +32,19 @@ class Step(object):
         return ', '.join(repr_data)
 
     @property
+    def name(self):
+        """
+        Get the name for a step based on combine the names of its functional elements.
+
+        :return: The name of the step.
+        """
+        try:
+            return " ".join(element.name for element in self.functional_elements)
+        except:
+            print(self.functional_elements)
+            exit(1)
+
+    @property
     def required(self):
         """
         Checks if the step is required by checking if any of the functional elements are required.
