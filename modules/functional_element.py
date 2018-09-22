@@ -23,6 +23,8 @@ class FunctionalElement(object):
             evidence = []
         if required is None:
             required = False
+        if name is None:
+            name = identifier
 
         self.id = identifier
         self.name = name

@@ -7,6 +7,7 @@ Description: The genome property tree class.
 """
 
 import json
+import csv
 
 
 class GenomePropertiesTree(object):
@@ -147,6 +148,25 @@ class GenomePropertiesTree(object):
             output = json.dumps(links)
 
         return output
+
+    def create_metabolism_database_mapping_file(self, file_handle):
+        """
+        Writes a mapping file which maps each genome property to KEGG and MetaCyc.
+        :param file_handle: A python file handle object.
+        """
+        mapping_data = []
+        for genome_property in self:
+            for database in genome_property.databases:
+                if database.database_name in ['MetaCyc', 'KEGG']:
+                    row = (genome_property.id,
+                           genome_property.name,
+                           database.database_name,
+                           database.record_title,
+                           database.record_ids[0])
+
+                    sanitized_row = [data_point.replace(',', '') for data_point in row]
+                    mapping_data.append(sanitized_row)
+        csv.writer(file_handle).writerows(mapping_data)
 
     def __getitem__(self, item):
         return self.genome_properties_dictionary.get(item)

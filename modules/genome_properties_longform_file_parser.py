@@ -6,7 +6,7 @@ Created by: Lee Bergstrand (2017)
 Description: A parser for parsing genome properties longform files.
 """
 
-from os.path import basename
+from os.path import basename, splitext
 
 
 def parse_genome_property_longform_file(longform_file):
@@ -27,26 +27,21 @@ def parse_genome_property_longform_file(longform_file):
         elif 'STEP NUMBER:' in line:
             current_step_number = int(line.split(':')[1].strip())
         elif 'RESULT:' in line:
-            result_content = line.split(':')[1].strip().lower()
+            result_content = line.split(':')[1].strip().upper()
 
             if 'STEP' in line:
-                if result_content == 'yes':
+                if result_content == 'YES':
                     current_steps.append(current_step_number)
             else:
-                if result_content == 'partial':
-                    partial = True
-                else:
-                    partial = False
+                property_results = {'result': result_content,
+                                    'supported_steps': current_steps}
 
-                if result_content in ['yes', 'partial']:
-                    property_results = {'partial': partial,
-                                        'supported_steps': current_steps}
+                organism_properties[current_property_id] = property_results
+                current_steps = []
 
-                    organism_properties[current_property_id] = property_results
-                    current_steps = []
         else:
             continue
 
-    organism_properties['name'] = basename(longform_file.name)
+    organism_properties['name'] = splitext(basename(longform_file.name))[0]  # Get filename without path or extension.
 
     return organism_properties

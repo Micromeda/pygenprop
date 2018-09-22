@@ -147,6 +147,10 @@ def parse_genome_property(genome_property_record):
                                          references=references,
                                          databases=databases,
                                          steps=steps)
+
+    for step in new_genome_property.steps:
+        step.parent = new_genome_property
+
     return new_genome_property
 
 

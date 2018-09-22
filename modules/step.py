@@ -6,11 +6,13 @@ Created by: Lee Bergstrand (2017)
 Description: The step class.
 """
 
+from modules.genome_property import GenomeProperty
+
 
 class Step(object):
     """A class representing a step that supports the existence of a genome property."""
 
-    def __init__(self, number, functional_elements=None):
+    def __init__(self, number, functional_elements: dict=None, parent: GenomeProperty=None):
         """
         Creates a new Step object.
         :param number: The position of the step in the step list.
@@ -22,11 +24,25 @@ class Step(object):
 
         self.number = int(number)
         self.functional_elements = functional_elements
+        self.parent = parent
 
     def __repr__(self):
         repr_data = ['Step ' + str(self.number),
                      'Functional_Elements: ' + str(self.functional_elements)]
         return ', '.join(repr_data)
+
+    @property
+    def name(self):
+        """
+        Get the name for a step based on combine the names of its functional elements.
+
+        :return: The name of the step.
+        """
+        try:
+            return " ".join(element.name for element in self.functional_elements)
+        except:
+            print(self.functional_elements)
+            exit(1)
 
     @property
     def required(self):
@@ -42,3 +58,26 @@ class Step(object):
                 break
 
         return required_step
+
+    @property
+    def genome_property_identifiers(self):
+        """
+        Collects all the genome properties identifiers supporting a step.
+        :return: A list of the steps child genome property identifiers.
+        """
+        genome_properties_identifiers = []
+        for element in self.functional_elements:
+            for evidence in element.evidence:
+                if evidence.has_genome_property:
+                    genome_properties_identifiers.extend(evidence.genome_property_identifiers)
+
+        return genome_properties_identifiers
+
+    @property
+    def genome_properties(self):
+        """
+        Collects all the child genome properties supporting a step.
+        :return: A list of child genome properties for a step.
+        """
+        child_identifiers = self.genome_property_identifiers
+        return [child_property for child_property in self.parent.children if child_property.id in child_identifiers]
