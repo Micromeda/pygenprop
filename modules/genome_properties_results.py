@@ -10,6 +10,7 @@ from modules.genome_properties_tree import GenomePropertiesTree
 from modules.genome_property import GenomeProperty
 from modules.step import Step
 import pandas as pd
+import json
 
 
 class GenomePropertiesResults(object):
@@ -63,10 +64,25 @@ class GenomePropertiesResults(object):
         """
         return self.step_results.loc[genome_property_id].loc[step_number].tolist()
 
-    def to_json(self):
-        return {'sample_names': self.sample_names, 'property_tree': self.generate_json_tree(self.tree.root)}
+    def to_json(self, file_handle=None):
+        """
+        Returns a JSON representation of the step results.
+        :return: A nested dict of the assignment results and sample names.
+        """
+        json_data = {'sample_names': self.sample_names, 'property_tree': self.generate_json_tree(self.tree.root)}
+
+        if file_handle:
+            json.dump(json_data, file_handle)
+        else:
+            return json.dumps(json_data)
 
     def generate_json_tree(self, genome_properties_root):
+        """
+        Creates a tree based representation of the genome properties assignment results.
+
+        :param genome_properties_root: The root element of the genome properties tree.
+        :return: A nested dict of assignment results.
+        """
         node_dict = {'property_id': genome_properties_root.id,
                      'name': genome_properties_root.name,
                      'enabled': False,
@@ -80,7 +96,7 @@ class GenomePropertiesResults(object):
                     children.append(self.generate_json_tree(child))
             else:
                 step_dict = {'step_id': step.number,
-                             'name': genome_properties_root.name,
+                             'name': step.name,
                              'enabled': False,
                              'result': self.get_step_result(genome_properties_root.id,
                                                             step.number)}
@@ -241,6 +257,11 @@ def assign_result_from_child_assignment_results(child_assignment_results: list):
 
 
 def create_step_table_rows(step_assignments):
+    """
+    Unfolds a step result dict of dict and yields a step table row.
+
+    :param step_assignments: A dict of dicts containing step assignment information ({gp_key -> {stp_key --> result}})
+    """
     for genome_property_id, step in step_assignments.items():
         for step_number, step_result in step.items():
             yield genome_property_id, step_number, step_result
