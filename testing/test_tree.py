@@ -262,3 +262,12 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         self.assertCountEqual(test_json_nodes, expected_json_nodes)
         self.assertCountEqual(test_json_links, expected_json_links)
+
+    def test_parse_genome_property_file(self):
+        """Test if a physical genome properties file can be parsed."""
+        genome_property_flat_file_path = './testing/test_constants/test_genome_properties.txt'
+
+        with open(genome_property_flat_file_path) as genome_property_file:
+            properties = parse_genome_property_file(genome_property_file)
+
+        self.assertEqual(len(properties), 4)
