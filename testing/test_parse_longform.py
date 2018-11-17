@@ -16,7 +16,6 @@ class TestParseLongform(unittest.TestCase):
     """A unit testing class for testing the assignment_file_parser.py module.
     To be called by nosetests."""
 
-    @unittest.skip('Still in development...')
     def test_parse_longform(self):
         """Test parsing longform genome properties assignment files."""
         simulated_property_file = '''PROPERTY: GenProp0001
@@ -49,6 +48,10 @@ class TestParseLongform(unittest.TestCase):
                     .	STEP NAME: IPP biosynthesis
                     .	.	required
                     .	STEP RESULT: no
+                    .	STEP NUMBER: 2
+                    .	STEP NAME: IPP storage
+                    .	.	required
+                    .	STEP RESULT: yes
                     RESULT: NO
                 '''
 
@@ -59,7 +62,9 @@ class TestParseLongform(unittest.TestCase):
 
         self.assertEqual(len(properties.keys()), 4)
         self.assertEqual(properties['GenProp0001']['supported_steps'], [1, 2])
-        self.assertEqual(properties['GenProp0001']['partial'], False)
+        self.assertEqual(properties['GenProp0001']['result'], 'YES')
         self.assertEqual(properties['GenProp0053']['supported_steps'], [1, 10])
-        self.assertEqual(properties['GenProp0053']['partial'], True)
+        self.assertEqual(properties['GenProp0053']['result'], 'PARTIAL')
+        self.assertEqual(properties['GenProp0046']['result'], 'NO')
+        self.assertEqual(properties['GenProp0046']['supported_steps'], [2])
         self.assertEqual(properties['name'], 'test1')

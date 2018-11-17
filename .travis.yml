@@ -10,4 +10,3 @@ script:
   - nosetests -v ./
   - ./test_parse_genome_properties_file.py  -i ./genome-properties/flatfiles/genomeProperties.txt
   - ./testing/test_end_to_end.sh
-
