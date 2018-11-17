@@ -5,7 +5,7 @@ python:
   # PyPy versions
   - "pypy3.5"
 before_script:
-  - git clone https://github.com/G2CView/genome-properties.git
+  - git clone https://github.com/Micromeda/genome-properties
 script:
   - nosetests -v ./
   - ./test_parse_genome_properties_file.py  -i ./genome-properties/flatfiles/genomeProperties.txt
