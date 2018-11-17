@@ -60,12 +60,12 @@ class TestGenomeProperty(unittest.TestCase):
             ('EV', 'IPR019910; TIGR03564; sufficient;'),
             ('--', ''),
             ('SN', '2'),
-            ('ID', 'Selfish genetic elements'),
-            ('RQ', '0'),
+            ('ID', 'Selfish genetic elements One'),
+            ('RQ', '1'),
             ('EV', 'GenProp0066; GenProp0067;'),
             ('--', ''),
             ('SN', '3'),
-            ('ID', 'Selfish genetic elements'),
+            ('ID', 'Selfish genetic elements two'),
             ('RQ', '0'),
             ('EV', 'GenProp0068; GenProp0069;')
         ]
@@ -110,3 +110,13 @@ class TestGenomeProperty(unittest.TestCase):
         self.assertEqual(json_dict['type'], 'GUILD')
         self.assertEqual(json_dict['description'], 'Coenzyme F420 (a 7,8-didemethyl-8-hydroxy 5-deazaflavin)')
         self.assertEqual(json_dict['notes'], 'Yo_Dog_its_Yolo')
+
+    def test_required_steps(self):
+        """Test that a genome property can return its required steps."""
+
+        new_property = parse_genome_property(self.property_rows[1])
+
+        required_steps = new_property.required_steps
+
+        self.assertEquals(len(required_steps), 1)
+        self.assertEquals(required_steps[0].name, 'Selfish genetic elements One')

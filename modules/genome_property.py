@@ -97,9 +97,8 @@ class GenomeProperty(object):
     def required_steps(self):
         """
         Returns a list of all the required steps of the genome property.
-        :return: All required steps.
+        :return: All required steps as list.
         """
-
         return [step for step in self.steps if step.required]
 
     @property
