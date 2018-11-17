@@ -6,7 +6,7 @@ Created by: Lee Bergstrand (2018)
 Description: The genome property tree class.
 """
 
-from modules.genome_properties_tree import GenomePropertiesTree
+from modules.tree import GenomePropertiesTree
 from modules.genome_property import GenomeProperty
 from modules.step import Step
 import pandas as pd

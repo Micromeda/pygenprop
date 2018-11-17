@@ -11,7 +11,7 @@ from modules.evidence import Evidence
 from modules.genome_property import GenomeProperty
 from modules.functional_element import FunctionalElement
 from modules.database_reference import DatabaseReference
-from modules.genome_properties_tree import GenomePropertiesTree
+from modules.tree import GenomePropertiesTree
 from modules.literature_reference import LiteratureReference
 
 

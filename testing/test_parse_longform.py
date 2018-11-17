@@ -9,14 +9,14 @@ Description: A simple unittest for testing the literature reference module.
 import unittest
 from io import StringIO
 
-from modules.genome_properties_longform_file_parser import parse_genome_property_longform_file
+from modules.assignment_file_parser import parse_genome_property_longform_file
 
 
 class TestParseLongform(unittest.TestCase):
-    """A unit testing class for testing the genome_properties_longform_file_parser.py module.
+    """A unit testing class for testing the assignment_file_parser.py module.
     To be called by nosetests."""
 
-    @unittest.skip
+    @unittest.skip('Still in development...')
     def test_parse_longform(self):
         """Test parsing longform genome properties assignment files."""
         simulated_property_file = '''PROPERTY: GenProp0001

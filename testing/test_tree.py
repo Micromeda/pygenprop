@@ -11,12 +11,13 @@ import unittest
 
 from copy import deepcopy
 
-from modules.genome_properties_tree import GenomePropertiesTree
-from modules.genome_properties_flat_file_parser import parse_genome_property
+from modules.tree import GenomePropertiesTree
+from modules.flat_file_parser import parse_genome_property
+from modules.flat_file_parser import parse_genome_property_file
 
 
 class TestGenomePropertyTree(unittest.TestCase):
-    """A unit testing class for testing the genome_properties_tree.py module. To be called by nosetests."""
+    """A unit testing class for testing the tree.py module. To be called by nosetests."""
 
     @classmethod
     def setUpClass(cls):

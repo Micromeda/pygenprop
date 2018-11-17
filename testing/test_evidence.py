@@ -8,7 +8,7 @@ Description: A simple unittest for testing the evidence module.
 
 import unittest
 
-from modules.genome_properties_flat_file_parser import parse_evidences
+from modules.flat_file_parser import parse_evidences
 
 
 class TestEvidence(unittest.TestCase):

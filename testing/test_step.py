@@ -8,7 +8,7 @@ Description: A simple unittest for testing the step module.
 
 import unittest
 
-from modules.genome_properties_flat_file_parser import parse_steps
+from modules.flat_file_parser import parse_steps
 
 
 class TestStep(unittest.TestCase):
