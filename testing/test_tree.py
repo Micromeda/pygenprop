@@ -237,7 +237,8 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         test_json = property_tree.to_json(nodes_and_links=True)
 
-        expected_json = '''{"nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+        expected_json = '''{
+        "nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                     "notes": null},
                    {"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                     "notes": null},
@@ -247,7 +248,7 @@ class TestGenomePropertyTree(unittest.TestCase):
                     "notes": null},
                    {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                     "notes": null}],
-         "links": [{"parent": "GenProp0002", "child": "GenProp0066"}, {"parent": "GenProp0003", "child": "GenProp0066"},
+        "links": [{"parent": "GenProp0002", "child": "GenProp0066"}, {"parent": "GenProp0003", "child": "GenProp0066"},
                    {"parent": "GenProp0066", "child": "GenProp0089"},
                    {"parent": "GenProp0066", "child": "GenProp0092"}]}'''
 
