@@ -38,11 +38,7 @@ class Step(object):
 
         :return: The name of the step.
         """
-        try:
-            return " ".join(element.name for element in self.functional_elements)
-        except:
-            print(self.functional_elements)
-            exit(1)
+        return " ".join(element.name for element in self.functional_elements)
 
     @property
     def required(self):

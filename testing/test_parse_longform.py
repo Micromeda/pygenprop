@@ -52,8 +52,7 @@ class TestParseLongform(unittest.TestCase):
                     .	STEP NAME: IPP storage
                     .	.	required
                     .	STEP RESULT: yes
-                    RESULT: NO
-                '''
+                    RESULT: NO'''
 
         rows = StringIO(simulated_property_file)
         rows.name = './testing/test1'
