@@ -8,7 +8,10 @@ Description: A simple unittest for testing the results module.
 
 import unittest
 
-from modules.results import assign_property_result_from_required_steps, assign_result_from_child_assignment_results
+from modules.assignment_file_parser import parse_genome_property_longform_file
+from modules.flat_file_parser import parse_genome_property_file
+from modules.results import assign_property_result_from_required_steps, assign_result_from_child_assignment_results, \
+    GenomePropertiesResults
 
 
 class TestResults(unittest.TestCase):
@@ -88,3 +91,15 @@ class TestResults(unittest.TestCase):
 
         property_result = assign_result_from_child_assignment_results(['YES', 'NO', 'PARTIAL'])
         self.assertEqual(property_result, 'PARTIAL')
+
+    @unittest.skip('Testing the results object is still in development.')
+    def test_results(self):
+        """Test parsing longform genome properties assignment files into assignment results."""
+
+        with open('testing/test_constants/C_chlorochromatii_CaD3.txt') as assignment_file_one:
+            properties_dict = parse_genome_property_longform_file(assignment_file_one)
+
+        with open('testing/test_constants/test_genome_properties.txt') as test_genome_properties_file:
+            tree = parse_genome_property_file(test_genome_properties_file)
+
+        results = GenomePropertiesResults(properties_dict, genome_properties_tree=tree)

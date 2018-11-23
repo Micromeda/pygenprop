@@ -109,7 +109,7 @@ class GenomePropertiesResults(object):
 def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, long_form_parser_results: dict):
     """
     Takes a results dictionary from the long form parser and creates two tables. One for property results and
-    one for step results.
+    one for step results. The longform results file has only leaf assignment results. We have to bootstrap the rest.
 
     :param genome_properties_tree: The global genome properties tree.
     :param long_form_parser_results: Per-sample genome properties results from the long form parser.
@@ -118,23 +118,29 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, long_
     property_assignments = {}
     step_assignments = {}
 
+    # Record the leaf assignments.
     for genome_property_id, assignments in long_form_parser_results.items():
-
         property_assignments[genome_property_id] = assignments['result']
 
-        all_step_numbers = set(step.number for step in genome_properties_tree[genome_property_id].steps)
-        supported_step_numbers = set(assignments['supported_steps'])
-        unsupported_steps_numbers = all_step_numbers - supported_step_numbers
+        genome_property_in_tree = genome_properties_tree[genome_property_id]
 
-        current_genome_property_step_assignments = {}
-        for step_number in supported_step_numbers:
-            current_genome_property_step_assignments[step_number] = 'YES'
+        if genome_property_in_tree:
+            all_step_numbers = set(step.number for step in genome_property_in_tree.steps)
+            supported_step_numbers = set(assignments['supported_steps'])
+            unsupported_steps_numbers = all_step_numbers - supported_step_numbers
 
-        for step_number in unsupported_steps_numbers:
-            current_genome_property_step_assignments[step_number] = 'NO'
+            current_genome_property_step_assignments = {}
+            for step_number in supported_step_numbers:
+                current_genome_property_step_assignments[step_number] = 'YES'
 
-        step_assignments[genome_property_id] = current_genome_property_step_assignments
+            for step_number in unsupported_steps_numbers:
+                current_genome_property_step_assignments[step_number] = 'NO'
 
+            step_assignments[genome_property_id] = current_genome_property_step_assignments
+        else:
+            continue  # If the genome property is not found in the tree skip to the next.
+
+    # Bootstrap the other assignments from the leaf assignments.
     assign_results_to_property_and_children(property_assignments, step_assignments, genome_properties_tree.root)
 
     property_table = pd.DataFrame.from_dict(property_assignments, orient='index', columns=['Property_Result'])

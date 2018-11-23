@@ -57,13 +57,13 @@ class TestParseLongform(unittest.TestCase):
         rows = StringIO(simulated_property_file)
         rows.name = './testing/test1'
 
-        properties = parse_genome_property_longform_file(rows)
+        properties_dict = parse_genome_property_longform_file(rows)
 
-        self.assertEqual(len(properties.keys()), 4)
-        self.assertEqual(properties['GenProp0001']['supported_steps'], [1, 2])
-        self.assertEqual(properties['GenProp0001']['result'], 'YES')
-        self.assertEqual(properties['GenProp0053']['supported_steps'], [1, 10])
-        self.assertEqual(properties['GenProp0053']['result'], 'PARTIAL')
-        self.assertEqual(properties['GenProp0046']['result'], 'NO')
-        self.assertEqual(properties['GenProp0046']['supported_steps'], [2])
-        self.assertEqual(properties['name'], 'test1')
+        self.assertEqual(len(properties_dict.keys()), 4)
+        self.assertEqual(properties_dict['GenProp0001']['supported_steps'], [1, 2])
+        self.assertEqual(properties_dict['GenProp0001']['result'], 'YES')
+        self.assertEqual(properties_dict['GenProp0053']['supported_steps'], [1, 10])
+        self.assertEqual(properties_dict['GenProp0053']['result'], 'PARTIAL')
+        self.assertEqual(properties_dict['GenProp0046']['result'], 'NO')
+        self.assertEqual(properties_dict['GenProp0046']['supported_steps'], [2])
+        self.assertEqual(properties_dict['name'], 'test1')
