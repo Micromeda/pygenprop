@@ -6,7 +6,7 @@ python:
   - "pypy3.5"
 cache: pip
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt --no-build-isolation
 before_script:
   - git clone https://github.com/Micromeda/genome-properties
 script:
