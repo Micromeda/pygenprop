@@ -4,6 +4,9 @@ python:
   - "3.6"
   # PyPy versions
   - "pypy3.5"
+cache: pip
+install:
+  - pip install -r requirements.txt
 before_script:
   - git clone https://github.com/Micromeda/genome-properties
 script:
