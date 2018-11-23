@@ -92,14 +92,17 @@ class TestResults(unittest.TestCase):
         property_result = assign_result_from_child_assignment_results(['YES', 'NO', 'PARTIAL'])
         self.assertEqual(property_result, 'PARTIAL')
 
-    @unittest.skip('Testing the results object is still in development.')
     def test_results(self):
         """Test parsing longform genome properties assignment files into assignment results."""
 
         with open('testing/test_constants/C_chlorochromatii_CaD3.txt') as assignment_file_one:
             properties_dict = parse_genome_property_longform_file(assignment_file_one)
 
-        with open('testing/test_constants/test_genome_properties.txt') as test_genome_properties_file:
+        with open('testing/test_constants/test_genome_properties_two.txt') as test_genome_properties_file:
             tree = parse_genome_property_file(test_genome_properties_file)
 
         results = GenomePropertiesResults(properties_dict, genome_properties_tree=tree)
+
+        self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3'])
+        self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
+        self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES'])
