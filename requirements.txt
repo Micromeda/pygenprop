@@ -1,2 +1,2 @@
 Cython==0.29
-pandas==0.23.0
+pandas==0.22.0
