@@ -8,11 +8,11 @@ Description: Parses EBI genome properties assignment files.
 
 import argparse
 
-from modules.assignment_file_parser import parse_genome_property_longform_file
-from modules.flat_file_parser import parse_genome_property_file
-from modules.results import GenomePropertiesResults
+from pygenprop.assignment_file_parser import parse_genome_property_longform_file
+from pygenprop.flat_file_parser import parse_genome_property_file
+from pygenprop.results import GenomePropertiesResults
 
-from modules.lib import sanitize_cli_path
+from pygenprop.lib import sanitize_cli_path
 
 
 def main(args):

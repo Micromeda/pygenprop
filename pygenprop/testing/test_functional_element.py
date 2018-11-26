@@ -8,7 +8,7 @@ Description: A simple unittest for testing the functional_element module.
 
 import unittest
 
-from modules.flat_file_parser import parse_functional_elements
+from pygenprop.flat_file_parser import parse_functional_elements
 
 
 class TestFunctionalElement(unittest.TestCase):

@@ -11,9 +11,9 @@ import unittest
 
 from copy import deepcopy
 
-from modules.tree import GenomePropertiesTree
-from modules.flat_file_parser import parse_genome_property
-from modules.flat_file_parser import parse_genome_property_file
+from pygenprop.tree import GenomePropertiesTree
+from pygenprop.flat_file_parser import parse_genome_property
+from pygenprop.flat_file_parser import parse_genome_property_file
 
 
 class TestGenomePropertyTree(unittest.TestCase):
@@ -266,7 +266,7 @@ class TestGenomePropertyTree(unittest.TestCase):
 
     def test_parse_genome_property_file(self):
         """Test if a physical genome properties file can be parsed."""
-        genome_property_flat_file_path = './testing/test_constants/test_genome_properties.txt'
+        genome_property_flat_file_path = 'pygenprop/testing/test_constants/test_genome_properties.txt'
 
         with open(genome_property_flat_file_path) as genome_property_file:
             properties = parse_genome_property_file(genome_property_file)

@@ -8,7 +8,7 @@ Description: A simple unittest for testing the evidence module.
 
 import unittest
 
-from modules.flat_file_parser import parse_evidences
+from pygenprop.flat_file_parser import parse_evidences
 
 
 class TestEvidence(unittest.TestCase):

@@ -6,7 +6,7 @@ Created by: Lee Bergstrand (2017)
 Description: The step class.
 """
 
-from modules.genome_property import GenomeProperty
+from pygenprop.genome_property import GenomeProperty
 
 
 class Step(object):

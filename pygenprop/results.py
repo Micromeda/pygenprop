@@ -8,9 +8,9 @@ Description: The genome property tree class.
 
 import json
 import pandas as pd
-from modules.step import Step
-from modules.tree import GenomePropertiesTree
-from modules.genome_property import GenomeProperty
+from pygenprop.step import Step
+from pygenprop.tree import GenomePropertiesTree
+from pygenprop.genome_property import GenomeProperty
 
 
 class GenomePropertiesResults(object):
@@ -242,7 +242,7 @@ def assign_property_result_from_required_steps(required_step_results: list, thre
 
     In Perl code for Genome Properties:
 
-    Link: https://github.com/ebi-pf-team/genome-properties/blob/a76a5c0284f6c38cb8f43676618cf74f64634d33/code/modules/GenomeProperties.pm#L646
+    Link: https://github.com/ebi-pf-team/genome-properties/blob/a76a5c0284f6c38cb8f43676618cf74f64634d33/code/pygenprop/GenomeProperties.pm#L646
 
         #Three possible results for the evaluation
         if($found == 0 or $found <= $def->threshold){
