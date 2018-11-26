@@ -30,9 +30,9 @@ class GenomePropertiesResults(object):
         step_tables = []
         sample_names = []
         for result in genome_properties_results:
-            sample_names.append(result.pop('name'))
-            property_table, step_table = create_assignment_tables(genome_properties_tree, result)
+            result_copy = result.copy()
             sample_names.append(result_copy.pop('sample_name'))
+            property_table, step_table = create_assignment_tables(genome_properties_tree, result_copy)
             property_tables.append(property_table)
             step_tables.append(step_table)
 
@@ -119,27 +119,25 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, long_
     property_assignments = {}
     step_assignments = {}
 
+    tree_identifiers = set(genome_property.id for genome_property in genome_properties_tree)
+    filtered_parser_results = {identifier: long_form_parser_results[identifier] for identifier in tree_identifiers}
+
     # Record the leaf assignments.
-    for genome_property_id, assignments in long_form_parser_results.items():
+    for genome_property_id, assignments in filtered_parser_results.items():
         property_assignments[genome_property_id] = assignments['result']
 
-        genome_property_in_tree = genome_properties_tree[genome_property_id]
+        all_step_numbers = set(step.number for step in genome_properties_tree[genome_property_id].steps)
+        supported_step_numbers = set(assignments['supported_steps'])
+        unsupported_steps_numbers = all_step_numbers - supported_step_numbers
 
-        if genome_property_in_tree:
-            all_step_numbers = set(step.number for step in genome_property_in_tree.steps)
-            supported_step_numbers = set(assignments['supported_steps'])
-            unsupported_steps_numbers = all_step_numbers - supported_step_numbers
+        current_genome_property_step_assignments = {}
+        for step_number in supported_step_numbers:
+            current_genome_property_step_assignments[step_number] = 'YES'
 
-            current_genome_property_step_assignments = {}
-            for step_number in supported_step_numbers:
-                current_genome_property_step_assignments[step_number] = 'YES'
+        for step_number in unsupported_steps_numbers:
+            current_genome_property_step_assignments[step_number] = 'NO'
 
-            for step_number in unsupported_steps_numbers:
-                current_genome_property_step_assignments[step_number] = 'NO'
-
-            step_assignments[genome_property_id] = current_genome_property_step_assignments
-        else:
-            continue  # If the genome property is not found in the tree skip to the next.
+        step_assignments[genome_property_id] = current_genome_property_step_assignments
 
     # Bootstrap the other assignments from the leaf assignments.
     assign_results_to_property_and_children(property_assignments, step_assignments, genome_properties_tree.root)
