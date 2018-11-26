@@ -8,11 +8,66 @@ Description: A simple unittest for testing the step module.
 
 import unittest
 
-from modules.genome_properties_flat_file_parser import parse_steps
+from modules.flat_file_parser import parse_steps, parse_genome_property
+from modules.tree import GenomePropertiesTree
 
 
 class TestStep(unittest.TestCase):
     """A unit testing class for testing the step.py module. To be called by nosetests."""
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Test Properties
+
+                    --> GenProp0089
+        GenProp0066
+                    --> GenProp0092
+        """
+
+        property_rows_one = [
+            ('AC', 'GenProp0066'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0089;'),
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0092;'),
+        ]
+
+        property_rows_two = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;')
+        ]
+
+        property_rows_three = [
+            ('AC', 'GenProp0092'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;')
+        ]
+
+        property_one = parse_genome_property(property_rows_one)
+        property_two = parse_genome_property(property_rows_two)
+        property_three = parse_genome_property(property_rows_three)
+
+        cls.properties = [property_one, property_two, property_three]
 
     def test_parse_step(self):
         """Test that step rows can be parsed."""
@@ -90,3 +145,17 @@ class TestStep(unittest.TestCase):
         self.assertEqual(step_two.number, 2)
         self.assertEqual(len(step_two.functional_elements), 1)
         self.assertEqual(len(step_two.functional_elements[0].evidence), 1)
+
+    def test_get_step_genome_properties(self):
+        """Test that we can get child genome properties directly from a step."""
+        property_tree = GenomePropertiesTree(*self.properties)
+
+        steps = property_tree.root.steps
+
+        step_one_genome_properties = steps[0].genome_properties
+        step_two_genome_properties = steps[1].genome_properties
+
+        self.assertEquals(len(step_one_genome_properties), 1)
+        self.assertEquals(step_one_genome_properties[0].id, 'GenProp0089')
+        self.assertEquals(len(step_two_genome_properties), 1)
+        self.assertEquals(step_two_genome_properties[0].id, 'GenProp0092')

@@ -9,14 +9,13 @@ Description: A simple unittest for testing the literature reference module.
 import unittest
 from io import StringIO
 
-from modules.genome_properties_longform_file_parser import parse_genome_property_longform_file
+from modules.assignment_file_parser import parse_genome_property_longform_file
 
 
 class TestParseLongform(unittest.TestCase):
-    """A unit testing class for testing the genome_properties_longform_file_parser.py module.
+    """A unit testing class for testing the assignment_file_parser.py module.
     To be called by nosetests."""
 
-    @unittest.skip
     def test_parse_longform(self):
         """Test parsing longform genome properties assignment files."""
         simulated_property_file = '''PROPERTY: GenProp0001
@@ -49,18 +48,22 @@ class TestParseLongform(unittest.TestCase):
                     .	STEP NAME: IPP biosynthesis
                     .	.	required
                     .	STEP RESULT: no
-                    RESULT: NO
-                '''
+                    .	STEP NUMBER: 2
+                    .	STEP NAME: IPP storage
+                    .	.	required
+                    .	STEP RESULT: yes
+                    RESULT: NO'''
 
         rows = StringIO(simulated_property_file)
         rows.name = './testing/test1'
 
-        properties = parse_genome_property_longform_file(rows)
+        properties_dict = parse_genome_property_longform_file(rows)
 
-        self.assertEqual(len(properties.keys()), 3)
-        self.assertNotIn('GenProp0046', properties.keys())
-        self.assertEqual(properties['GenProp0001']['supported_steps'], [1, 2])
-        self.assertEqual(properties['GenProp0001']['partial'], False)
-        self.assertEqual(properties['GenProp0053']['supported_steps'], [1, 10])
-        self.assertEqual(properties['GenProp0053']['partial'], True)
-        self.assertEqual(properties['name'], 'test1')
+        self.assertEqual(len(properties_dict.keys()), 4)
+        self.assertEqual(properties_dict['GenProp0001']['supported_steps'], [1, 2])
+        self.assertEqual(properties_dict['GenProp0001']['result'], 'YES')
+        self.assertEqual(properties_dict['GenProp0053']['supported_steps'], [1, 10])
+        self.assertEqual(properties_dict['GenProp0053']['result'], 'PARTIAL')
+        self.assertEqual(properties_dict['GenProp0046']['result'], 'NO')
+        self.assertEqual(properties_dict['GenProp0046']['supported_steps'], [2])
+        self.assertEqual(properties_dict['sample_name'], 'test1')

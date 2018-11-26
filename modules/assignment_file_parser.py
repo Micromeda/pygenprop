@@ -42,6 +42,7 @@ def parse_genome_property_longform_file(longform_file):
         else:
             continue
 
-    organism_properties['name'] = splitext(basename(longform_file.name))[0]  # Get filename without path or extension.
+    # Get filename without path or extension.
+    organism_properties['sample_name'] = splitext(basename(longform_file.name))[0]
 
     return organism_properties

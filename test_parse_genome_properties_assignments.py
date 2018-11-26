@@ -8,9 +8,9 @@ Description: Parses EBI genome properties assignment files.
 
 import argparse
 
-from modules.genome_properties_longform_file_parser import parse_genome_property_longform_file
-from modules.genome_properties_flat_file_parser import parse_genome_property_file
-from modules.genome_properties_results import GenomePropertiesResults
+from modules.assignment_file_parser import parse_genome_property_longform_file
+from modules.flat_file_parser import parse_genome_property_file
+from modules.results import GenomePropertiesResults
 
 from modules.lib import sanitize_cli_path
 

@@ -11,12 +11,13 @@ import unittest
 
 from copy import deepcopy
 
-from modules.genome_properties_tree import GenomePropertiesTree
-from modules.genome_properties_flat_file_parser import parse_genome_property
+from modules.tree import GenomePropertiesTree
+from modules.flat_file_parser import parse_genome_property
+from modules.flat_file_parser import parse_genome_property_file
 
 
 class TestGenomePropertyTree(unittest.TestCase):
-    """A unit testing class for testing the genome_properties_tree.py module. To be called by nosetests."""
+    """A unit testing class for testing the tree.py module. To be called by nosetests."""
 
     @classmethod
     def setUpClass(cls):
@@ -236,7 +237,8 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         test_json = property_tree.to_json(nodes_and_links=True)
 
-        expected_json = '''{"nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
+        expected_json = '''{
+        "nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                     "notes": null},
                    {"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                     "notes": null},
@@ -246,7 +248,7 @@ class TestGenomePropertyTree(unittest.TestCase):
                     "notes": null},
                    {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
                     "notes": null}],
-         "links": [{"parent": "GenProp0002", "child": "GenProp0066"}, {"parent": "GenProp0003", "child": "GenProp0066"},
+        "links": [{"parent": "GenProp0002", "child": "GenProp0066"}, {"parent": "GenProp0003", "child": "GenProp0066"},
                    {"parent": "GenProp0066", "child": "GenProp0089"},
                    {"parent": "GenProp0066", "child": "GenProp0092"}]}'''
 
@@ -261,3 +263,12 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         self.assertCountEqual(test_json_nodes, expected_json_nodes)
         self.assertCountEqual(test_json_links, expected_json_links)
+
+    def test_parse_genome_property_file(self):
+        """Test if a physical genome properties file can be parsed."""
+        genome_property_flat_file_path = './testing/test_constants/test_genome_properties.txt'
+
+        with open(genome_property_flat_file_path) as genome_property_file:
+            properties = parse_genome_property_file(genome_property_file)
+
+        self.assertEqual(len(properties), 4)
