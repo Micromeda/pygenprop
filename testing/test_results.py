@@ -120,7 +120,7 @@ class TestResults(unittest.TestCase):
         self.assertEquals(len(results.tree), len(results.property_results.index))
 
     def test_multiple_results(self):
-        """Test parsing longform genome properties assignment files into assignment results."""
+        """Test parsing multiple longform genome properties assignment files into assignment results."""
 
         results = GenomePropertiesResults(*self.test_genome_property_results, genome_properties_tree=self.test_tree)
 
