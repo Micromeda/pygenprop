@@ -10,4 +10,4 @@ before_script:
 script:
   - nosetests -v ./
   - ./pygenprop/testing/test_parse_genome_properties_file.py -i ./genome-properties/flatfiles/genomeProperties.txt
-  - ./test_end_to_end.sh
+  - ./pygenprop/testing/test_end_to_end.sh
