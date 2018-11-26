@@ -1,10 +1,13 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
   - "3.5"
   - "3.6"
-  - "pypy"
-  - "pypy3"
+cache: pip
+install:
+  - pip install .
+before_script:
+  - git clone https://github.com/Micromeda/genome-properties
 script:
   - nosetests -v ./
+  - ./pygenprop/testing/test_parse_genome_properties_file.py -i ./genome-properties/flatfiles/genomeProperties.txt
+  - ./pygenprop/testing/test_end_to_end.sh

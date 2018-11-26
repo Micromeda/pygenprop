@@ -8,7 +8,7 @@ Description: A simple unittest for testing the evidence module.
 
 import unittest
 
-from modules.evidence import parse_evidences
+from pygenprop.flat_file_parser import parse_evidences
 
 
 class TestEvidence(unittest.TestCase):
@@ -31,8 +31,8 @@ class TestEvidence(unittest.TestCase):
         self.assertEqual(len(parsed_evidence), 1)
         first_evidence = parsed_evidence[0]
 
-        self.assertEqual(first_evidence.evidence_identifiers, {'IPR017545', 'TIGR03114'})
-        self.assertEqual(first_evidence.gene_ontology_terms, {'GO:0043571'})
+        self.assertEqual(first_evidence.evidence_identifiers, ['IPR017545', 'TIGR03114'])
+        self.assertEqual(first_evidence.gene_ontology_terms, ['GO:0043571'])
         self.assertEqual(first_evidence.sufficient, True)
 
     def test_parse_evidence_insufficient(self):
@@ -64,7 +64,7 @@ class TestEvidence(unittest.TestCase):
 
         parsed_evidence = parse_evidences(evidence)
         first_evidence = parsed_evidence[0]
-        self.assertEqual(first_evidence.gene_ontology_terms, set)
+        self.assertEqual(first_evidence.gene_ontology_terms, [])
 
     def test_parse_multiple_evidences(self):
         """Test that literature reference rows consisting of multiple references can be parsed."""
@@ -87,7 +87,35 @@ class TestEvidence(unittest.TestCase):
         third_evidence = parsed_evidences[2]
 
         self.assertEqual(len(parsed_evidences), 3)
-        self.assertEqual(first_evidence.evidence_identifiers, {'IPR017545', 'TIGR03114'})
-        self.assertEqual(first_evidence.gene_ontology_terms, set)
-        self.assertEqual(second_evidence.evidence_identifiers, {'IPR017547', 'TIGR03117'})
-        self.assertEqual(third_evidence.gene_ontology_terms, {'GO:0043573'})
+        self.assertEqual(first_evidence.evidence_identifiers, ['IPR017545', 'TIGR03114'])
+        self.assertEqual(first_evidence.gene_ontology_terms, [])
+        self.assertEqual(second_evidence.evidence_identifiers, ['IPR017547', 'TIGR03117'])
+        self.assertEqual(third_evidence.gene_ontology_terms, ['GO:0043573'])
+
+    def test_has_genome_property(self):
+        """Test that we can determine that an evidence is a genome property."""
+
+        evidences = [
+            ('--', ''),
+            ('SN',  '3'),
+            ('ID',  'Selfish genetic elements'),
+            ('RQ',  '0'),
+            ('EV', 'GenProp0066;')
+        ]
+
+        evidence = parse_evidences(evidences)[0]
+        self.assertEqual(evidence.has_genome_property, True)
+
+    def test_get_genome_property_identifiers(self):
+        """Test that we can determine that an evidence is a genome property."""
+
+        evidences = [
+            ('--', ''),
+            ('SN', '3'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0066; GenProp0067;')
+        ]
+
+        evidence = parse_evidences(evidences)[0]
+        self.assertEqual(evidence.genome_property_identifiers, ['GenProp0066', 'GenProp0067'])

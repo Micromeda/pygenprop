@@ -8,7 +8,7 @@ Description: A simple unittest for testing the functional_element module.
 
 import unittest
 
-from modules.functional_element import parse_functional_elements
+from pygenprop.flat_file_parser import parse_functional_elements
 
 
 class TestFunctionalElement(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestFunctionalElement(unittest.TestCase):
 
         second_functional_element = parsed_functional_elements[0]
         self.assertEqual(second_functional_element.required, False)
-        self.assertEqual(second_functional_element.evidence, set)
+        self.assertEqual(second_functional_element.evidence, [])
 
     def test_parse_multiple_functional_elements(self):
         """Test that functional elements rows consisting of multiple functional elements can be parsed."""

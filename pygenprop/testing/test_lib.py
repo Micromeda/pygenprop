@@ -7,8 +7,8 @@ Description: A simple unittest for testing functions from the lib module.
 """
 
 import unittest
-from modules.genome_property import parse_genome_property
-from modules.lib import create_marker_and_content, collapse_genome_property_record, parse_genome_property_file
+from pygenprop.flat_file_parser import parse_genome_property, create_marker_and_content, \
+    collapse_genome_property_record
 
 
 class TestLib(unittest.TestCase):
@@ -85,12 +85,3 @@ class TestLib(unittest.TestCase):
 
         self.assertEqual(len(functional_elements), 1)
         self.assertEqual(len(functional_elements[0].evidence), 6)
-
-    def test_parse_genome_property_file(self):
-        """Test if a physical genome properties file can be parsed."""
-        genome_property_flat_file_path = './testing/test_constants/test_genome_properties.txt'
-
-        with open(genome_property_flat_file_path) as genome_property_file:
-            properties = parse_genome_property_file(genome_property_file)
-
-        self.assertEqual(len(properties), 4)

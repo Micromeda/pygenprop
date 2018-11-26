@@ -7,7 +7,7 @@ Description: A simple unittest for testing the literature reference module.
 """
 
 import unittest
-from modules.literature_reference import parse_literature_references
+from pygenprop.flat_file_parser import parse_literature_references
 
 
 class TestLiteratureReference(unittest.TestCase):

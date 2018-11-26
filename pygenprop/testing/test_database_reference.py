@@ -7,7 +7,7 @@ Description: A simple unittest for testing the database reference module.
 """
 
 import unittest
-from modules.database_reference import parse_database_references
+from pygenprop.flat_file_parser import parse_database_references
 
 
 class TestDatabaseReference(unittest.TestCase):
