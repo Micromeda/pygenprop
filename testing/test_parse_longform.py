@@ -66,4 +66,4 @@ class TestParseLongform(unittest.TestCase):
         self.assertEqual(properties_dict['GenProp0053']['result'], 'PARTIAL')
         self.assertEqual(properties_dict['GenProp0046']['result'], 'NO')
         self.assertEqual(properties_dict['GenProp0046']['supported_steps'], [2])
-        self.assertEqual(properties_dict['name'], 'test1')
+        self.assertEqual(properties_dict['sample_name'], 'test1')

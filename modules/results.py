@@ -32,6 +32,7 @@ class GenomePropertiesResults(object):
         for result in genome_properties_results:
             sample_names.append(result.pop('name'))
             property_table, step_table = create_assignment_tables(genome_properties_tree, result)
+            sample_names.append(result_copy.pop('sample_name'))
             property_tables.append(property_table)
             step_tables.append(step_table)
 
