@@ -117,3 +117,13 @@ class TestResults(unittest.TestCase):
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES'])
+        self.assertEquals(len(results.tree), len(results.property_results.index))
+
+    def test_multiple_results(self):
+        """Test parsing longform genome properties assignment files into assignment results."""
+
+        results = GenomePropertiesResults(*self.test_genome_property_results, genome_properties_tree=self.test_tree)
+
+        self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3', 'C_luteolum_DSM_273'])
+        self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL', 'NO'])
+        self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES', 'NO'])
