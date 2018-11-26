@@ -17,6 +17,22 @@ from modules.results import assign_property_result_from_required_steps, assign_r
 class TestResults(unittest.TestCase):
     """A unit testing class for testing the results.py module. To be called by nosetests."""
 
+    @classmethod
+    def setUpClass(cls):
+        """Set up testing data for testing."""
+
+        with open('testing/test_constants/C_chlorochromatii_CaD3.txt') as assignment_file_one:
+            properties_one = parse_genome_property_longform_file(assignment_file_one)
+
+        with open('testing/test_constants/C_luteolum_DSM_273.txt') as assignment_file_two:
+            properties_two = parse_genome_property_longform_file(assignment_file_two)
+
+        with open('testing/test_constants/test_genome_properties_two.txt') as test_genome_properties_file:
+            genome_properties_tree = parse_genome_property_file(test_genome_properties_file)
+
+        cls.test_genome_property_results = [properties_one, properties_two]
+        cls.test_tree = genome_properties_tree
+
     def test_assign_property_result_from_required_steps_all_yes(self):
         """Test that we can assign the genome property a correct result when all required steps are present."""
 
@@ -25,8 +41,7 @@ class TestResults(unittest.TestCase):
 
     def test_assign_property_result_from_required_steps_yes_above_threshold(self):
         """
-        Test that we can assign the genome property a correct result
-        when required steps present above the threshold.
+        Test that we can assign the genome property a correct result when required steps present above the threshold.
         """
 
         property_result = assign_property_result_from_required_steps(['YES', 'YES', 'NO'], threshold=1)
@@ -95,13 +110,9 @@ class TestResults(unittest.TestCase):
     def test_results(self):
         """Test parsing longform genome properties assignment files into assignment results."""
 
-        with open('testing/test_constants/C_chlorochromatii_CaD3.txt') as assignment_file_one:
-            properties_dict = parse_genome_property_longform_file(assignment_file_one)
+        first_results_dict = self.test_genome_property_results[0]
 
-        with open('testing/test_constants/test_genome_properties_two.txt') as test_genome_properties_file:
-            tree = parse_genome_property_file(test_genome_properties_file)
-
-        results = GenomePropertiesResults(properties_dict, genome_properties_tree=tree)
+        results = GenomePropertiesResults(first_results_dict, genome_properties_tree=self.test_tree)
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
