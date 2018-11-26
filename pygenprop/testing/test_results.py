@@ -8,9 +8,9 @@ Description: A simple unittest for testing the results module.
 
 import unittest
 
-from modules.assignment_file_parser import parse_genome_property_longform_file
-from modules.flat_file_parser import parse_genome_property_file
-from modules.results import assign_property_result_from_required_steps, assign_result_from_child_assignment_results, \
+from pygenprop.assignment_file_parser import parse_genome_property_longform_file
+from pygenprop.flat_file_parser import parse_genome_property_file
+from pygenprop.results import assign_property_result_from_required_steps, assign_result_from_child_assignment_results, \
     GenomePropertiesResults
 
 
@@ -21,13 +21,13 @@ class TestResults(unittest.TestCase):
     def setUpClass(cls):
         """Set up testing data for testing."""
 
-        with open('testing/test_constants/C_chlorochromatii_CaD3.txt') as assignment_file_one:
+        with open('pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt') as assignment_file_one:
             properties_one = parse_genome_property_longform_file(assignment_file_one)
 
-        with open('testing/test_constants/C_luteolum_DSM_273.txt') as assignment_file_two:
+        with open('pygenprop/testing/test_constants/C_luteolum_DSM_273.txt') as assignment_file_two:
             properties_two = parse_genome_property_longform_file(assignment_file_two)
 
-        with open('testing/test_constants/test_genome_properties_two.txt') as test_genome_properties_file:
+        with open('pygenprop/testing/test_constants/test_genome_properties_two.txt') as test_genome_properties_file:
             genome_properties_tree = parse_genome_property_file(test_genome_properties_file)
 
         cls.test_genome_property_results = [properties_one, properties_two]

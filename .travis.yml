@@ -4,10 +4,10 @@ python:
   - "3.6"
 cache: pip
 install:
-  - pip install -r requirements.txt
+  - pip install .
 before_script:
   - git clone https://github.com/Micromeda/genome-properties
 script:
   - nosetests -v ./
-  - ./test_parse_genome_properties_file.py  -i ./genome-properties/flatfiles/genomeProperties.txt
-  - ./testing/test_end_to_end.sh
+  - ./pygenprop/testing/test_parse_genome_properties_file.py -i ./genome-properties/flatfiles/genomeProperties.txt
+  - ./pygenprop/testing/test_end_to_end.sh

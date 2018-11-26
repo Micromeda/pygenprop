@@ -7,7 +7,7 @@ Description: A simple unittest for testing functions from the lib module.
 """
 
 import unittest
-from modules.flat_file_parser import parse_genome_property, create_marker_and_content, \
+from pygenprop.flat_file_parser import parse_genome_property, create_marker_and_content, \
     collapse_genome_property_record
 
 

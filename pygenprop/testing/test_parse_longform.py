@@ -9,7 +9,7 @@ Description: A simple unittest for testing the literature reference module.
 import unittest
 from io import StringIO
 
-from modules.assignment_file_parser import parse_genome_property_longform_file
+from pygenprop.assignment_file_parser import parse_genome_property_longform_file
 
 
 class TestParseLongform(unittest.TestCase):
