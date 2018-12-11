@@ -173,6 +173,7 @@ def assign_results_to_property_and_children(property_assignments: dict, step_ass
     :param genome_property: The genome property to assign the results to.
     :return: The assignment results for the genome property.
     """
+    
     current_step_assignments = {}
     required_steps = genome_property.required_steps
 
@@ -205,22 +206,30 @@ def assign_step_result(property_assignments: dict, step_assignments: dict, step:
     :return: The assignment results for the step.
     """
     child_genome_properties = step.genome_properties
+    
     cached_step_results_for_parent_genome_property = step_assignments.get(step.parent.id)
-
+    
     if cached_step_results_for_parent_genome_property:
         cached_step_result = cached_step_results_for_parent_genome_property.get(step.number)
-        if cached_step_result:
-            current_step_result = cached_step_result
-        else:
-            current_step_result = 'NO'
+    else:
+        cached_step_result = None
+ 
+    if cached_step_result:
+        current_step_result = cached_step_result
     elif len(child_genome_properties) > 0:
         child_genome_property_assignments = []
         for child_property in child_genome_properties:
             child_genome_property_assignments.append(assign_results_to_property_and_children(property_assignments,
                                                                                              step_assignments,
                                                                                              child_property))
-
-        current_step_result = assign_result_from_child_assignment_results(child_genome_property_assignments)
+        # TODO This has been modified to corospond with genome properties perl assigner. 
+        if 'YES' in child_genome_property_assignments:
+            current_step_result = 'YES'
+        elif 'PARTIAL' in child_genome_property_assignments:
+            current_step_result = 'YES'
+        else:
+            current_step_result = 'NO'
+        #current_step_result = assign_result_from_child_assignment_results(child_genome_property_assignments)
     else:
         current_step_result = 'NO'
 
