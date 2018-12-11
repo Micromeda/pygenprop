@@ -120,7 +120,7 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, long_
     step_assignments = {}
 
     tree_identifiers = set(genome_property.id for genome_property in genome_properties_tree)
-    filtered_parser_results = {identifier: long_form_parser_results[identifier] for identifier in tree_identifiers}
+    filtered_parser_results = {identifier: long_form_parser_results[identifier] for identifier in tree_identifiers if identifier in long_form_parser_results.keys()}
 
     # Record the leaf assignments.
     for genome_property_id, assignments in filtered_parser_results.items():
