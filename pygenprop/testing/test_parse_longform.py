@@ -9,11 +9,11 @@ Description: A simple unittest for testing the literature reference module.
 import unittest
 from io import StringIO
 
-from pygenprop.assignment_file_parser import parse_genome_property_longform_file
+from pygenprop.assignment_parsers import parse_genome_property_longform_file
 
 
 class TestParseLongform(unittest.TestCase):
-    """A unit testing class for testing the assignment_file_parser.py module.
+    """A unit testing class for testing the assignment_parsers.py module.
     To be called by nosetests."""
 
     def test_parse_longform(self):
@@ -57,13 +57,22 @@ class TestParseLongform(unittest.TestCase):
         rows = StringIO(simulated_property_file)
         rows.name = './testing/test1'
 
-        properties_dict = parse_genome_property_longform_file(rows)
+        assignment_cache = parse_genome_property_longform_file(rows)
 
-        self.assertEqual(len(properties_dict.keys()), 4)
-        self.assertEqual(properties_dict['GenProp0001']['supported_steps'], [1, 2])
-        self.assertEqual(properties_dict['GenProp0001']['result'], 'YES')
-        self.assertEqual(properties_dict['GenProp0053']['supported_steps'], [1, 10])
-        self.assertEqual(properties_dict['GenProp0053']['result'], 'PARTIAL')
-        self.assertEqual(properties_dict['GenProp0046']['result'], 'NO')
-        self.assertEqual(properties_dict['GenProp0046']['supported_steps'], [2])
-        self.assertEqual(properties_dict['sample_name'], 'test1')
+        self.assertEqual(len(assignment_cache.property_assignments), 3)
+        self.assertEqual(len(assignment_cache.step_assignments), 3)
+
+        self.assertEqual(assignment_cache.get_property_assignment('GenProp0001'), 'YES')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0001', 1), 'YES')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0001', 2), 'YES')
+
+        self.assertEqual(assignment_cache.get_property_assignment('GenProp0053'), 'PARTIAL')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0053', 1), 'YES')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0053', 10), 'YES')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0053', 12), 'NO')
+
+        self.assertEqual(assignment_cache.get_property_assignment('GenProp0046'), 'NO')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0046', 1), 'NO')
+        self.assertEqual(assignment_cache.get_step_assignment('GenProp0046', 2), 'YES')
+
+        self.assertEqual(assignment_cache.sample_name, 'test1')
