@@ -5,12 +5,13 @@ Created by: Lee Bergstrand (2017)
 
 Description: The functional element class.
 """
+from pygenprop.step import Step
 
 
 class FunctionalElement(object):
     """A functional element (enzyme, structural component or sub-genome property) that can carry out a step."""
 
-    def __init__(self, identifier, name, evidence=None, required=False):
+    def __init__(self, identifier, name, evidence: list=None, required=False, parent: Step=None):
         """
         Creates a new FunctionalElement object.
         :param identifier: The identifier of the FunctionalElement.
@@ -21,6 +22,11 @@ class FunctionalElement(object):
 
         if evidence is None:
             evidence = []
+        else:
+            # Double link evidences back to the parent functional element.
+            for current_evidence in evidence:
+                current_evidence.parent = self
+
         if required is None:
             required = False
         if name is None:
@@ -30,6 +36,7 @@ class FunctionalElement(object):
         self.name = name
         self.evidence = evidence
         self.required = required
+        self.parent = parent
 
     def __repr__(self):
         repr_data = ['ID: ' + str(self.id),

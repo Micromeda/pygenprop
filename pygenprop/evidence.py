@@ -5,12 +5,14 @@ Created by: Lee Bergstrand (2017)
 
 Description: The evidence class.
 """
+from pygenprop.functional_element import FunctionalElement
 
 
 class Evidence(object):
     """A piece of evidence (ex. InterPro HMM hit or GenProp) that supports the existence of a functional element."""
 
-    def __init__(self, evidence_identifiers=None, gene_ontology_terms=None, sufficient=False):
+    def __init__(self, evidence_identifiers=None, gene_ontology_terms=None,
+                 sufficient=False, parent: FunctionalElement=None):
         """
         Creates a new Evidence object.
         :param evidence_identifiers: A list of identifiers of proteins or processes supporting the existence of a
@@ -30,6 +32,7 @@ class Evidence(object):
         self.evidence_identifiers = evidence_identifiers
         self.gene_ontology_terms = gene_ontology_terms
         self.sufficient = sufficient
+        self.parent = parent
 
     def __repr__(self):
         repr_data = ['Evidence_IDs: ' + str(self.evidence_identifiers),
@@ -54,7 +57,7 @@ class Evidence(object):
     def genome_property_identifiers(self):
         """
         Gets genome properties identifiers for representing a piece of evidence.
-        :return: A list of genome properties.
+        :return: A list of genome property ide.
         """
         genome_property_identifiers = []
         for identifier in self.evidence_identifiers:
@@ -62,3 +65,13 @@ class Evidence(object):
                 genome_property_identifiers.append(identifier)
 
         return genome_property_identifiers
+
+    @property
+    def genome_properties(self):
+        """
+        Get genome properties that are used by this evidence.
+        :return: A list of genome properties.
+        """
+        parent_genome_property = self.parent.parent.parent
+        return [genome_property for genome_property in parent_genome_property.children if
+                genome_property.id in self.genome_property_identifiers]

@@ -24,6 +24,7 @@ class GenomePropertiesTree(object):
         """
         self.genome_properties_dictionary = {}
         for new_property in genome_properties:
+            new_property.tree = self
             self.genome_properties_dictionary[new_property.id] = new_property
 
         self.build_genome_property_connections()
