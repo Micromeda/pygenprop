@@ -57,7 +57,7 @@ class Evidence(object):
     def genome_property_identifiers(self):
         """
         Gets genome properties identifiers for representing a piece of evidence.
-        :return: A list of genome property ide.
+        :return: A list of genome property identifiers.
         """
         genome_property_identifiers = []
         for identifier in self.evidence_identifiers:
