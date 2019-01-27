@@ -164,7 +164,8 @@ def create_synchronized_assignment_cache(assignment_cache, genome_properties_tre
 
     sanitized_assignment_cache = deepcopy(assignment_cache)
 
-    map(lambda identifier: sanitized_assignment_cache.flush_property_from_cache(identifier), unshared_identifiers)
+    for identifier in unshared_identifiers:
+        sanitized_assignment_cache.flush_property_from_cache(identifier)
 
     return sanitized_assignment_cache
 

@@ -89,7 +89,7 @@ class AssignmentCache(object):
         Creates a set of identifiers belonging to the genome properties cached.
         :return: A set of genome property identifiers.
         """
-        return self.property_assignments.keys()
+        return list(self.property_assignments.keys())
 
 
 def create_assignment_cache_from_interpro_member_database_identifiers(interpro_member_database_identifiers):
