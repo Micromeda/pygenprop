@@ -59,10 +59,18 @@ class TestFunctionalElement(unittest.TestCase):
             ('TG', 'GO:0043571;'),
             ('ID', 'Yolo subtype specific proteins'),
             ('RQ', '1'),
-            ('EV', 'IPR017545; TIGR03114;'),
+            ('EV', 'IPR017546; TIGR03115;'),
             ('TG', 'GO:0043571;')
         ]
 
         parsed_functional_elements = parse_functional_elements(functional_elements)
+        functional_element_one = parsed_functional_elements[0]
+        functional_element_two = parsed_functional_elements[1]
 
         self.assertEqual(len(parsed_functional_elements), 2)
+
+        evidence_one = functional_element_one.evidence[0]
+        evidence_two = functional_element_two.evidence[0]
+
+        self.assertEqual(evidence_one.evidence_identifiers, ['IPR017545', 'TIGR03114'])
+        self.assertEqual(evidence_two.evidence_identifiers, ['IPR017546', 'TIGR03115'])

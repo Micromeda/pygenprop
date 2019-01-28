@@ -272,7 +272,7 @@ def parse_functional_elements(genome_property_record):
         if marker in functional_element_markers:
             if marker in current_functional_element:
                 found_evidence = parse_evidences(current_evidence)
-                evidence_markers = []
+                current_evidence = []
 
                 functional_elements.append(FunctionalElement(identifier=current_functional_element.get('ID'),
                                                              name=current_functional_element.get('DN'),

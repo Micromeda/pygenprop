@@ -132,7 +132,7 @@ class TestStep(unittest.TestCase):
             ('SN', '2'),
             ('ID', 'Yolo subtype specific proteins'),
             ('RQ', '1'),
-            ('EV', 'IPR017545; TIGR03114;'),
+            ('EV', 'IPR017545; TIGR03115;'),
             ('TG', 'GO:0043571;')
         ]
 
