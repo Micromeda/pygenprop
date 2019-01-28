@@ -94,8 +94,8 @@ class AssignmentCache(object):
 
 def create_assignment_cache_from_interpro_member_database_identifiers(interpro_member_database_identifiers):
     """
-    Creates an assignment cached only containing interpro member database identifiers.
-    :param interpro_member_database_identifiers: A list of interpro member database identifiers
+    Creates an assignment cached only containing InterPro member database identifiers.
+    :param interpro_member_database_identifiers: A list of InterPro member database identifiers
     :return: An assignment cache object.
     """
     return AssignmentCache(interpro_member_database_identifiers=interpro_member_database_identifiers)
@@ -146,7 +146,8 @@ def assign_step(assignment_cache: AssignmentCache, step: Step):
         element_assignment = assign_functional_element(assignment_cache, element)
         functional_element_assignments.append(element_assignment)
 
-    step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments)
+    step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
+                                                                      sufficient_scheme=True)
 
     assignment_cache.cache_step_assignment(step.parent.id, step.number, step_assignment)
 
@@ -164,20 +165,26 @@ def assign_functional_element(assignment_cache: AssignmentCache, functional_elem
 
     element_evidences = functional_element.evidence
 
-    evidence_assignments = []
+    evidence_assignments_and_sufficients = []
     for current_evidence in element_evidences:
         evidence_assignment = assign_evidence(assignment_cache, current_evidence)
 
         sufficient = current_evidence.sufficient
 
-        evidence_assignments.append((evidence_assignment, sufficient))
+        evidence_assignments_and_sufficients.append((evidence_assignment, sufficient))
 
-    sufficient_evidence_assignments = [assignment for assignment, sufficient in evidence_assignments if sufficient]
-    sufficient_assignment = calculate_step_or_functional_element_assignment(sufficient_evidence_assignments)
+    sufficient_evidence_assignments = [assignment for assignment, sufficient in evidence_assignments_and_sufficients
+                                       if sufficient]
 
-    if sufficient_assignment == 'YES':
-        functional_element_assignment = 'YES'
+    if sufficient_evidence_assignments:
+        sufficient_assignment = calculate_step_or_functional_element_assignment(sufficient_evidence_assignments,
+                                                                                sufficient_scheme=True)
+        if sufficient_assignment == 'YES':
+            functional_element_assignment = 'YES'
+        else:
+            functional_element_assignment = 'NO'
     else:
+        evidence_assignments = [assignment for assignment, sufficient in evidence_assignments_and_sufficients]
         functional_element_assignment = calculate_step_or_functional_element_assignment(evidence_assignments)
 
     return functional_element_assignment
@@ -216,7 +223,7 @@ def assign_evidence(assignment_cache: AssignmentCache, current_evidence: Evidenc
     return evidence_assignment
 
 
-def calculate_property_assignment_from_required_steps(required_step_results: list, threshold: int = 0):
+def calculate_property_assignment_from_required_steps(required_step_assignments: list, threshold: int = 0):
     """
     Takes the assignment results for each required step of a genome property and uses them to
     assign a result for the property itself. This is the classic algorithm used by EBI Genome Properties.
@@ -231,7 +238,8 @@ def calculate_property_assignment_from_required_steps(required_step_results: lis
 
     In Perl code for Genome Properties:
 
-    Link: https://github.com/ebi-pf-team/genome-properties/blob/a76a5c0284f6c38cb8f43676618cf74f64634d33/code/pygenprop/GenomeProperties.pm#L646
+    Link: https://github.com/ebi-pf-team/genome-properties/blob/
+    a76a5c0284f6c38cb8f43676618cf74f64634d33/code/pygenprop/GenomeProperties.pm#L646
 
         #Three possible results for the evaluation
         if($found == 0 or $found <= $def->threshold){
@@ -252,13 +260,13 @@ def calculate_property_assignment_from_required_steps(required_step_results: lis
     PARTIAL when CHILD_YES_COUNT > THRESHOLD
     NO when CHILD_YES_COUNT <= THRESHOLD
 
-    :param required_step_results: A list of assignment results for child steps or genome properties.
+    :param required_step_assignments: A list of assignment results for child steps or genome properties.
     :param threshold: The threshold of 'YES' assignments necessary for a 'PARTIAL' assignment.
     :return: The parent's assignment result.
     """
-    yes_count = required_step_results.count('YES')
+    yes_count = required_step_assignments.count('YES')
 
-    if yes_count == len(required_step_results):
+    if yes_count == len(required_step_assignments):
         genome_property_result = 'YES'
     elif yes_count > threshold:
         genome_property_result = 'PARTIAL'
@@ -268,7 +276,7 @@ def calculate_property_assignment_from_required_steps(required_step_results: lis
     return genome_property_result
 
 
-def calculate_property_assignment_from_all_steps(child_results: list):
+def calculate_property_assignment_from_all_steps(child_assignments: list):
     """
     Takes the assignment results from all child results and uses them to assign a result for the parent itself. This
     algorithm is used to assign results to a single step from child functional elements and for genome properties that
@@ -279,15 +287,15 @@ def calculate_property_assignment_from_all_steps(child_results: list):
     If all child assignments are Yes, parent should be YES.
     Any thing else in between, parents should be PARTIAL.
 
-    :param child_results: A list of assignment results for child steps or genome properties.
+    :param child_assignments: A list of assignment results for child steps or genome properties.
     :return: The parents assignment result.
     """
-    yes_count = child_results.count('YES')
-    no_count = child_results.count('NO')
+    yes_count = child_assignments.count('YES')
+    no_count = child_assignments.count('NO')
 
-    if yes_count == len(child_results):
+    if yes_count == len(child_assignments):
         genome_property_result = 'YES'
-    elif no_count == len(child_results):
+    elif no_count == len(child_assignments):
         genome_property_result = 'NO'
     else:
         genome_property_result = 'PARTIAL'
@@ -295,18 +303,42 @@ def calculate_property_assignment_from_all_steps(child_results: list):
     return genome_property_result
 
 
-def calculate_step_or_functional_element_assignment(child_assignments: list):
+def calculate_step_or_functional_element_assignment(child_assignments: list, sufficient_scheme=False):
     """
     Assigns a step result or functional element result based of the assignments of its children. In the case of steps,
     this would be functional element assignments. In the case of functional elements this would be evidences.
 
+    For assignments from child genome properties YES or PARTIAL is considered YES.
+
+    See: https://github.com/ebi-pf-team/genome-properties/blob/
+    a76a5c0284f6c38cb8f43676618cf74f64634d33/code/modules/GenomeProperties.pm#L686
+
+    if($evObj->gp){
+        if(defined($self->get_defs->{ $evObj->gp })){
+          # For properties a PARTIAL or YES result is considered success
+          if( $self->get_defs->{ $evObj->gp }->result eq 'YES' or
+              $self->get_defs->{ $evObj->gp }->result eq 'PARTIAL' ){
+              $succeed++;
+           }elsif($self->get_defs->{ $evObj->gp }->result eq 'UNTESTED'){
+              $step->evaluated(0);
+
+    :param sufficient_scheme: If false, any child NOs mean NO. If true, any child YES/PARTIAL means YES
     :param child_assignments: A list containing strings of YES, NO or PARTIAL
     :return: The assignment as either YES or NO.
     """
-    if 'YES' in child_assignments:
-        result = 'YES'
-    elif 'PARTIAL' in child_assignments:
-        result = 'YES'
+    no_count = child_assignments.count('NO')
+
+    # Given a list of sufficient evidences, any could be PARTIAL or YES and the result would be YES.
+    if sufficient_scheme:
+        if no_count < len(child_assignments):
+            result = 'YES'
+        else:
+            result = 'NO'
+    # Given a list of non-sufficient evidences, all evidences have to be YES or PARTIAL or the result would be NO.
     else:
-        result = 'NO'
+        if no_count == 0:
+            result = 'YES'
+        else:
+            result = 'NO'
+
     return result

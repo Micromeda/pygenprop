@@ -122,7 +122,8 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assig
     # identifiers and calculate assignments for all properties.
     assignments = bootstrap_assignments(sanitized_assignment_cache, genome_properties_tree)
 
-    property_table = pd.DataFrame.from_dict(assignments.property_assignments, orient='index', columns=['Property_Result'])
+    property_table = pd.DataFrame.from_dict(assignments.property_assignments,
+                                            orient='index', columns=['Property_Result'])
     property_table.index.names = ['Genome_Property_ID']
 
     step_table = pd.DataFrame(create_step_table_rows(assignments.step_assignments),
