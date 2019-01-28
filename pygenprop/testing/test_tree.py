@@ -184,14 +184,14 @@ class TestGenomePropertyTree(unittest.TestCase):
         """Test that we can create nested json."""
 
         property_tree = GenomePropertiesTree(*self.properties)
-        json = property_tree.create_nested_json(as_dict=True)
+        json_data = property_tree.create_nested_json(as_dict=True)
 
-        root_id = json['id']
+        root_id = json_data['id']
 
         """Root could be either GenProp0002 or GenProp0003. See Note 1 in test_find_root_node()."""
         self.assertIn(root_id, ['GenProp0002', 'GenProp0003'])
 
-        tree_level_one_children = json['children']
+        tree_level_one_children = json_data['children']
         self.assertEqual(len(tree_level_one_children), 1)
 
         level_one_child = tree_level_one_children[0]
