@@ -8,12 +8,11 @@ Description: A simple unittest for testing the genome_property_tree module.
 
 import json
 import unittest
-
 from copy import deepcopy
 
-from pygenprop.tree import GenomePropertiesTree
 from pygenprop.database_file_parser import parse_genome_property
 from pygenprop.database_file_parser import parse_genome_property_file
+from pygenprop.tree import GenomePropertiesTree
 
 
 class TestGenomePropertyTree(unittest.TestCase):

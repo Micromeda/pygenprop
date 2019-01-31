@@ -40,9 +40,9 @@ def main(args):
 
 
 if __name__ == '__main__':
-    cli_title = """Parses a genome properties assignment file and prints its contents in a human readable format."""
+    cli_title = """Parses a genome properties assignment file and writes its contents to JSON."""
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=cli_title)
     parser.add_argument('-d', '--input_genome_properties_flat_file', metavar='DB', required=True,
                         help='The path to the genome properties flat file.')
     parser.add_argument('-o', '--output_file_path', metavar='OUT', required=True,

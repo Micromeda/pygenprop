@@ -44,8 +44,6 @@ class TestResults(unittest.TestCase):
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES'])
 
-        print("results_tree: " + str(len(results.tree)))
-        print("property_table: " + str(len(results.property_results.index)))
         self.assertEquals(len(results.tree), len(results.property_results.index))
 
     def test_multiple_results(self):
