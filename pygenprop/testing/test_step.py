@@ -8,7 +8,7 @@ Description: A simple unittest for testing the step module.
 
 import unittest
 
-from pygenprop.flat_file_parser import parse_steps, parse_genome_property
+from pygenprop.database_file_parser import parse_steps, parse_genome_property
 from pygenprop.tree import GenomePropertiesTree
 
 

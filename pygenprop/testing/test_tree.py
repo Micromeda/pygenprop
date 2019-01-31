@@ -12,8 +12,8 @@ import unittest
 from copy import deepcopy
 
 from pygenprop.tree import GenomePropertiesTree
-from pygenprop.flat_file_parser import parse_genome_property
-from pygenprop.flat_file_parser import parse_genome_property_file
+from pygenprop.database_file_parser import parse_genome_property
+from pygenprop.database_file_parser import parse_genome_property_file
 
 
 class TestGenomePropertyTree(unittest.TestCase):

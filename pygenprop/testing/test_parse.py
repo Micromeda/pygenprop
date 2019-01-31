@@ -9,11 +9,11 @@ Description: A simple unittest for testing the literature reference module.
 import unittest
 from io import StringIO
 
-from pygenprop.assignment_parsers import parse_genome_property_longform_file
+from pygenprop.assignment_file_parser import parse_genome_property_longform_file, parse_interproscan_file
 
 
 class TestParseLongform(unittest.TestCase):
-    """A unit testing class for testing the assignment_parsers.py module.
+    """A unit testing class for testing the assignment_file_parser.py module.
     To be called by nosetests."""
 
     def test_parse_longform(self):
@@ -76,3 +76,19 @@ class TestParseLongform(unittest.TestCase):
         self.assertEqual(assignment_cache.get_step_assignment('GenProp0046', 2), 'YES')
 
         self.assertEqual(assignment_cache.sample_name, 'test1')
+
+    def test_parse_interproscan_file(self):
+        """Test parsing assignments from InterProScan tsv files."""
+
+        simulated_interproscan_file = """1\t1\t1\t1\tTIGR00063
+        1\t1\t1\t1\tTIGR00065
+        1\t1\t1\t1\tTIGR00067
+        1\t1\t1\t1\tTIGR00063"""
+
+        rows = StringIO(simulated_interproscan_file)
+
+        assignment_cache = parse_interproscan_file(rows)
+        cached_interproscan_member_database_identifiers = assignment_cache.interpro_member_database_identifiers
+
+        self.assertEqual(len(cached_interproscan_member_database_identifiers), 3)
+        self.assertEqual(cached_interproscan_member_database_identifiers, {'TIGR00063', 'TIGR00065', 'TIGR00067'})

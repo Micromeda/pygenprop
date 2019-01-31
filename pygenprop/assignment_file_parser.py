@@ -7,7 +7,7 @@ Description: A parser for parsing genome properties longform files.
 """
 import csv
 from os.path import basename, splitext
-from pygenprop.assign import AssignmentCache, create_assignment_cache_from_interpro_member_database_identifiers
+from pygenprop.assign import AssignmentCache
 
 
 def parse_genome_property_longform_file(longform_file):
@@ -40,8 +40,9 @@ def parse_genome_property_longform_file(longform_file):
     return assignment_cache
 
 
-def parse_interproscan_results_file(interproscan_file):
+def parse_interproscan_file(interproscan_file):
     """
+    Parses InterProScan TSV files containing
 
     :param interproscan_file: A InterProScan file handle object.
     :return: An assignment cache object.
@@ -52,4 +53,4 @@ def parse_interproscan_results_file(interproscan_file):
         matched_interpro_member_database_id = row[4]
         identifiers.append(matched_interpro_member_database_id)
 
-    return create_assignment_cache_from_interpro_member_database_identifiers(identifiers)
+    return AssignmentCache(interpro_member_database_identifiers=identifiers)

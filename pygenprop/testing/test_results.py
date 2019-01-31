@@ -8,9 +8,10 @@ Description: A simple unittest for testing the results module.
 
 import unittest
 
-from pygenprop.assignment_parsers import parse_genome_property_longform_file
-from pygenprop.flat_file_parser import parse_genome_property_file
-from pygenprop.results import GenomePropertiesResults
+from pygenprop.assign import AssignmentCache
+from pygenprop.assignment_file_parser import parse_genome_property_longform_file
+from pygenprop.database_file_parser import parse_genome_property_file
+from pygenprop.results import GenomePropertiesResults, create_synchronized_assignment_cache
 
 
 class TestResults(unittest.TestCase):
@@ -55,3 +56,17 @@ class TestResults(unittest.TestCase):
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3', 'C_luteolum_DSM_273'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL', 'NO'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES', 'NO'])
+
+    def test_assignment_cache_synchronization(self):
+        """Test that the assignment file can be properly synchronized."""
+
+        test_cache = AssignmentCache()
+        test_tree = self.test_tree
+
+        test_cache.cache_property_assignment('GenProp0456', 'YES')
+        test_cache.cache_property_assignment('GenProp0710', 'YES')
+
+        sanitized_cache = create_synchronized_assignment_cache(test_cache, test_tree)
+
+        self.assertEqual(len(sanitized_cache.property_assignments), 1)
+        self.assertEqual(sanitized_cache.get_property_assignment('GenProp0710'), 'YES')

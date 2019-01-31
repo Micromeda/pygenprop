@@ -10,9 +10,10 @@ import unittest
 
 from pygenprop.assign import calculate_property_assignment_from_required_steps, \
     calculate_property_assignment_from_all_steps, AssignmentCache, calculate_step_or_functional_element_assignment, \
-    assign_evidence, assign_functional_element, assign_step
-from pygenprop.flat_file_parser import parse_evidences, parse_functional_elements, parse_steps
+    assign_evidence, assign_functional_element, assign_step, assign_genome_property
+from pygenprop.database_file_parser import parse_evidences, parse_functional_elements, parse_steps, parse_genome_property
 from pygenprop.genome_property import GenomeProperty
+from pygenprop.tree import GenomePropertiesTree
 
 
 class TestAssign(unittest.TestCase):
@@ -33,6 +34,60 @@ class TestAssign(unittest.TestCase):
         prebuilt_cache.cache_step_assignment('GenProp0053', 3, 'YES')
 
         cls.cache = prebuilt_cache
+
+        """
+        Test Properties Polytree Structure:
+
+                    --> GenProp0089
+        GenProp0066
+                    --> GenProp0092
+        """
+
+        property_rows_one = [
+            ('AC', 'GenProp0066'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0089;'),
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0092;')
+        ]
+
+        property_rows_two = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;')
+        ]
+
+        property_rows_three = [
+            ('AC', 'GenProp0092'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03565; sufficient;')
+        ]
+
+        property_one = parse_genome_property(property_rows_one)
+        property_two = parse_genome_property(property_rows_two)
+        property_three = parse_genome_property(property_rows_three)
+
+        raw_properties = [property_one, property_two, property_three]
+
+        cls.tree = GenomePropertiesTree(*raw_properties)
 
     def test_assign_property_from_required_steps_all_yes(self):
         """Test that we can assign the genome property a correct result when all required steps are present."""
@@ -424,7 +479,7 @@ class TestAssign(unittest.TestCase):
 
         self.assertEqual(assignment, 'YES')
 
-    def test_assign_step_multiple_functional_evidences(self):
+    def test_assign_step_multiple_functional_elements(self):
         """Test assignment of step."""
 
         test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03114'])
@@ -447,8 +502,9 @@ class TestAssign(unittest.TestCase):
         step_assignment = assign_step(test_cache, parsed_step)
 
         self.assertEqual(step_assignment, 'YES')
+        self.assertEqual(test_cache.get_step_assignment('GenProp0065', 1), 'YES')
 
-    def test_assign_step_multiple_functional_evidences_two(self):
+    def test_assign_step_multiple_functional_elements_two(self):
         """Test assignment of step."""
 
         test_cache = AssignmentCache()
@@ -471,3 +527,166 @@ class TestAssign(unittest.TestCase):
         step_assignment = assign_step(test_cache, parsed_step)
 
         self.assertEqual(step_assignment, 'NO')
+        self.assertEqual(test_cache.get_step_assignment('GenProp0065', 1), 'NO')
+
+    def test_genome_property_assignment_non_required(self):
+        """Test assignment of genome properties."""
+
+        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03565'])
+        test_property = self.tree.root
+
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'YES')
+
+    def test_genome_property_assignment_non_required_two(self):
+        """Test assignment of genome properties."""
+
+        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03565'])
+        test_property = self.tree.root
+
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'PARTIAL')
+
+    def test_genome_property_assignment_non_required_three(self):
+        """Test assignment of genome properties."""
+
+        test_cache = AssignmentCache()
+        test_property = self.tree.root
+
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'NO')
+
+    def test_genome_property_assignment_required(self):
+        """Test assignment of genome properties when some are required."""
+
+        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564'])
+
+        property_rows = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;'),  # YES
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03567; sufficient;'),  # NO
+            ('--', ''),
+            ('SN', '3'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03568; sufficient;')  # NO
+        ]
+
+        test_property = parse_genome_property(property_rows)
+
+        test_property.threshold = 0
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'YES')
+
+    def test_genome_property_assignment_required_two(self):
+        """Test assignment of genome properties when some are required."""
+
+        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03567'])
+
+        property_rows = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;'),  # YES
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03567; sufficient;'),  # YES
+            ('--', ''),
+            ('SN', '3'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03568; sufficient;')  # NO
+        ]
+
+        test_property = parse_genome_property(property_rows)
+
+        test_property.threshold = 0
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'PARTIAL')
+
+    def test_genome_property_assignment_required_three(self):
+        """Test assignment of genome properties when some are required."""
+
+        test_cache = AssignmentCache()
+
+        property_rows = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;'),  # NO
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03567; sufficient;'),  # NO
+            ('--', ''),
+            ('SN', '3'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03568; sufficient;')  # NO
+        ]
+
+        test_property = parse_genome_property(property_rows)
+
+        test_property.threshold = 0
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'NO')
+
+    def test_genome_property_assignment_required_four(self):
+        """Test assignment of genome properties when some are required."""
+
+        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03567', 'TIGR03568'])
+
+        property_rows = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;'),  # YES
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '1'),
+            ('EV', 'IPR019910; TIGR03567; sufficient;'),  # YES
+            ('--', ''),
+            ('SN', '3'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03568; sufficient;')  # YES
+        ]
+
+        test_property = parse_genome_property(property_rows)
+
+        test_property.threshold = 0
+        assignment = assign_genome_property(test_cache, test_property)
+
+        self.assertEqual(assignment, 'YES')

@@ -92,15 +92,6 @@ class AssignmentCache(object):
         return list(self.property_assignments.keys())
 
 
-def create_assignment_cache_from_interpro_member_database_identifiers(interpro_member_database_identifiers):
-    """
-    Creates an assignment cached only containing InterPro member database identifiers.
-    :param interpro_member_database_identifiers: A list of InterPro member database identifiers
-    :return: An assignment cache object.
-    """
-    return AssignmentCache(interpro_member_database_identifiers=interpro_member_database_identifiers)
-
-
 def assign_genome_property(assignment_cache: AssignmentCache, genome_property: GenomeProperty):
     """
     Recursively assigns a result to a genome property and its children.
@@ -117,9 +108,9 @@ def assign_genome_property(assignment_cache: AssignmentCache, genome_property: G
         current_step_assignments[step.number] = assign_step(assignment_cache, step)
 
     if required_steps:
-        required_step_ids = [step.number for step in required_steps]
+        required_step_numbers = [step.number for step in required_steps]
         required_step_values = [step_value for step_number, step_value in current_step_assignments.items() if
-                                step_number in required_step_ids]
+                                step_number in required_step_numbers]
         genome_property_assignment = calculate_property_assignment_from_required_steps(required_step_values,
                                                                                        genome_property.threshold)
     else:
