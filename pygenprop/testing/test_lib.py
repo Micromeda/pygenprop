@@ -60,7 +60,7 @@ class TestLib(unittest.TestCase):
             ('EV', 'IPR019920; TIGR03618; sufficient;'),
             ('SN', '10'),
             ('ID', 'F420-dependent oxidoreductase families'),
-            ('RQ', '0'),
+            ('RQ', '1'),
             ('EV', 'IPR019944; TIGR03554; sufficient;'),
             ('EV', 'IPR019946; TIGR03555; sufficient;'),
             ('EV', 'IPR019945; TIGR03557; sufficient;'),
@@ -85,3 +85,4 @@ class TestLib(unittest.TestCase):
 
         self.assertEqual(len(functional_elements), 1)
         self.assertEqual(len(functional_elements[0].evidence), 6)
+        self.assertEqual(final_step.required, True)
