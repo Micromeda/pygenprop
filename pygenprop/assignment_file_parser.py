@@ -42,7 +42,7 @@ def parse_genome_property_longform_file(longform_file):
 
 def parse_interproscan_file(interproscan_file):
     """
-    Parses InterProScan TSV files containing
+    Parses InterProScan TSV files into an assignment cache.
 
     :param interproscan_file: A InterProScan file handle object.
     :return: An assignment cache object.
