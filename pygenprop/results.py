@@ -118,6 +118,7 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assig
     """
     sanitized_assignment_cache = create_synchronized_assignment_cache(assignment_cache, genome_properties_tree)
 
+
     # Take known assignments and matched InterPro member database
     # identifiers and calculate assignments for all properties.
     assignments = bootstrap_assignments(sanitized_assignment_cache, genome_properties_tree)
