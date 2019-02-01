@@ -7,7 +7,7 @@ Description: A simple unittest for testing the genome property module.
 """
 
 import unittest
-from pygenprop.flat_file_parser import parse_genome_property
+from pygenprop.database_file_parser import parse_genome_property
 
 
 class TestGenomeProperty(unittest.TestCase):

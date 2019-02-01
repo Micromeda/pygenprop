@@ -61,7 +61,7 @@ def collapse_genome_property_record(genome_property_record):
 
     trailing_marker_content = []
     previous_marker = genome_property_record[0][0]
-    no_collapse_makers = ['EV']
+    no_collapse_makers = ['EV', 'RQ']
     for marker, content in genome_property_record:
         if marker in no_collapse_makers:
             collapsed_genome_property_record.append((marker, content))
@@ -272,7 +272,7 @@ def parse_functional_elements(genome_property_record):
         if marker in functional_element_markers:
             if marker in current_functional_element:
                 found_evidence = parse_evidences(current_evidence)
-                evidence_markers = []
+                current_evidence = []
 
                 functional_elements.append(FunctionalElement(identifier=current_functional_element.get('ID'),
                                                              name=current_functional_element.get('DN'),

@@ -9,7 +9,7 @@ Description: Parses EBI genome properties flat files.
 import argparse
 
 from pygenprop.lib import sanitize_cli_path
-from pygenprop.flat_file_parser import parse_genome_property_file
+from pygenprop.database_file_parser import parse_genome_property_file
 import sys
 
 
@@ -32,9 +32,9 @@ def main(args):
 
 
 if __name__ == '__main__':
-    cli_title = """Parses a genome properties flat file and prints its contents in a human readable format."""
+    cli_title = """Parses a genome properties database flat file and counts the number of properties parsed."""
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=cli_title)
     parser.add_argument('-i', '--input_genome_properties_file', metavar='DB', required=True,
                         help='The path to the genome properties flat file.')
 
