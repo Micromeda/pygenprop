@@ -53,7 +53,14 @@ class GenomePropertiesResults(object):
         :param genome_property_id: The id of the genome property to get results for.
         :return: A list containing the assignment results for the genome property in question.
         """
-        return self.property_results.loc[genome_property_id].tolist()
+        property_results = self.property_results
+
+        try:
+            property_result = property_results.loc[genome_property_id].tolist()
+        except KeyError:
+            property_result = ['NO'] * len(property_results.columns)
+
+        return property_result
 
     def get_step_result(self, genome_property_id, step_number):
         """
@@ -63,7 +70,13 @@ class GenomePropertiesResults(object):
         :param step_number: The step number of the step.
         :return: A list containing the assignment results for the step in question.
         """
-        return self.step_results.loc[genome_property_id].loc[step_number].tolist()
+        step_results = self.step_results
+
+        try:
+            property_result = step_results.loc[genome_property_id].loc[step_number].tolist()
+        except KeyError:
+            property_result = ['NO'] * len(step_results.columns)
+        return property_result
 
     def to_json(self, file_handle=None):
         """

@@ -42,7 +42,9 @@ class TestResults(unittest.TestCase):
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
+        self.assertEqual(results.get_property_result('GenProp0000'), ['NO'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES'])
+        self.assertEqual(results.get_step_result('GenProp0000', 2), ['NO'])
 
         self.assertEquals(len(results.tree), len(results.property_results.index))
 
@@ -53,7 +55,9 @@ class TestResults(unittest.TestCase):
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3', 'C_luteolum_DSM_273'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL', 'NO'])
+        self.assertEqual(results.get_property_result('GenProp0000'), ['NO', 'NO'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES', 'NO'])
+        self.assertEqual(results.get_step_result('GenProp0000', 2), ['NO', 'NO'])
 
     def test_assignment_cache_synchronization(self):
         """Test that the assignment file can be properly synchronized."""
