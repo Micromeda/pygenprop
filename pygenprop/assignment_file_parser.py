@@ -53,4 +53,5 @@ def parse_interproscan_file(interproscan_file):
         matched_interpro_member_database_id = row[4]
         identifiers.append(matched_interpro_member_database_id)
 
-    return AssignmentCache(interpro_member_database_identifiers=identifiers)
+    return AssignmentCache(interpro_member_database_identifiers=identifiers,
+                           sample_name=splitext(basename(interproscan_file.name))[0])
