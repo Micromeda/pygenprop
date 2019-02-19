@@ -9,7 +9,7 @@ Description: Parses EBI genome properties assignment files.
 import argparse
 
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
-from pygenprop.flat_file_parser import parse_genome_property_file
+from pygenprop.database_file_parser import parse_genome_property_file
 from pygenprop.results import GenomePropertiesResults
 
 from pygenprop.lib import sanitize_cli_path
@@ -28,21 +28,21 @@ def main(args):
     with open(genome_property_flat_file_path) as genome_property_file:
         genome_properties_tree = parse_genome_property_file(genome_property_file)
 
-    assignments = []
+    leaf_assignments = []
     for path in assignment_file_paths:
         with open(path) as assignment_file:
-            assignments.append(parse_genome_property_longform_file(assignment_file))
+            leaf_assignments.append(parse_genome_property_longform_file(assignment_file))
 
-    results = GenomePropertiesResults(*assignments, genome_properties_tree=genome_properties_tree)
+    results = GenomePropertiesResults(*leaf_assignments, genome_properties_tree=genome_properties_tree)
 
     with open(json_output_path, 'w') as json_file:
         results.to_json(json_file)
 
 
 if __name__ == '__main__':
-    cli_title = """Parses a genome properties assignment file and prints its contents in a human readable format."""
+    cli_title = """Parses genome properties assignment files and writes their assignments to JSON."""
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=cli_title)
     parser.add_argument('-d', '--input_genome_properties_flat_file', metavar='DB', required=True,
                         help='The path to the genome properties flat file.')
     parser.add_argument('-o', '--output_file_path', metavar='OUT', required=True,

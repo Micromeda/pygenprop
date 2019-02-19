@@ -5,8 +5,9 @@ Created by: Lee Bergstrand (2017)
 
 Description: A parser for parsing genome properties longform files.
 """
-
+import csv
 from os.path import basename, splitext
+from pygenprop.assign import AssignmentCache
 
 
 def parse_genome_property_longform_file(longform_file):
@@ -14,35 +15,43 @@ def parse_genome_property_longform_file(longform_file):
     Parses longform genome properties assignment files.
 
     :param longform_file: A longform genome properties assignment file handle object.
-    :return: A dictionary of active steps per supported genome properties.
+    :return: An assignment cache object.
     """
-    current_property_id = ''
-    current_step_number = ''
-    current_steps = []
+    property_id = ''
+    step_number = ''
 
-    organism_properties = {}
+    assignment_cache = AssignmentCache(sample_name=splitext(basename(longform_file.name))[0])
+
     for line in longform_file:
         if 'PROPERTY:' in line:
-            current_property_id = line.split(':')[1].strip()
+            property_id = line.split(':')[1].strip()
         elif 'STEP NUMBER:' in line:
-            current_step_number = int(line.split(':')[1].strip())
+            step_number = int(line.split(':')[1].strip())
         elif 'RESULT:' in line:
-            result_content = line.split(':')[1].strip().upper()
+            assignment = line.split(':')[1].strip().upper()
 
             if 'STEP' in line:
-                if result_content == 'YES':
-                    current_steps.append(current_step_number)
+                assignment_cache.cache_step_assignment(property_id, step_number, assignment)
             else:
-                property_results = {'result': result_content,
-                                    'supported_steps': current_steps}
-
-                organism_properties[current_property_id] = property_results
-                current_steps = []
-
+                assignment_cache.cache_property_assignment(property_id, assignment)
         else:
             continue
 
-    # Get filename without path or extension.
-    organism_properties['sample_name'] = splitext(basename(longform_file.name))[0]
+    return assignment_cache
 
-    return organism_properties
+
+def parse_interproscan_file(interproscan_file):
+    """
+    Parses InterProScan TSV files into an assignment cache.
+
+    :param interproscan_file: A InterProScan file handle object.
+    :return: An assignment cache object.
+    """
+    identifiers = []
+    tsv_reader = csv.reader(interproscan_file, delimiter='\t')
+    for row in tsv_reader:
+        matched_interpro_member_database_id = row[4]
+        identifiers.append(matched_interpro_member_database_id)
+
+    return AssignmentCache(interpro_member_database_identifiers=identifiers,
+                           sample_name=splitext(basename(interproscan_file.name))[0])

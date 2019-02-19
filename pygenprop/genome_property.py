@@ -15,9 +15,9 @@ class GenomeProperty(object):
     organism as proven by the presence of genes found in its genome.
     """
 
-    def __init__(self, accession_id, name, property_type, threshold=0,
-                 parents=None, children=None, references=None, databases=None,
-                 steps=None, public=False, description=None, private_notes=None):
+    def __init__(self, accession_id, name, property_type, threshold=0, parents=None,
+                 children=None, references=None, databases=None, steps=None, public=False,
+                 description=None, private_notes=None, tree=None):
         """
         Creates a new GenomeProperty object.
         :param accession_id: The genome property accession (i.e. "GenProp00286").
@@ -31,6 +31,7 @@ class GenomeProperty(object):
         :param public: Boolean detailing if the genome property should be public.
         :param description: A detailed description of the genome property.
         :param private_notes: Private notes about the property a potential problems with it.
+        :param tree: The tree for which the genome property belongs too.
         """
         if children is None:
             children = []
@@ -57,6 +58,7 @@ class GenomeProperty(object):
         self.public = public
         self.description = description
         self.private_notes = private_notes
+        self.tree = tree
 
     def __repr__(self):
         has_references = False

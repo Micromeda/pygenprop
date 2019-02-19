@@ -8,7 +8,7 @@ Description: A simple unittest for testing the step module.
 
 import unittest
 
-from pygenprop.flat_file_parser import parse_steps, parse_genome_property
+from pygenprop.database_file_parser import parse_steps, parse_genome_property
 from pygenprop.tree import GenomePropertiesTree
 
 
@@ -132,7 +132,7 @@ class TestStep(unittest.TestCase):
             ('SN', '2'),
             ('ID', 'Yolo subtype specific proteins'),
             ('RQ', '1'),
-            ('EV', 'IPR017545; TIGR03114;'),
+            ('EV', 'IPR017545; TIGR03115;'),
             ('TG', 'GO:0043571;')
         ]
 

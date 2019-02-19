@@ -8,11 +8,51 @@ Description: A simple unittest for testing the evidence module.
 
 import unittest
 
-from pygenprop.flat_file_parser import parse_evidences
+from pygenprop.database_file_parser import parse_evidences, parse_genome_property
+from pygenprop.tree import GenomePropertiesTree
 
 
 class TestEvidence(unittest.TestCase):
     """A unit testing class for testing the evidence.py module. To be called by nosetests."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up testing data for testing."""
+
+        """
+               Test Properties Polytree Structure:
+
+                           --> GenProp0089
+               GenProp0066
+                           --> GenProp0092
+        """
+
+        property_rows_one = [
+            ('AC', 'GenProp0066'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'Selfish genetic elements'),
+            ('RQ', '0'),
+            ('EV', 'GenProp0089;')
+        ]
+
+        property_rows_two = [
+            ('AC', 'GenProp0089'),
+            ('DE', 'Coenzyme F420 utilization'),
+            ('TP', 'GUILD'),
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'LLM-family F420-associated subfamilies'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03564; sufficient;')
+        ]
+
+        property_one = parse_genome_property(property_rows_one)
+        property_two = parse_genome_property(property_rows_two)
+
+        cls.tree = GenomePropertiesTree(property_one, property_two)
 
     def test_parse_evidence(self):
         """Test that evidence rows can be parsed."""
@@ -119,3 +159,15 @@ class TestEvidence(unittest.TestCase):
 
         evidence = parse_evidences(evidences)[0]
         self.assertEqual(evidence.genome_property_identifiers, ['GenProp0066', 'GenProp0067'])
+
+    def test_get_genome_properties(self):
+        """Test that we can get genome properties of an evidence."""
+
+        test_evidence = self.tree.root.steps[0].functional_elements[0].evidence[0]
+
+        self.assertEqual(test_evidence.has_genome_property, True)
+        self.assertEqual(test_evidence.genome_property_identifiers, ['GenProp0089'])
+
+        test_child_genome_property = test_evidence.genome_properties[0]
+
+        self.assertEqual(test_child_genome_property.id, 'GenProp0089')
