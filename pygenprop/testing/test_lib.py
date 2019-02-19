@@ -8,7 +8,7 @@ Description: A simple unittest for testing functions from the lib module.
 
 import unittest
 from pygenprop.database_file_parser import parse_genome_property, create_marker_and_content, \
-    collapse_genome_property_record
+    unwrap_genome_property_record
 
 
 class TestLib(unittest.TestCase):
@@ -58,6 +58,7 @@ class TestLib(unittest.TestCase):
             ('ID', 'PPOX-class probable F420-dependent enzyme'),
             ('RQ', '0'),
             ('EV', 'IPR019920; TIGR03618; sufficient;'),
+            ('--', ''),
             ('SN', '10'),
             ('ID', 'F420-dependent oxidoreductase families'),
             ('RQ', '1'),
@@ -69,7 +70,7 @@ class TestLib(unittest.TestCase):
             ('EV', 'IPR031017; TIGR04465; sufficient;'),
         ]
 
-        clean_genome_property_record = collapse_genome_property_record(property_rows)
+        clean_genome_property_record = unwrap_genome_property_record(property_rows)
 
         first_genome_property = parse_genome_property(clean_genome_property_record)
         first_reference = first_genome_property.references[0]
@@ -86,3 +87,4 @@ class TestLib(unittest.TestCase):
         self.assertEqual(len(functional_elements), 1)
         self.assertEqual(len(functional_elements[0].evidence), 6)
         self.assertEqual(final_step.required, True)
+        self.assertEqual(final_step.functional_elements[0].name, 'F420-dependent oxidoreductase families')

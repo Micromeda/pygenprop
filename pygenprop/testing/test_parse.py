@@ -86,6 +86,7 @@ class TestParseLongform(unittest.TestCase):
         1\t1\t1\t1\tTIGR00063"""
 
         rows = StringIO(simulated_interproscan_file)
+        rows.name = './testing/test1'
 
         assignment_cache = parse_interproscan_file(rows)
         cached_interproscan_member_database_identifiers = assignment_cache.interpro_member_database_identifiers
