@@ -185,7 +185,7 @@ class GenomePropertiesResults(object):
                     else:
                         continue  # Skip steps which are not 'YES' to save space.
 
-                property_assignment.step_assignments=current_steps_assignments
+                property_assignment.step_assignments = current_steps_assignments
                 sample_step_assignments.extend(current_steps_assignments)
                 sample_property_assignments.append(property_assignment)
 
