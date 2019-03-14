@@ -32,7 +32,7 @@ class PropertyAssignment(Base):
     __tablename__ = 'property_assignments'
 
     assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
-    property_identifier = Column(Integer)
+    property_number = Column(Integer)
     numeric_assignment = Column(Integer)  # 0 = YES, 1 = PARTIAL, 2 = NO
     sample_name = Column(String, ForeignKey('samples.name'))
 
@@ -42,7 +42,7 @@ class PropertyAssignment(Base):
     @property
     def assignment(self):
         """
-        Converts assignments stored as integers to their word equivalent.
+        Takes assignments stored as integers and returns their word equivalent.
         :return: The assignment as a word.
         """
         assignment_type = self.numeric_assignment
@@ -50,15 +50,58 @@ class PropertyAssignment(Base):
             assignment = 'YES'
         elif assignment_type == 1:
             assignment = 'PARTIAL'
-        else:
+        elif assignment_type == 2:
             assignment = 'NO'
+        else:
+            assignment = 'unknown'
 
         return assignment
 
+    @property
+    def identifier(self):
+        """
+        Converts the properties number into its full property identifier.
+        :return: The property identifier.
+        """
+        existing_property_number = self.property_number
+        if existing_property_number:
+            return 'GenProp{0:04d}'.format(existing_property_number)
+        else:
+            return 'unknown'
+
+    @identifier.setter
+    def identifier(self, value):
+        """
+        Converts the property identifier into an integer property number.
+        :param value:
+        """
+        self.property_number = int(value.lower().split('prop')[1])
+
+    @assignment.setter
+    def assignment(self, value):
+        """
+        Takes word assignments stores them as integers
+        :param value: The property assignment as YES, NO, or PARTIAL
+        """
+        if value == 'YES':
+            self.numeric_assignment = 0
+        elif value == 'PARTIAL':
+            self.numeric_assignment = 1
+        elif value == 'NO':
+            self.numeric_assignment = 2
+        else:
+            self.numeric_assignment = 3
+
     def __repr__(self):
-        return "<PropertyAssignment(sample='{0:s}', name='GenProp{1:04d}', assignment='{2:s}')>".format(
-            self.sample.name,
-            self.property_identifier,
+        sample = self.sample
+        if sample:
+            name = self.sample.name
+        else:
+            name = 'unknown'
+
+        return "<PropertyAssignment(sample='{}', name='{}', assignment='{}')>".format(
+            name,
+            self.identifier,
             self.assignment)
 
 
@@ -67,7 +110,7 @@ step_match_association_table = Table('step_interpro_identifiers', Base.metadata,
                                      Column('step_assignment_identifier', Integer,
                                             ForeignKey('step_assignments.step_assignment_identifier')),
                                      Column('interproscan_match_identifier', Integer,
-                                            ForeignKey('interproscan_matchs.interproscan_match_identifier')))
+                                            ForeignKey('interproscan_matches.interproscan_match_identifier')))
 
 
 class StepAssignment(Base):
@@ -76,23 +119,29 @@ class StepAssignment(Base):
     __tablename__ = 'step_assignments'
 
     step_assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
-    property_assignment_identifier = Column(Integer, ForeignKey('property_assignments.assignment_identifier'))
-    step_number = Column(Integer)
+    property_number = Column(Integer, ForeignKey('property_assignments.property_number'))
+    number = Column(Integer)
 
     property_assignment = relationship('PropertyAssignment', back_populates='step_assignments')
     interproscan_matches = relationship('InterProScanMatch', secondary=step_match_association_table,
                                         back_populates='step_assignments')
 
     def __repr__(self):
-        return "<StepAssignment(Property='GenProp{0:04d}', number='{1:d}', assignment='YES')>".format(
-            self.property_assignment.property_identifier,
-            self.step_number)
+        property_assignment = self.property_assignment
+        if property_assignment:
+            property_identifier = property_assignment.identifier
+        else:
+            property_identifier = 'unknown'
+
+        return "<StepAssignment(Property='{}', number='{}', assignment='YES')>".format(
+            property_identifier,
+            self.number)
 
 
 class InterProScanMatch(Base):
     """Contains information about an InterProScan match supporting a step."""
 
-    __tablename__ = 'interproscan_matchs'
+    __tablename__ = 'interproscan_matches'
 
     interproscan_match_identifier = Column(Integer, primary_key=True, autoincrement=True)
     sequence_identifier = Column(String, ForeignKey('sequence.identifier'))
@@ -104,10 +153,16 @@ class InterProScanMatch(Base):
     sequence = relationship('Sequence', back_populates='matches')
 
     def __repr__(self):
-        return "<InterProScanMatch(sequence_identifier='{0:s}', signature='{1:s}', assignment='{2:f}')>".format(
-            self.sequence.identifier,
-            self.interpro_signature,
-            self.expected_value)
+        sequence = self.sequence
+        if sequence:
+            sequence_identifier = sequence.sequence
+        else:
+            sequence_identifier = 'unknown'
+
+        return "<InterProScanMatch(sequence_identifier='{0:s}', signature='{1:s}', assignment='{2:1.3e}')>".format(
+            sequence_identifier,
+            self.interpro_signature if self.interpro_signature else 'unknown',
+            self.expected_value if self.expected_value else 1337)
 
 
 class Sequence(Base):
