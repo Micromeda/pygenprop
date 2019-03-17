@@ -99,6 +99,7 @@ class GenomeProperty(object):
     def required_steps(self):
         """
         Returns a list of all the required steps of the genome property.
+
         :return: All required steps as list.
         """
         return [step for step in self.steps if step.required]
@@ -107,6 +108,7 @@ class GenomeProperty(object):
     def child_genome_property_identifiers(self):
         """
         Collects the genome property identifiers of child genome properties.
+
         :return: A list of genome property identifiers.
         """
         child_genome_properties_identifiers = []
@@ -119,6 +121,7 @@ class GenomeProperty(object):
     def to_json(self, as_dict=False):
         """
         Converts the object to a JSON representation.
+
         :param as_dict: Return a dictionary for incorporation into other json objects.
         :return: A JSON formatted string or dictionary representing the object.
         """

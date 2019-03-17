@@ -28,6 +28,7 @@ class AssignmentCache(object):
     def cache_property_assignment(self, genome_property_identifier: str, assignment: str):
         """
         Stores cached assignment results for a genome property.
+
         :param genome_property_identifier: The identifier of genome property.
         :param assignment: An assignment of YES, NO or PARTIAL for the given genome property.
         """
@@ -36,6 +37,7 @@ class AssignmentCache(object):
     def get_property_assignment(self, genome_property_identifier):
         """
         Retrieves cached assignment results for a genome property.
+
         :param genome_property_identifier: The identifier of genome property.
         :return: An assignment of YES, NO or PARTIAL for the given genome property.
         """
@@ -44,6 +46,7 @@ class AssignmentCache(object):
     def cache_step_assignment(self, genome_property_identifier: str, step_number: int, assignment: str):
         """
         Stores cached assignment results for a genome property step.
+
         :param genome_property_identifier: The identifier of the genome property for which the step belongs.
         :param step_number: The steps number.
         :param assignment: An assignment of YES or NO for the given step.
@@ -58,6 +61,7 @@ class AssignmentCache(object):
     def get_step_assignment(self, genome_property_identifier: str, step_number: int):
         """
         Retrieves cached assignment results for a genome property step.
+
         :param genome_property_identifier: The identifier of the genome property for which the step belongs.
         :param step_number: The steps number.
         :return: An assignment of YES or NO for the given step.
@@ -78,6 +82,7 @@ class AssignmentCache(object):
     def flush_property_from_cache(self, genome_property_identifier):
         """
         Remove a genome property from the cache using its identifier.
+
         :param genome_property_identifier: The identifier of the property to remove from the cache.
         """
         self.property_assignments.pop(genome_property_identifier, None)
@@ -87,6 +92,7 @@ class AssignmentCache(object):
     def genome_property_identifiers(self):
         """
         Creates a set of identifiers belonging to the genome properties cached.
+
         :return: A set of genome property identifiers.
         """
         return list(self.property_assignments.keys())

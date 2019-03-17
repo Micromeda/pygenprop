@@ -15,6 +15,7 @@ class Evidence(object):
                  sufficient=False, parent: FunctionalElement=None):
         """
         Creates a new Evidence object.
+
         :param evidence_identifiers: A list of identifiers of proteins or processes supporting the existence of a
                                      FunctionalElement (i.e a list of Intro Consortium IDs or GenProp Accessions).
         :param gene_ontology_terms: The ids for gene ontology (GO) terms defining the protein or process supporting
@@ -44,6 +45,7 @@ class Evidence(object):
     def has_genome_property(self):
         """
         Is the evidence a genome property?
+
         :return: Return True if evidence is a genome property.
         """
         genome_property = False
@@ -57,6 +59,7 @@ class Evidence(object):
     def genome_property_identifiers(self):
         """
         Gets genome properties identifiers for representing a piece of evidence.
+
         :return: A list of genome property identifiers.
         """
         genome_property_identifiers = []
@@ -70,6 +73,7 @@ class Evidence(object):
     def genome_properties(self):
         """
         Get genome properties that are used by this evidence.
+
         :return: A list of genome properties.
         """
         parent_genome_property = self.parent.parent.parent
