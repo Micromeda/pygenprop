@@ -78,6 +78,58 @@ class GenomePropertiesResults(object):
             property_result = ['NO'] * len(step_results.columns)
         return property_result
 
+    @property
+    def differing_property_results(self):
+        """
+        Property results where all properties differ in assignment in at least one sample.
+        :return: A property result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results)
+
+    @property
+    def differing_step_results(self):
+        """
+        Step results where all steps differ in assignment in at least one sample.
+        :return: A step result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results)
+
+    @property
+    def supported_property_results(self):
+        """
+        Property results where properties which are not supported in any sample are removed.
+        :return: A property result data frame where properties with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results, only_drop_no_assignments=True)
+
+    @property
+    def supported_step_results(self):
+        """
+        Step results where steps which are not supported in any sample are removed.
+        :return: A step result data frame where steps with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results, only_drop_no_assignments=True)
+
+    @staticmethod
+    def remove_results_with_shared_assignments(results, only_drop_no_assignments=False):
+        """
+        Filter out results where all samples have the same value.
+        :param results: A step or property results data frame.
+        :param only_drop_no_assignments: Only drop results where values are all NO.
+        :return: A step or property data frame with certain properties filtered out.
+        """
+        results_transposed = results.transpose()
+        number_of_unique_values_per_column = results_transposed.apply(pd.Series.nunique)
+        single_value_columns = number_of_unique_values_per_column[number_of_unique_values_per_column == 1].index
+
+        if only_drop_no_assignments:
+            results_to_drop = \
+                [column for column in single_value_columns if results_transposed[column].unique()[0] == 'NO']
+        else:
+            results_to_drop = [column for column in single_value_columns]  # Drop all single value columns.
+
+        return results_transposed.drop(results_to_drop, axis=1).transpose()
+
     def to_json(self, file_handle=None):
         """
         Returns a JSON representation of the step results.
@@ -130,7 +182,6 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assig
     :return: A tuple containing an property assignment table and step assignments table.
     """
     sanitized_assignment_cache = create_synchronized_assignment_cache(assignment_cache, genome_properties_tree)
-
 
     # Take known assignments and matched InterPro member database
     # identifiers and calculate assignments for all properties.

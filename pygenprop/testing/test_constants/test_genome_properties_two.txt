@@ -198,3 +198,90 @@ DN  ABC transporter, permease PhnE/PtxC
 RQ  1
 EV  IPR005769; TIGR01097;
 //
+AC  GenProp0877
+DE  Flagellar motor stator complex
+TP  SYSTEM
+AU  Haft DH
+TH  0
+RN  [1]
+RM  15629949
+RT  Evidence for two flagellar stators and their role in the motility of
+RT  Pseudomonas aeruginosa.
+RA  Toutain CM, Zegans ME, O'Toole GA;
+RL  J Bacteriol. 2005;187:771-777.
+CC  The MotAB complex functions as the stator producing torque in the
+CC  mobile flagellar rotor complex. The stator changes conformation in
+CC  response to the passage of protons across the cytoplasmic membrane.
+CC  This complex is also necessarily a force-generating proton transporter.
+CC  The stator complex contains MotA and MotB subunits in a 4:2 ratio and
+CC  several stators are associated with each motor, each generating torque
+CC  independently.
+--
+SN  1
+ID  Flagellar motor stator protein MotA
+DN  Flagellar motor stator protein MotA
+RQ  1
+EV  IPR002898; PF01618;
+EV  IPR022522; TIGR03818;
+--
+SN  2
+ID  Flagellar motor stator protein MotB
+DN  Flagellar motor stator protein MotB
+RQ  1
+EV  IPR006665; PF00691;
+//
+AC  GenProp0902
+DE  Quinohemoprotein amine dehydrogenase
+TP  SYSTEM
+AU  Haft DH
+TH  0
+RN  [1]
+RM  16546999
+RT  Involvement of a putative [Fe-S]-cluster-binding protein in the
+RT  biogenesis of quinohemoprotein amine dehydrogenase.
+RA  Ono K, Okajima T, Tani M, Kuroda S, Sun D, Davidson VL, Tanizawa K;
+RL  J Biol Chem. 2006;281:13672-13684.
+RN  [2]
+RM  11704672
+RT  Crystal structure of quinohemoprotein amine dehydrogenase from
+RT  Pseudomonas putida. Identification of a novel quinone cofactor encaged
+RT  by multiple thioether cross-bridges.
+RA  Satoh A, Kim JK, Miyahara I, Devreese B, Vandenberghe I, Hacisalihoglu
+RA  A, Okajima T, Kuroda S, Adachi O, Duine JA, Van Beeumen J, Tanizawa K,
+RA  Hirotsu K;
+RL  J Biol Chem. 2002;277:2830-2834.
+CC  This system is characterized by three subunits of the mature enzyme,
+CC  plus one radical SAM protein involved in modification of the gamma
+CC  subunit. The gamma subunit contains two unusual modifications. One is a
+CC  cysteine tryptophylquinone, which unlike PQQ is derived from the
+CC  polypeptide precursor. The other is intrapeptidyl thioether
+CC  cross-linking.
+--
+SN  1
+ID  Quinohemoprotein amine dehydrogenase maturation protein
+DN  Quinohemoprotein amine dehydrogenase maturation protein
+RQ  1
+EV  IPR023886; TIGR03906;
+TG  GO:0043687;
+--
+SN  2
+ID  Quinohemoprotein amine dehydrogenase, alpha subunit
+DN  Quinohemoprotein amine dehydrogenase, alpha subunit
+RQ  1
+EV  IPR023887; TIGR03908;
+TG  GO:0030058;
+--
+SN  3
+ID  Quinohemoprotein amine dehydrogenase, beta subunit
+DN  Quinohemoprotein amine dehydrogenase, beta subunit
+RQ  1
+EV  IPR023879; TIGR03907;
+TG  GO:0030058;
+--
+SN  4
+ID  Quinohemoprotein amine dehydrogenase, gamma subunit
+DN  Quinohemoprotein amine dehydrogenase, gamma subunit
+RQ  1
+EV  IPR015084; PF08992;
+TG  GO:0030058;
+//
