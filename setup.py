@@ -17,7 +17,7 @@ setup(name='pygenprop',
       license='Apache License 2.0',
       packages=['pygenprop'],
       install_requires=[
-          'Cython>=0.29',
+          'Cython>=0.28.5',
           'pandas>=0.23.4',
       ],
       zip_safe=False)
