@@ -15,6 +15,7 @@ class Step(object):
     def __init__(self, number, functional_elements: list=None, parent: GenomeProperty=None):
         """
         Creates a new Step object.
+
         :param number: The position of the step in the step list.
         :param functional_elements: A list of FunctionalElements supporting this step.
         """
@@ -48,6 +49,7 @@ class Step(object):
     def required(self):
         """
         Checks if the step is required by checking if any of the functional elements are required.
+
         :return: True if the step is required.
         """
         required_step = False
@@ -63,6 +65,7 @@ class Step(object):
     def genome_property_identifiers(self):
         """
         Collects all the genome properties identifiers supporting a step.
+
         :return: A list of the steps child genome property identifiers.
         """
         genome_properties_identifiers = []
@@ -77,6 +80,7 @@ class Step(object):
     def genome_properties(self):
         """
         Collects all the child genome properties supporting a step.
+
         :return: A list of child genome properties for a step.
         """
         child_identifiers = self.genome_property_identifiers

@@ -1,23 +1,28 @@
 
 # Pygenprop
-| Branch 	| CI Status 	|
+| Branch 	|  Status 	|
 |---------	|----------------------------------------------------------------------------------------------------------------------------	|
 | Master 	| [![Build Status](https://travis-ci.org/Micromeda/pygenprop.svg?branch=master)](https://travis-ci.org/Micromeda/pygenprop) 	|
 | Develop 	| [![Build Status](https://travis-ci.org/Micromeda/pygenprop.svg?branch=develop)](https://travis-ci.org/Micromeda/pygenprop) 	|
+| Docs 	    | [![Documentation Status](https://readthedocs.org/projects/pygenprop/badge/?version=latest)](https://pygenprop.readthedocs.io/en/latest/?badge=latest)
+
 
 Pygenprop is a python library for programmatic exploration and usage of the [EBI Genome Properties database](https://github.com/ebi-pf-team/genome-properties).   
 
 Features
 --------
 
-At its core the library contains three core components:
+At its core the library contains four core components:
 
-- An object model for representing the Genome Properties database as a polytree.
+- An object model for representing the Genome Properties database as a rooted direct acyclic graph.
 - A parser for Genome Properties database flat files.
 - A parser for Genome Properties assignment longform files.
+- A parser for InterProScan TSV files.
 
 Usage
 -----
+
+This is simple usage overview. Full API documentation is available [here](https://pygenprop.readthedocs.io/en/latest/py-modindex.html).
 
 ### Property Tree
 [https://github.com/Micromeda/pygenprop/blob/develop/modules/genome_properties_tree.py](https://github.com/Micromeda/pygenprop/blob/develop/modules/genome_properties_tree.py)

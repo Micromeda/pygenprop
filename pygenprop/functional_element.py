@@ -14,6 +14,7 @@ class FunctionalElement(object):
     def __init__(self, identifier, name, evidence: list=None, required=False, parent: Step=None):
         """
         Creates a new FunctionalElement object.
+
         :param identifier: The identifier of the FunctionalElement.
         :param name: The name of the FunctionalElement.
         :param evidence: A list of Evidence objects supporting this FunctionalElement.
