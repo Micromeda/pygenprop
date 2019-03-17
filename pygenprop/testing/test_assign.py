@@ -37,7 +37,7 @@ class TestAssign(unittest.TestCase):
         cls.cache = prebuilt_cache
 
         """
-        Test Properties Polytree Structure:
+        Test Properties Rooted DAG Structure:
 
                     --> GenProp0089
         GenProp0066

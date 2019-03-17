@@ -20,7 +20,7 @@ class TestEvidence(unittest.TestCase):
         """Set up testing data for testing."""
 
         """
-               Test Properties Polytree Structure:
+               Test Properties Rooted DAG Structure:
 
                            --> GenProp0089
                GenProp0066

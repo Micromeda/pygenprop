@@ -13,6 +13,7 @@ class DatabaseReference(object):
     def __init__(self, database_name, record_title, record_ids):
         """
         Creates a new DatabaseReference object.
+
         :param database_name: The name of the database in question.
         :param record_title: The title of the record of the genome property in the database.
         :param record_ids: One or more database identifiers of the record of the genome property in the database.

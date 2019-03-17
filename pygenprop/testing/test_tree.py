@@ -21,7 +21,7 @@ class TestGenomePropertyTree(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Test Properties Polytree Structure:
+        Test Properties Rooted DAG Structure:
 
         GenProp0002 -->             --> GenProp0089
                         GenProp0066

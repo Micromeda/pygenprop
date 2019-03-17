@@ -13,6 +13,7 @@ class LiteratureReference(object):
     def __init__(self, number, pubmed_id, title, authors, citation):
         """
         Creates a Reference object.
+
         :param number: The position of the reference.
         :param pubmed_id: The PubMed identify of the literature reference.
         :param title: The title of the literature reference.
