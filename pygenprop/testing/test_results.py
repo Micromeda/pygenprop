@@ -64,6 +64,8 @@ class TestResults(unittest.TestCase):
 
         results = GenomePropertiesResults(*self.test_genome_property_results, genome_properties_tree=self.test_tree)
 
+        print(results.property_results)
+        print(results.property_results)
         self.assertEqual(len(results.differing_property_results), 3)
         self.assertEqual(len(results.supported_property_results), 4)
         self.assertEqual(len(results.differing_step_results), 16)
