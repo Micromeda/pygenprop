@@ -15,7 +15,7 @@ from pygenprop.tree import GenomePropertiesTree
 from pygenprop.literature_reference import LiteratureReference
 
 
-def parse_genome_property_file(genome_property_file):
+def parse_genome_properties_flat_file(genome_property_file):
     """
     A parses a genome property flat file.
 

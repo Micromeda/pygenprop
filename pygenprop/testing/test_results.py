@@ -10,7 +10,7 @@ import unittest
 
 from pygenprop.assign import AssignmentCache
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
-from pygenprop.database_file_parser import parse_genome_property_file
+from pygenprop.database_file_parser import parse_genome_properties_flat_file
 from pygenprop.results import GenomePropertiesResults, create_synchronized_assignment_cache
 
 
@@ -28,7 +28,7 @@ class TestResults(unittest.TestCase):
             properties_two = parse_genome_property_longform_file(assignment_file_two)
 
         with open('pygenprop/testing/test_constants/test_genome_properties_two.txt') as test_genome_properties_file:
-            genome_properties_tree = parse_genome_property_file(test_genome_properties_file)
+            genome_properties_tree = parse_genome_properties_flat_file(test_genome_properties_file)
 
         cls.test_genome_property_results = [properties_one, properties_two]
         cls.test_tree = genome_properties_tree
