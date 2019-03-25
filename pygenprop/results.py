@@ -53,7 +53,14 @@ class GenomePropertiesResults(object):
         :param genome_property_id: The id of the genome property to get results for.
         :return: A list containing the assignment results for the genome property in question.
         """
-        return self.property_results.loc[genome_property_id].tolist()
+        property_results = self.property_results
+
+        try:
+            property_result = property_results.loc[genome_property_id].tolist()
+        except KeyError:
+            property_result = ['NO'] * len(property_results.columns)
+
+        return property_result
 
     def get_step_result(self, genome_property_id, step_number):
         """
@@ -63,7 +70,65 @@ class GenomePropertiesResults(object):
         :param step_number: The step number of the step.
         :return: A list containing the assignment results for the step in question.
         """
-        return self.step_results.loc[genome_property_id].loc[step_number].tolist()
+        step_results = self.step_results
+
+        try:
+            property_result = step_results.loc[genome_property_id].loc[step_number].tolist()
+        except KeyError:
+            property_result = ['NO'] * len(step_results.columns)
+        return property_result
+
+    @property
+    def differing_property_results(self):
+        """
+        Property results where all properties differ in assignment in at least one sample.
+        :return: A property result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results)
+
+    @property
+    def differing_step_results(self):
+        """
+        Step results where all steps differ in assignment in at least one sample.
+        :return: A step result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results)
+
+    @property
+    def supported_property_results(self):
+        """
+        Property results where properties which are not supported in any sample are removed.
+        :return: A property result data frame where properties with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results, only_drop_no_assignments=True)
+
+    @property
+    def supported_step_results(self):
+        """
+        Step results where steps which are not supported in any sample are removed.
+        :return: A step result data frame where steps with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results, only_drop_no_assignments=True)
+
+    @staticmethod
+    def remove_results_with_shared_assignments(results, only_drop_no_assignments=False):
+        """
+        Filter out results where all samples have the same value.
+        :param results: A step or property results data frame.
+        :param only_drop_no_assignments: Only drop results where values are all NO.
+        :return: A step or property data frame with certain properties filtered out.
+        """
+        results_transposed = results.transpose()
+        number_of_unique_values_per_column = results_transposed.apply(pd.Series.nunique)
+        single_value_columns = number_of_unique_values_per_column[number_of_unique_values_per_column == 1].index
+
+        if only_drop_no_assignments:
+            results_to_drop = \
+                [column for column in single_value_columns if results_transposed[column].unique()[0] == 'NO']
+        else:
+            results_to_drop = [column for column in single_value_columns]  # Drop all single value columns.
+
+        return results_transposed.drop(results_to_drop, axis=1).transpose()
 
     def to_json(self, file_handle=None):
         """

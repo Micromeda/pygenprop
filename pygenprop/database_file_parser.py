@@ -13,6 +13,7 @@ from pygenprop.functional_element import FunctionalElement
 from pygenprop.database_reference import DatabaseReference
 from pygenprop.tree import GenomePropertiesTree
 from pygenprop.literature_reference import LiteratureReference
+from itertools import groupby
 
 
 def parse_genome_properties_flat_file(genome_property_file):
@@ -28,7 +29,7 @@ def parse_genome_properties_flat_file(genome_property_file):
         if not line.strip() == '//':
             current_genome_property_record.append(create_marker_and_content(line))
         else:
-            collapsed_genome_property_record = collapse_genome_property_record(current_genome_property_record)
+            collapsed_genome_property_record = unwrap_genome_property_record(current_genome_property_record)
             new_genome_property = parse_genome_property(collapsed_genome_property_record)
             genome_properties.append(new_genome_property)
             current_genome_property_record = []
@@ -51,33 +52,26 @@ def create_marker_and_content(genome_property_flat_file_line):
     return marker, content
 
 
-def collapse_genome_property_record(genome_property_record):
+def unwrap_genome_property_record(genome_property_record):
     """
     The standard genome property record wraps every 80 lines. This function unwraps the record.
 
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return:    A list of reduced redundancy markers, content tuples representing genome property flat file lines.
                 Consecutive markers (often 'CC' and '**') markers are collapsed to one tuple.
-                Inside steps, multiple 'EV' and 'TG' markers are piled up to two markers.
     """
     collapsed_genome_property_record = []
+    non_collapse_makers = ('EV', 'RQ')
 
-    trailing_marker_content = []
-    previous_marker = genome_property_record[0][0]
-    no_collapse_makers = ['EV', 'RQ']
-    for marker, content in genome_property_record:
-        if marker in no_collapse_makers:
-            collapsed_genome_property_record.append((marker, content))
-        elif marker == previous_marker:
-            trailing_marker_content.append(content)
+    # Bin rows with consecutive markers using groupby. Collapse consecutive markers in bin.
+    for bin_marker, binned in groupby(genome_property_record, lambda x: x[0]):
+        bin_contents = (row_content for row_marker, row_content in binned)
+
+        if bin_marker in non_collapse_makers:
+            for content in bin_contents:
+                collapsed_genome_property_record.append((bin_marker, content))
         else:
-            collapsed_marker_content = ' '.join(trailing_marker_content)
-            new_collapsed_marker = (previous_marker, collapsed_marker_content)
-
-            collapsed_genome_property_record.append(new_collapsed_marker)
-
-            previous_marker = marker
-            trailing_marker_content = [content]
+            collapsed_genome_property_record.append((bin_marker, ' '.join(bin_contents)))
 
     return collapsed_genome_property_record
 

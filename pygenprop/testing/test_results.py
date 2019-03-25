@@ -42,7 +42,9 @@ class TestResults(unittest.TestCase):
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
+        self.assertEqual(results.get_property_result('GenProp0000'), ['NO'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES'])
+        self.assertEqual(results.get_step_result('GenProp0000', 2), ['NO'])
 
         self.assertEquals(len(results.tree), len(results.property_results.index))
 
@@ -53,7 +55,19 @@ class TestResults(unittest.TestCase):
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3', 'C_luteolum_DSM_273'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL', 'NO'])
+        self.assertEqual(results.get_property_result('GenProp0000'), ['NO', 'NO'])
         self.assertEqual(results.get_step_result('GenProp0232', 1), ['YES', 'NO'])
+        self.assertEqual(results.get_step_result('GenProp0000', 2), ['NO', 'NO'])
+
+    def test_simplified_results(self):
+        """Test parsing multiple longform genome properties assignment files into assignment results."""
+
+        results = GenomePropertiesResults(*self.test_genome_property_results, genome_properties_tree=self.test_tree)
+
+        self.assertEqual(len(results.differing_property_results), 3)
+        self.assertEqual(len(results.supported_property_results), 4)
+        self.assertEqual(len(results.differing_step_results), 16)
+        self.assertEqual(len(results.supported_step_results), 19)
 
     def test_assignment_cache_synchronization(self):
         """Test that the assignment file can be properly synchronized."""
