@@ -46,6 +46,73 @@ class GenomePropertiesResults(object):
         self.property_results = combined_properties_table
         self.step_results = combined_step_table
 
+    def get_results(self, *property_identifiers, steps=False, names=False):
+        """
+        Creates a results dataframe for only a subset of genome properties.
+
+        :param property_identifiers: The id of one or more genome properties to get results for.
+        :param steps: Add steps to the dataframe.
+        :param names: Add property and or step names to the dataframe.
+        :return: A dataframe with results for a specific set of genome properties.
+        """
+        if steps:
+            results = self.step_results
+        else:
+            results = self.property_results
+
+        filtered_results = results.loc[results.index.get_level_values(0).isin(property_identifiers)]
+
+        if names:
+            named_results = filtered_results.reset_index()
+
+            named_results['Property_Name'] = named_results['Property_Identifier'].apply(
+                lambda property_identifier: self.tree[property_identifier].name)
+
+            if steps:
+                named_results['Step_Name'] = named_results[['Property_Identifier', 'Step_Number']].apply(
+                    lambda row: self.get_step_name(row['Property_Identifier'], row['Step_Number']), axis=1)
+
+                filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name', 'Step_Number', 'Step_Name'])
+            else:
+                filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name'])
+
+        return filtered_results
+
+    def get_step_name(self, property_identifier, step_number):
+        """
+        Helper function to quickly acquire a property steps name.
+
+        :param property_identifier: The id of the genome property.
+        :param step_number: The step number of the step.
+        :return: The steps name.
+        """
+        genome_property = self.tree[property_identifier]
+        step_name = 'None'
+        for step in genome_property.steps:
+            if step.number == step_number:
+                step_name = step.name
+                break
+        return step_name
+
+    def get_results_summary(self, *property_identifiers, steps=False, normalize=False):
+        """
+        Creates a summary table for yes, no and partial assignments of a given set of properties or property steps.
+        Display counts or percentage of yes no partial assignment for the given properties or steps of the given properties.
+
+        :param property_identifiers: The id of one or more genome properties to get results for.
+        :param steps: Summarize results for the steps of the input properties
+        :param normalize: Display the summary as a percent rather than as counts.
+        :return: A summary table dataframe
+        """
+        results = self.get_results(*property_identifiers, steps=steps)
+
+        if normalize:
+            summary = results.apply(pd.value_counts, normalize=normalize).fillna(0)*100
+        else:
+            summary = results.apply(pd.value_counts, normalize=normalize).fillna(0)
+
+        return summary
+
     def get_property_result(self, genome_property_id):
         """
         Gets the assignment results for a given genome property.
@@ -189,11 +256,11 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assig
 
     property_table = pd.DataFrame.from_dict(assignments.property_assignments,
                                             orient='index', columns=['Property_Result'])
-    property_table.index.names = ['Genome_Property_ID']
+    property_table.index.names = ['Property_Identifier']
 
     step_table = pd.DataFrame(create_step_table_rows(assignments.step_assignments),
-                              columns=['Genome_Property_ID', 'Step_Number', 'Step_Result'])
-    step_table.set_index(['Genome_Property_ID', 'Step_Number'], inplace=True)
+                              columns=['Property_Identifier', 'Step_Number', 'Step_Result'])
+    step_table.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
 
     return property_table, step_table
 
