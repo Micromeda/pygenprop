@@ -9,7 +9,7 @@ Description: Parses EBI genome properties assignment files.
 import argparse
 
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
-from pygenprop.database_file_parser import parse_genome_property_file
+from pygenprop.database_file_parser import parse_genome_properties_flat_file
 from pygenprop.results import GenomePropertiesResults
 
 from pygenprop.lib import sanitize_cli_path
@@ -26,7 +26,7 @@ def main(args):
     assignment_file_paths = (sanitize_cli_path(path) for path in args.input_genome_properties_assignment_files)
 
     with open(genome_property_flat_file_path) as genome_property_file:
-        genome_properties_tree = parse_genome_property_file(genome_property_file)
+        genome_properties_tree = parse_genome_properties_flat_file(genome_property_file)
 
     leaf_assignments = []
     for path in assignment_file_paths:
