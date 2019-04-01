@@ -72,7 +72,8 @@ class GenomePropertiesResults(object):
                 named_results['Step_Name'] = named_results[['Property_Identifier', 'Step_Number']].apply(
                     lambda row: self.get_step_name(row['Property_Identifier'], row['Step_Number']), axis=1)
 
-                filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name', 'Step_Number', 'Step_Name'])
+                filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name',
+                                                            'Step_Number', 'Step_Name'])
             else:
                 filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name'])
 
