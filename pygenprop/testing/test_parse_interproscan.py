@@ -33,7 +33,7 @@ def main(args):
         with open(path) as interproscan_file:
             interproscan_assignments.append(parse_interproscan_file(interproscan_file))
 
-    results = GenomePropertiesResults(*interproscan_assignments, genome_properties_tree=genome_properties_tree)
+    results = GenomePropertiesResults(*interproscan_assignments, properties_tree=genome_properties_tree)
 
     with open(json_output_path, 'w') as json_file:
         results.to_json(json_file)

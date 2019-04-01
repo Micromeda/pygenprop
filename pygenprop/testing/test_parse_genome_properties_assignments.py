@@ -33,7 +33,7 @@ def main(args):
         with open(path) as assignment_file:
             leaf_assignments.append(parse_genome_property_longform_file(assignment_file))
 
-    results = GenomePropertiesResults(*leaf_assignments, genome_properties_tree=genome_properties_tree)
+    results = GenomePropertiesResults(*leaf_assignments, properties_tree=genome_properties_tree)
 
     with open(json_output_path, 'w') as json_file:
         results.to_json(json_file)

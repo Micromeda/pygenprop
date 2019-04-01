@@ -38,7 +38,7 @@ class TestResults(unittest.TestCase):
 
         first_property_assignment_cache = self.test_genome_property_results[0]
 
-        results = GenomePropertiesResults(first_property_assignment_cache, genome_properties_tree=self.test_tree)
+        results = GenomePropertiesResults(first_property_assignment_cache, properties_tree=self.test_tree)
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL'])
@@ -51,7 +51,7 @@ class TestResults(unittest.TestCase):
     def test_multiple_results(self):
         """Test parsing multiple longform genome properties assignment files into assignment results."""
 
-        results = GenomePropertiesResults(*self.test_genome_property_results, genome_properties_tree=self.test_tree)
+        results = GenomePropertiesResults(*self.test_genome_property_results, properties_tree=self.test_tree)
 
         self.assertEqual(results.sample_names, ['C_chlorochromatii_CaD3', 'C_luteolum_DSM_273'])
         self.assertEqual(results.get_property_result('GenProp0232'), ['PARTIAL', 'NO'])
@@ -62,7 +62,7 @@ class TestResults(unittest.TestCase):
     def test_simplified_results(self):
         """Test parsing multiple longform genome properties assignment files into assignment results."""
 
-        results = GenomePropertiesResults(*self.test_genome_property_results, genome_properties_tree=self.test_tree)
+        results = GenomePropertiesResults(*self.test_genome_property_results, properties_tree=self.test_tree)
 
         self.assertEqual(len(results.differing_property_results), 3)
         self.assertEqual(len(results.supported_property_results), 4)

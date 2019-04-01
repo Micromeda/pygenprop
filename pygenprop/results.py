@@ -19,11 +19,11 @@ class GenomePropertiesResults(object):
     This class contains a representation of a table of results from one or more genome properties assignments.
     """
 
-    def __init__(self, *genome_properties_results: AssignmentCache, genome_properties_tree: GenomePropertiesTree):
+    def __init__(self, *genome_properties_results: AssignmentCache, properties_tree: GenomePropertiesTree):
         """
         Constructs the genome properties results object.
 
-        :param genome_properties_tree: The global genome properties tree.
+        :param properties_tree: The global genome properties tree.
         :param genome_properties_results_dict: One or more parsed genome properties assignments.
         """
 
@@ -32,7 +32,7 @@ class GenomePropertiesResults(object):
         sample_names = []
         for assignment in genome_properties_results:
             sample_names.append(assignment.sample_name)
-            property_table, step_table = create_assignment_tables(genome_properties_tree, assignment)
+            property_table, step_table = create_assignment_tables(properties_tree, assignment)
             property_tables.append(property_table)
             step_tables.append(step_table)
 
@@ -41,7 +41,7 @@ class GenomePropertiesResults(object):
         combined_properties_table.columns = sample_names
         combined_step_table.columns = sample_names
 
-        self.tree = genome_properties_tree
+        self.tree = properties_tree
         self.sample_names = sample_names
         self.property_results = combined_properties_table
         self.step_results = combined_step_table
