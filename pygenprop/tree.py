@@ -157,6 +157,55 @@ class GenomePropertiesTree(object):
 
         return output
 
+    @property
+    def genome_property_identifiers(self):
+        """
+        The identifiers all genome properties in the database.
+
+        :return: A set of all genome property identifiers.
+        """
+        return set(genome_property.id for genome_property in self)
+
+    @property
+    def consortium_identifiers(self):
+        """
+        All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the genome properties database.
+
+        :return: A set of all unique consortium identifiers used in genome properties.
+        """
+        return self.get_evidence_identifiers(consortium=True)
+
+    @property
+    def interpro_identifiers(self):
+        """
+        All global InterPro identifiers (IPRXXXX, etc.) used by the genome properties database.
+
+        :return: A set of all unique InterPro identifiers used in genome properties.
+        """
+        return self.get_evidence_identifiers()
+
+    def get_evidence_identifiers(self, consortium=False):
+        """
+        Gets evidence identifiers from all genome properties in the database.
+
+        :param consortium: If true, list the consortium signature identifiers (PFAM, TIGRFAM)
+        :return: A set of all unique evidence identifiers used in genome properties.
+        """
+        global_identifiers = []
+        for genome_property in self:
+            for step in genome_property.steps:
+                for functional_element in step.functional_elements:
+                    for evidence in functional_element.evidence:
+                        if consortium:
+                            current_identifiers = evidence.consortium_identifiers
+                        else:
+                            current_identifiers = evidence.interpro_identifiers
+
+                        if current_identifiers:
+                            global_identifiers.extend(current_identifiers)
+
+        return set(global_identifiers)
+
     def create_metabolism_database_mapping_file(self, file_handle):
         """
         Writes a mapping file which maps each genome property to KEGG and MetaCyc.
