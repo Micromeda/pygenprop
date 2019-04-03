@@ -58,13 +58,42 @@ class Evidence(object):
     @property
     def genome_property_identifiers(self):
         """
-        Gets genome properties identifiers for representing a piece of evidence.
+        Gets the genome properties identifiers representing a piece of evidence.
 
         :return: A list of genome property identifiers.
         """
         genome_property_identifiers = []
         for identifier in self.evidence_identifiers:
             if "genprop" in identifier.lower():
+                genome_property_identifiers.append(identifier)
+
+        return genome_property_identifiers
+
+    @property
+    def interpro_identifiers(self):
+        """
+        Gets the InterPro (IPRXXXXXX) identifiers representing a piece of evidence.
+
+        :return: A list of genome property identifiers.
+        """
+        genome_property_identifiers = []
+        for identifier in self.evidence_identifiers:
+            if "ipr" in identifier.lower():
+                genome_property_identifiers.append(identifier)
+
+        return genome_property_identifiers
+
+    @property
+    def consortium_identifiers(self):
+        """
+         Gets the InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) representing a piece of evidence.
+
+        :return: A set of genome property identifiers.
+        """
+        genome_property_identifiers = []
+        for identifier in self.evidence_identifiers:
+            lowercase_identifier = identifier.lower()
+            if "genprop" not in lowercase_identifier and "ipr" not in lowercase_identifier:
                 genome_property_identifiers.append(identifier)
 
         return genome_property_identifiers

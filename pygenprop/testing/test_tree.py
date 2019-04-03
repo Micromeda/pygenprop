@@ -88,7 +88,7 @@ class TestGenomePropertyTree(unittest.TestCase):
             ('SN', '1'),
             ('ID', 'LLM-family F420-associated subfamilies'),
             ('RQ', '0'),
-            ('EV', 'IPR019910; TIGR03564; sufficient;')
+            ('EV', 'IPR019911; TIGR03565; sufficient;')
         ]
 
         property_one = parse_genome_property(property_rows_one)
@@ -210,6 +210,8 @@ class TestGenomePropertyTree(unittest.TestCase):
         self.assertEqual(level_two_child_two['children'], [])
 
     def test_json_string_creation(self):
+        """Test that a JSON tree can be created from the genome properties tree."""
+
         property_tree = GenomePropertiesTree(*self.properties)
 
         test_json = property_tree.to_json()
@@ -232,6 +234,8 @@ class TestGenomePropertyTree(unittest.TestCase):
         self.assertIn(test_json_parsed, [expected_json_parsed_one, expected_json_parsed_two])
 
     def test_json_string_creation_nodes_and_links(self):
+        """Test that a nodes and links JSON can be created from the genome properties tree."""
+
         property_tree = GenomePropertiesTree(*self.properties)
 
         test_json = property_tree.to_json(nodes_and_links=True)
@@ -271,3 +275,22 @@ class TestGenomePropertyTree(unittest.TestCase):
             properties = parse_genome_properties_flat_file(genome_property_file)
 
         self.assertEqual(len(properties), 4)
+
+    def test_get_property_identifiers(self):
+        """Test that we can get a set of all property identifiers in the tree."""
+        property_tree = GenomePropertiesTree(*self.properties)
+
+        self.assertEqual(property_tree.genome_property_identifiers, {'GenProp0002', 'GenProp0089', 'GenProp0066',
+                                                                     'GenProp0003', 'GenProp0092'})
+
+    def test_get_interpro_identifiers(self):
+        """Test that we can get a set of all InterPro identifiers used as evidence by the genome properties tree."""
+        property_tree = GenomePropertiesTree(*self.properties)
+
+        self.assertEqual(property_tree.interpro_identifiers, {'IPR019910', 'IPR019911'})
+
+    def test_get_consortium_identifiers(self):
+        """Test that we can get a set of all consortium identifiers used as evidence by the genome properties tree."""
+        property_tree = GenomePropertiesTree(*self.properties)
+
+        self.assertEqual(property_tree.consortium_identifiers, {'TIGR03564', 'TIGR03565'})

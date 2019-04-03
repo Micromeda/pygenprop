@@ -291,7 +291,7 @@ def create_synchronized_assignment_cache(assignment_cache, genome_properties_tre
     :param genome_properties_tree: The global genome properties tree.
     :return: An assignment cache containing data for genome properties shared between the tree and cache.
     """
-    tree_identifiers = set(genome_property.id for genome_property in genome_properties_tree)
+    tree_identifiers = genome_properties_tree.genome_property_identifiers
     assignment_cache_identifiers = set(assignment_cache.genome_property_identifiers)
 
     unshared_identifiers = tree_identifiers.symmetric_difference(assignment_cache_identifiers)

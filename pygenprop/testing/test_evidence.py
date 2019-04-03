@@ -160,6 +160,40 @@ class TestEvidence(unittest.TestCase):
         evidence = parse_evidences(evidences)[0]
         self.assertEqual(evidence.genome_property_identifiers, ['GenProp0066', 'GenProp0067'])
 
+    def test_get_interpro_identifiers(self):
+        """Test that we can get the InterPro identifiers for an evidence."""
+
+        evidence = [
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'Aferr subtype specific proteins'),
+            ('DN', 'Crispy Proteins'),
+            ('RQ', '0'),
+            ('EV', 'IPR017545; TIGR03114; sufficient;'),
+            ('TG', 'GO:0043571;')
+        ]
+
+        evidence = parse_evidences(evidence)[0]
+
+        self.assertEqual(evidence.interpro_identifiers, ['IPR017545'])
+
+    def test_get_consortium_identifiers(self):
+        """Test that we can get the consortium identifiers for an evidence."""
+
+        evidence = [
+            ('--', ''),
+            ('SN', '1'),
+            ('ID', 'Aferr subtype specific proteins'),
+            ('DN', 'Crispy Proteins'),
+            ('RQ', '0'),
+            ('EV', 'IPR017545; TIGR03114; sufficient;'),
+            ('TG', 'GO:0043571;')
+        ]
+
+        evidence = parse_evidences(evidence)[0]
+
+        self.assertEqual(evidence.consortium_identifiers, ['TIGR03114'])
+
     def test_get_genome_properties(self):
         """Test that we can get genome properties of an evidence."""
 
