@@ -20,11 +20,11 @@ class GenomePropertiesResults(object):
     This class contains a representation of a table of results from one or more genome properties assignments.
     """
 
-    def __init__(self, *genome_properties_results: AssignmentCache, genome_properties_tree: GenomePropertiesTree):
+    def __init__(self, *genome_properties_results: AssignmentCache, properties_tree: GenomePropertiesTree):
         """
         Constructs the genome properties results object.
 
-        :param genome_properties_tree: The global genome properties tree.
+        :param properties_tree: The global genome properties tree.
         :param genome_properties_results_dict: One or more parsed genome properties assignments.
         """
 
@@ -33,7 +33,7 @@ class GenomePropertiesResults(object):
         sample_names = []
         for assignment in genome_properties_results:
             sample_names.append(assignment.sample_name)
-            property_table, step_table = create_assignment_tables(genome_properties_tree, assignment)
+            property_table, step_table = create_assignment_tables(properties_tree, assignment)
             property_tables.append(property_table)
             step_tables.append(step_table)
 
@@ -42,10 +42,78 @@ class GenomePropertiesResults(object):
         combined_properties_table.columns = sample_names
         combined_step_table.columns = sample_names
 
-        self.tree = genome_properties_tree
+        self.tree = properties_tree
         self.sample_names = sample_names
         self.property_results = combined_properties_table
         self.step_results = combined_step_table
+
+    def get_results(self, *property_identifiers, steps=False, names=False):
+        """
+        Creates a results dataframe for only a subset of genome properties.
+
+        :param property_identifiers: The id of one or more genome properties to get results for.
+        :param steps: Add steps to the dataframe.
+        :param names: Add property and or step names to the dataframe.
+        :return: A dataframe with results for a specific set of genome properties.
+        """
+        if steps:
+            results = self.step_results
+        else:
+            results = self.property_results
+
+        filtered_results = results.loc[results.index.get_level_values(0).isin(property_identifiers)]
+
+        if names:
+            named_results = filtered_results.reset_index()
+
+            named_results['Property_Name'] = named_results['Property_Identifier'].apply(
+                lambda property_identifier: self.tree[property_identifier].name)
+
+            if steps:
+                named_results['Step_Name'] = named_results[['Property_Identifier', 'Step_Number']].apply(
+                    lambda row: self.get_step_name(row['Property_Identifier'], row['Step_Number']), axis=1)
+
+                filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name',
+                                                            'Step_Number', 'Step_Name'])
+            else:
+                filtered_results = named_results.set_index(['Property_Identifier', 'Property_Name'])
+
+        return filtered_results
+
+    def get_step_name(self, property_identifier, step_number):
+        """
+        Helper function to quickly acquire a property steps name.
+
+        :param property_identifier: The id of the genome property.
+        :param step_number: The step number of the step.
+        :return: The steps name.
+        """
+        genome_property = self.tree[property_identifier]
+        step_name = 'None'
+        for step in genome_property.steps:
+            if step.number == step_number:
+                step_name = step.name
+                break
+        return step_name
+
+    def get_results_summary(self, *property_identifiers, steps=False, normalize=False):
+        """
+        Creates a summary table for yes, no and partial assignments of a given set of properties or property steps.
+        Display counts or percentage of yes no partial assignment for the given properties or steps of the given properties.
+
+        :param property_identifiers: The id of one or more genome properties to get results for.
+        :param steps: Summarize results for the steps of the input properties
+        :param normalize: Display the summary as a percent rather than as counts.
+        :return: A summary table dataframe
+        """
+        results = self.get_results(*property_identifiers, steps=steps)
+
+        if normalize:
+            summary = results.apply(pd.value_counts, normalize=normalize).fillna(0)*100
+        else:
+            summary = results.apply(pd.value_counts, normalize=normalize).fillna(0)
+
+        return summary
 
     def get_property_result(self, genome_property_id, sample=None):
         """
@@ -96,6 +164,57 @@ class GenomePropertiesResults(object):
         return property_result
 
     @property
+    def differing_property_results(self):
+        """
+        Property results where all properties differ in assignment in at least one sample.
+        :return: A property result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results)
+
+    @property
+    def differing_step_results(self):
+        """
+        Step results where all steps differ in assignment in at least one sample.
+        :return: A step result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results)
+
+    @property
+    def supported_property_results(self):
+        """
+        Property results where properties which are not supported in any sample are removed.
+        :return: A property result data frame where properties with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results, only_drop_no_assignments=True)
+
+    @property
+    def supported_step_results(self):
+        """
+        Step results where steps which are not supported in any sample are removed.
+        :return: A step result data frame where steps with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results, only_drop_no_assignments=True)
+
+    @staticmethod
+    def remove_results_with_shared_assignments(results, only_drop_no_assignments=False):
+        """
+        Filter out results where all samples have the same value.
+        :param results: A step or property results data frame.
+        :param only_drop_no_assignments: Only drop results where values are all NO.
+        :return: A step or property data frame with certain properties filtered out.
+        """
+        results_transposed = results.transpose()
+        number_of_unique_values_per_column = results_transposed.apply(pd.Series.nunique)
+        single_value_columns = number_of_unique_values_per_column[number_of_unique_values_per_column == 1].index
+
+        if only_drop_no_assignments:
+            results_to_drop = \
+                [column for column in single_value_columns if results_transposed[column].unique()[0] == 'NO']
+        else:
+            results_to_drop = [column for column in single_value_columns]  # Drop all single value columns.
+
+        return results_transposed.drop(results_to_drop, axis=1).transpose()
+      
     def properties(self):
         """
         Generates a list of properties for which there are assignments for.
@@ -211,11 +330,11 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assig
 
     property_table = pd.DataFrame.from_dict(assignments.property_assignments,
                                             orient='index', columns=['Property_Result'])
-    property_table.index.names = ['Genome_Property_ID']
+    property_table.index.names = ['Property_Identifier']
 
     step_table = pd.DataFrame(create_step_table_rows(assignments.step_assignments),
-                              columns=['Genome_Property_ID', 'Step_Number', 'Step_Result'])
-    step_table.set_index(['Genome_Property_ID', 'Step_Number'], inplace=True)
+                              columns=['Property_Identifier', 'Step_Number', 'Step_Result'])
+    step_table.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
 
     return property_table, step_table
 
@@ -245,7 +364,7 @@ def create_synchronized_assignment_cache(assignment_cache, genome_properties_tre
     :param genome_properties_tree: The global genome properties tree.
     :return: An assignment cache containing data for genome properties shared between the tree and cache.
     """
-    tree_identifiers = set(genome_property.id for genome_property in genome_properties_tree)
+    tree_identifiers = genome_properties_tree.genome_property_identifiers
     assignment_cache_identifiers = set(assignment_cache.genome_property_identifiers)
 
     unshared_identifiers = tree_identifiers.symmetric_difference(assignment_cache_identifiers)

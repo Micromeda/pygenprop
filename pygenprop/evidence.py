@@ -15,6 +15,7 @@ class Evidence(object):
                  sufficient=False, parent: FunctionalElement=None):
         """
         Creates a new Evidence object.
+
         :param evidence_identifiers: A list of identifiers of proteins or processes supporting the existence of a
                                      FunctionalElement (i.e a list of Intro Consortium IDs or GenProp Accessions).
         :param gene_ontology_terms: The ids for gene ontology (GO) terms defining the protein or process supporting
@@ -44,6 +45,7 @@ class Evidence(object):
     def has_genome_property(self):
         """
         Is the evidence a genome property?
+
         :return: Return True if evidence is a genome property.
         """
         genome_property = False
@@ -56,7 +58,8 @@ class Evidence(object):
     @property
     def genome_property_identifiers(self):
         """
-        Gets genome properties identifiers for representing a piece of evidence.
+        Gets the genome properties identifiers representing a piece of evidence.
+
         :return: A list of genome property identifiers.
         """
         genome_property_identifiers = []
@@ -67,9 +70,39 @@ class Evidence(object):
         return genome_property_identifiers
 
     @property
+    def interpro_identifiers(self):
+        """
+        Gets the InterPro (IPRXXXXXX) identifiers representing a piece of evidence.
+
+        :return: A list of genome property identifiers.
+        """
+        genome_property_identifiers = []
+        for identifier in self.evidence_identifiers:
+            if "ipr" in identifier.lower():
+                genome_property_identifiers.append(identifier)
+
+        return genome_property_identifiers
+
+    @property
+    def consortium_identifiers(self):
+        """
+         Gets the InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) representing a piece of evidence.
+
+        :return: A set of genome property identifiers.
+        """
+        genome_property_identifiers = []
+        for identifier in self.evidence_identifiers:
+            lowercase_identifier = identifier.lower()
+            if "genprop" not in lowercase_identifier and "ipr" not in lowercase_identifier:
+                genome_property_identifiers.append(identifier)
+
+        return genome_property_identifiers
+
+    @property
     def genome_properties(self):
         """
         Get genome properties that are used by this evidence.
+
         :return: A list of genome properties.
         """
         parent_genome_property = self.parent.parent.parent

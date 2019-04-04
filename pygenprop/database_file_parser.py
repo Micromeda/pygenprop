@@ -3,7 +3,7 @@
 """
 Created by: Lee Bergstrand (2017)
 
-Description: A parser for parsing genome properties flat files into a polytree of genome properties.
+Description: A parser for parsing genome properties flat files into a rooted DAG of genome properties.
 """
 
 from pygenprop.step import Step
@@ -16,9 +16,10 @@ from pygenprop.literature_reference import LiteratureReference
 from itertools import groupby
 
 
-def parse_genome_property_file(genome_property_file):
+def parse_genome_properties_flat_file(genome_property_file):
     """
     A parses a genome property flat file.
+
     :param genome_property_file: A genome property file handle object.
     :return: A GenomePropertyTree object.
     """
@@ -41,6 +42,7 @@ def parse_genome_property_file(genome_property_file):
 def create_marker_and_content(genome_property_flat_file_line):
     """
     Splits a list of lines from a genome property file into marker, content pairs.
+
     :param genome_property_flat_file_line: A line from a genome property flat file line.
     :return: A tuple containing a marker, content pair.
     """
@@ -53,6 +55,7 @@ def create_marker_and_content(genome_property_flat_file_line):
 def unwrap_genome_property_record(genome_property_record):
     """
     The standard genome property record wraps every 80 lines. This function unwraps the record.
+
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return:    A list of reduced redundancy markers, content tuples representing genome property flat file lines.
                 Consecutive markers (often 'CC' and '**') markers are collapsed to one tuple.
@@ -76,6 +79,7 @@ def unwrap_genome_property_record(genome_property_record):
 def parse_genome_property(genome_property_record):
     """
     Parses a single genome property from a genome property record.
+
     :param genome_property_record:  A list of marker, content tuples representing genome property flat file lines.
     :return: A single genome property object.
     """
@@ -151,6 +155,7 @@ def parse_genome_property(genome_property_record):
 def parse_database_references(genome_property_record):
     """
     Parses database reference from a genome properties record.
+
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of DatabaseReference objects.
     """
@@ -186,6 +191,7 @@ def parse_database_references(genome_property_record):
 def parse_literature_references(genome_property_record):
     """
     Parses literature references from a genome properties record.
+
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of LiteratureReference objects.
     """
@@ -223,6 +229,7 @@ def parse_literature_references(genome_property_record):
 def parse_steps(genome_property_record):
     """
     Parses steps from a genome properties record.
+
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of Step objects.
     """
@@ -252,6 +259,7 @@ def parse_steps(genome_property_record):
 def parse_functional_elements(genome_property_record):
     """
     Parses functional_elements from a genome properties record.
+
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of functional_element objects.
     """
@@ -303,6 +311,7 @@ def parse_functional_elements(genome_property_record):
 def parse_evidences(genome_property_record):
     """
     Parses evidences from a genome properties record.
+
     :param genome_property_record: A list of marker, content tuples representing genome property flat file lines.
     :return: A list of evidence objects.
     """
@@ -329,6 +338,7 @@ def parse_evidences(genome_property_record):
 def parse_single_evidence(current_evidence_dictionary):
     """
     The creates an Evidence object from a pair of EV and TG tag content strings.
+
     :param current_evidence_dictionary: A dictionary containing EV and TG to content string mappings.
     :return: An Evidence object.
     """
@@ -357,6 +367,7 @@ def parse_single_evidence(current_evidence_dictionary):
 def extract_identifiers(identifier_string):
     """
     Parse database or Genprop identifiers from an EV or TG tag content string.
+
     :param identifier_string: The contents string from a EV or TG tag.
     :return: A list of identifiers.
     """

@@ -13,13 +13,14 @@ import csv
 class GenomePropertiesTree(object):
     """
     This class contains a representation of a set of nested genome properties. Internally, the instantiated
-    object contains a polytree of genome properties connected from root to leaf (parent to child). A dictionary is
+    object contains a rooted DAG of genome properties connected from root to leaf (parent to child). A dictionary is
     also included which points to each tree node for fast lookups by genome property identifier.
     """
 
     def __init__(self, *genome_properties):
         """
         When the object is created create a dictionary and connect the nodes to each other to form the polytree.
+
         :param genome_properties: One or more genome property objects.
         """
         self.genome_properties_dictionary = {}
@@ -33,6 +34,7 @@ class GenomePropertiesTree(object):
     def root(self):
         """
         Gets the top level genome properties object in a genome properties tree.
+
         :return: The root genome property of the genome properties tree.
         """
         genome_property = next(iter(self.genome_properties_dictionary.values()))
@@ -48,7 +50,8 @@ class GenomePropertiesTree(object):
     @property
     def leafs(self):
         """
-        Returns the leaf nodes of the polytree.
+        Returns the leaf nodes of the rooted DAG.
+
         :return: A list of all genome property objects with no children.
         """
         for genome_property in self:
@@ -57,7 +60,7 @@ class GenomePropertiesTree(object):
 
     def build_genome_property_connections(self):
         """
-        Build connections between parent-child genome properties in the dictionary. This creates the polytree.
+        Build connections between parent-child genome properties in the dictionary. This creates the rooted DAG.
         """
         for genome_property in self:
             child_identifiers = genome_property.child_genome_property_identifiers
@@ -72,6 +75,7 @@ class GenomePropertiesTree(object):
     def to_json(self, nodes_and_links=False):
         """
         Converts the object to a JSON representation.
+
         :param nodes_and_links: If True, returns the JSON in node and link format.
         :return: A JSON formatted string representing the genome property tree.
         """
@@ -87,6 +91,7 @@ class GenomePropertiesTree(object):
     def create_nested_json(self, current_property=None, as_dict=False):
         """
         Converts the object to a nested JSON representation.
+
         :param current_property: The current root genome property (for recursion)
         :param as_dict: Returns Return a dictionary for incorporation into other json objects.
         :return: A JSON formatted string or dictionary representing the object.
@@ -115,6 +120,7 @@ class GenomePropertiesTree(object):
     def create_graph_nodes_json(self, as_list=False):
         """
         Creates a JSON representation of a genome property dictionary.
+
         :param as_list: Return as a list instead of a JSON formatted string.
         :return: A JSON formatted string of a list of each properties JSON representation.
         """
@@ -133,6 +139,7 @@ class GenomePropertiesTree(object):
     def create_graph_links_json(self, as_list=False):
         """
         Creates a JSON representation of a genome property links.
+
         :param as_list: Return as a list instead of a JSON formatted string.
         :return: A JSON formatted string of a list of each properties JSON representation.
         """
@@ -150,9 +157,59 @@ class GenomePropertiesTree(object):
 
         return output
 
+    @property
+    def genome_property_identifiers(self):
+        """
+        The identifiers all genome properties in the database.
+
+        :return: A set of all genome property identifiers.
+        """
+        return set(genome_property.id for genome_property in self)
+
+    @property
+    def consortium_identifiers(self):
+        """
+        All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the genome properties database.
+
+        :return: A set of all unique consortium identifiers used in genome properties.
+        """
+        return self.get_evidence_identifiers(consortium=True)
+
+    @property
+    def interpro_identifiers(self):
+        """
+        All global InterPro identifiers (IPRXXXX, etc.) used by the genome properties database.
+
+        :return: A set of all unique InterPro identifiers used in genome properties.
+        """
+        return self.get_evidence_identifiers()
+
+    def get_evidence_identifiers(self, consortium=False):
+        """
+        Gets evidence identifiers from all genome properties in the database.
+
+        :param consortium: If true, list the consortium signature identifiers (PFAM, TIGRFAM)
+        :return: A set of all unique evidence identifiers used in genome properties.
+        """
+        global_identifiers = []
+        for genome_property in self:
+            for step in genome_property.steps:
+                for functional_element in step.functional_elements:
+                    for evidence in functional_element.evidence:
+                        if consortium:
+                            current_identifiers = evidence.consortium_identifiers
+                        else:
+                            current_identifiers = evidence.interpro_identifiers
+
+                        if current_identifiers:
+                            global_identifiers.extend(current_identifiers)
+
+        return set(global_identifiers)
+
     def create_metabolism_database_mapping_file(self, file_handle):
         """
         Writes a mapping file which maps each genome property to KEGG and MetaCyc.
+
         :param file_handle: A python file handle object.
         """
         mapping_data = []
