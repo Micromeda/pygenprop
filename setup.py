@@ -19,5 +19,6 @@ setup(name='pygenprop',
       install_requires=[
           'Cython>=0.28.5',
           'pandas>=0.23.4',
+          'sqlalchemy>=1.2.18'
       ],
       zip_safe=False)

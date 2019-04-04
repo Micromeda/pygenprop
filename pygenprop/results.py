@@ -8,10 +8,11 @@ Description: The genome property tree class.
 
 import json
 import pandas as pd
-
-from pygenprop.assign import assign_genome_property, AssignmentCache
-from pygenprop.tree import GenomePropertiesTree
 from copy import deepcopy
+from sqlalchemy.orm import sessionmaker
+from pygenprop.tree import GenomePropertiesTree
+from pygenprop.assign import assign_genome_property, AssignmentCache
+from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment
 
 
 class GenomePropertiesResults(object):
@@ -114,34 +115,50 @@ class GenomePropertiesResults(object):
 
         return summary
 
-    def get_property_result(self, genome_property_id):
+    def get_property_result(self, genome_property_id, sample=None):
         """
         Gets the assignment results for a given genome property.
 
+        :param sample:
         :param genome_property_id: The id of the genome property to get results for.
         :return: A list containing the assignment results for the genome property in question.
         """
-        property_results = self.property_results
+
+        if sample:
+            property_results = self.property_results[sample]
+        else:
+            property_results = self.property_results
 
         try:
-            property_result = property_results.loc[genome_property_id].tolist()
+            if sample:
+                property_result = property_results.loc[genome_property_id]
+            else:
+                property_result = property_results.loc[genome_property_id].tolist()
         except KeyError:
             property_result = ['NO'] * len(property_results.columns)
 
         return property_result
 
-    def get_step_result(self, genome_property_id, step_number):
+    def get_step_result(self, genome_property_id, step_number, sample=None):
         """
         Gets the assignment results for a given step of a genome property.
 
+        :param sample: The sample for which to grab results for.
         :param genome_property_id: The id of the genome property that the step belongs too.
         :param step_number: The step number of the step.
         :return: A list containing the assignment results for the step in question.
         """
-        step_results = self.step_results
+
+        if sample:
+            step_results = self.step_results[sample]
+        else:
+            step_results = self.step_results
 
         try:
-            property_result = step_results.loc[genome_property_id].loc[step_number].tolist()
+            if sample:
+                property_result = step_results.loc[genome_property_id].loc[step_number]
+            else:
+                property_result = step_results.loc[genome_property_id].loc[step_number].tolist()
         except KeyError:
             property_result = ['NO'] * len(step_results.columns)
         return property_result
@@ -197,6 +214,21 @@ class GenomePropertiesResults(object):
             results_to_drop = [column for column in single_value_columns]  # Drop all single value columns.
 
         return results_transposed.drop(results_to_drop, axis=1).transpose()
+      
+    def properties(self):
+        """
+        Generates a list of properties for which there are assignments for.
+        :return: A list of genome property identifiers.
+        """
+        return self.property_results.index.tolist()
+
+    def get_step_numbers_for_property(self, genome_property_id):
+        """
+        Gets the numbers of the steps that support a property.
+        :param genome_property_id: The id of the genome property for which we wants steps.
+        :return: A list of step numbers.
+        """
+        return self.step_results.loc[genome_property_id].index.tolist()
 
     def to_json(self, file_handle=None):
         """
@@ -238,6 +270,47 @@ class GenomePropertiesResults(object):
         node_dict['children'] = children
 
         return node_dict
+
+    def create_assignment_database(self, engine):
+        """
+        Write the assignments to a database.
+        :param engine: An SQLAlchemy engine.
+        """
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+
+        current_session = sessionmaker(bind=engine)()
+
+        for sample_name in self.sample_names:
+            sample = Sample(name=sample_name)
+
+            sample_step_assignments = []
+            sample_property_assignments = []
+            for property_identifier in self.properties:
+                property_result = self.get_property_result(property_identifier,
+                                                           sample=sample.name)
+
+                property_assignment = PropertyAssignment(sample=sample)
+                property_assignment.identifier = property_identifier
+                property_assignment.assignment = property_result
+
+                current_steps_assignments = []
+                for step_number in self.get_step_numbers_for_property(property_identifier):
+                    step_result = self.get_step_result(property_identifier, step_number, sample=sample.name)
+
+                    if step_result == 'YES':
+                        current_steps_assignments.append(StepAssignment(number=step_number,
+                                                                        property_assignment=property_assignment))
+                    else:
+                        continue  # Skip steps which are not 'YES' to save space.
+
+                property_assignment.step_assignments = current_steps_assignments
+                sample_step_assignments.extend(current_steps_assignments)
+                sample_property_assignments.append(property_assignment)
+
+            current_session.add_all([sample, *sample_property_assignments, *sample_step_assignments])
+            current_session.commit()
+            current_session.close()
 
 
 def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assignment_cache: AssignmentCache):
