@@ -9,7 +9,7 @@ Description: Parses InterProScan TSV files, assigns Genome Properties and writes
 import argparse
 
 from pygenprop.assignment_file_parser import parse_interproscan_file
-from pygenprop.database_file_parser import parse_genome_property_file
+from pygenprop.database_file_parser import parse_genome_properties_flat_file
 from pygenprop.results import GenomePropertiesResults
 
 from pygenprop.lib import sanitize_cli_path
@@ -26,14 +26,14 @@ def main(args):
     interproscan_file_path = (sanitize_cli_path(path) for path in args.input_interproscan_tsv_files)
 
     with open(genome_property_flat_file_path) as genome_property_file:
-        genome_properties_tree = parse_genome_property_file(genome_property_file)
+        genome_properties_tree = parse_genome_properties_flat_file(genome_property_file)
 
     interproscan_assignments = []
     for path in interproscan_file_path:
         with open(path) as interproscan_file:
             interproscan_assignments.append(parse_interproscan_file(interproscan_file))
 
-    results = GenomePropertiesResults(*interproscan_assignments, genome_properties_tree=genome_properties_tree)
+    results = GenomePropertiesResults(*interproscan_assignments, properties_tree=genome_properties_tree)
 
     with open(json_output_path, 'w') as json_file:
         results.to_json(json_file)
