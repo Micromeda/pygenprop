@@ -140,17 +140,24 @@ def assign_step(assignment_cache: AssignmentCache, step: Step):
     :param step: The current step element which needs assignment.
     :return: The assignment for the step.
     """
-    functional_elements = step.functional_elements
 
-    functional_element_assignments = []
-    for element in functional_elements:
-        element_assignment = assign_functional_element(assignment_cache, element)
-        functional_element_assignments.append(element_assignment)
+    property_identifier = step.parent.id
+    cached_step_assignment = assignment_cache.get_step_assignment(property_identifier, step.number)
 
-    step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
-                                                                      sufficient_scheme=True)
+    if cached_step_assignment:
+        step_assignment = cached_step_assignment
+    else:
+        functional_elements = step.functional_elements
 
-    assignment_cache.cache_step_assignment(step.parent.id, step.number, step_assignment)
+        functional_element_assignments = []
+        for element in functional_elements:
+            element_assignment = assign_functional_element(assignment_cache, element)
+            functional_element_assignments.append(element_assignment)
+
+        step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
+                                                                          sufficient_scheme=True)
+
+        assignment_cache.cache_step_assignment(step.parent.id, step.number, step_assignment)
 
     return step_assignment
 
