@@ -125,6 +125,7 @@ class StepAssignment(Base):
     property_assignment = relationship('PropertyAssignment', back_populates='step_assignments')
     interproscan_matches = relationship('InterProScanMatch', secondary=step_match_association_table,
                                         back_populates='step_assignments')
+    assignment = 'YES'
 
     def __repr__(self):
         property_assignment = self.property_assignment
@@ -133,9 +134,8 @@ class StepAssignment(Base):
         else:
             property_identifier = 'unknown'
 
-        return "<StepAssignment(Property='{}', number='{}', assignment='YES')>".format(
-            property_identifier,
-            self.number)
+        return "<StepAssignment(Property='{}', number='{}', assignment={}')>".format(
+            property_identifier, self.number, self.assignment)
 
 
 class InterProScanMatch(Base):
