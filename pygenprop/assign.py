@@ -25,48 +25,48 @@ class AssignmentCache(object):
         self.interpro_member_database_identifiers = interpro_member_database_identifiers
         self.sample_name = sample_name
 
-    def cache_property_assignment(self, genome_property_identifier: str, assignment: str):
+    def cache_property_assignment(self, property_identifier: str, assignment: str):
         """
         Stores cached assignment results for a genome property.
 
-        :param genome_property_identifier: The identifier of genome property.
+        :param property_identifier: The identifier of genome property.
         :param assignment: An assignment of YES, NO or PARTIAL for the given genome property.
         """
-        self.property_assignments[genome_property_identifier] = assignment
+        self.property_assignments[property_identifier] = assignment
 
-    def get_property_assignment(self, genome_property_identifier):
+    def get_property_assignment(self, property_identifier):
         """
         Retrieves cached assignment results for a genome property.
 
-        :param genome_property_identifier: The identifier of genome property.
+        :param property_identifier: The identifier of genome property.
         :return: An assignment of YES, NO or PARTIAL for the given genome property.
         """
-        return self.property_assignments.get(genome_property_identifier)
+        return self.property_assignments.get(property_identifier)
 
-    def cache_step_assignment(self, genome_property_identifier: str, step_number: int, assignment: str):
+    def cache_step_assignment(self, property_identifier: str, step_number: int, assignment: str):
         """
         Stores cached assignment results for a genome property step.
 
-        :param genome_property_identifier: The identifier of the genome property for which the step belongs.
+        :param property_identifier: The identifier of the genome property for which the step belongs.
         :param step_number: The steps number.
         :param assignment: An assignment of YES or NO for the given step.
         """
-        parent_genome_property_step_assignments = self.step_assignments.get(genome_property_identifier)
+        parent_genome_property_step_assignments = self.step_assignments.get(property_identifier)
 
         if parent_genome_property_step_assignments:
             parent_genome_property_step_assignments[step_number] = assignment
         else:
-            self.step_assignments[genome_property_identifier] = {step_number: assignment}
+            self.step_assignments[property_identifier] = {step_number: assignment}
 
-    def get_step_assignment(self, genome_property_identifier: str, step_number: int):
+    def get_step_assignment(self, property_identifier: str, step_number: int):
         """
         Retrieves cached assignment results for a genome property step.
 
-        :param genome_property_identifier: The identifier of the genome property for which the step belongs.
+        :param property_identifier: The identifier of the genome property for which the step belongs.
         :param step_number: The steps number.
         :return: An assignment of YES or NO for the given step.
         """
-        parent_genome_property_step_results = self.step_assignments.get(genome_property_identifier)
+        parent_genome_property_step_results = self.step_assignments.get(property_identifier)
 
         if parent_genome_property_step_results:
             found_step_assignment = parent_genome_property_step_results.get(step_number)
@@ -79,14 +79,14 @@ class AssignmentCache(object):
 
         return cached_step_assignment
 
-    def flush_property_from_cache(self, genome_property_identifier):
+    def flush_property_from_cache(self, property_identifier):
         """
         Remove a genome property from the cache using its identifier.
 
-        :param genome_property_identifier: The identifier of the property to remove from the cache.
+        :param property_identifier: The identifier of the property to remove from the cache.
         """
-        self.property_assignments.pop(genome_property_identifier, None)
-        self.step_assignments.pop(genome_property_identifier, None)
+        self.property_assignments.pop(property_identifier, None)
+        self.step_assignments.pop(property_identifier, None)
 
     @property
     def genome_property_identifiers(self):
