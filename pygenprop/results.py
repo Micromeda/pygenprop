@@ -215,6 +215,7 @@ class GenomePropertiesResults(object):
 
         return results_transposed.drop(results_to_drop, axis=1).transpose()
       
+    @property
     def properties(self):
         """
         Generates a list of properties for which there are assignments for.
@@ -309,8 +310,9 @@ class GenomePropertiesResults(object):
                 sample_property_assignments.append(property_assignment)
 
             current_session.add_all([sample, *sample_property_assignments, *sample_step_assignments])
-            current_session.commit()
-            current_session.close()
+
+        current_session.commit()
+        current_session.close()
 
 
 def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assignment_cache: AssignmentCache):
