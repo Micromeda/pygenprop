@@ -25,48 +25,48 @@ class AssignmentCache(object):
         self.interpro_member_database_identifiers = interpro_member_database_identifiers
         self.sample_name = sample_name
 
-    def cache_property_assignment(self, genome_property_identifier: str, assignment: str):
+    def cache_property_assignment(self, property_identifier: str, assignment: str):
         """
         Stores cached assignment results for a genome property.
 
-        :param genome_property_identifier: The identifier of genome property.
+        :param property_identifier: The identifier of genome property.
         :param assignment: An assignment of YES, NO or PARTIAL for the given genome property.
         """
-        self.property_assignments[genome_property_identifier] = assignment
+        self.property_assignments[property_identifier] = assignment
 
-    def get_property_assignment(self, genome_property_identifier):
+    def get_property_assignment(self, property_identifier):
         """
         Retrieves cached assignment results for a genome property.
 
-        :param genome_property_identifier: The identifier of genome property.
+        :param property_identifier: The identifier of genome property.
         :return: An assignment of YES, NO or PARTIAL for the given genome property.
         """
-        return self.property_assignments.get(genome_property_identifier)
+        return self.property_assignments.get(property_identifier)
 
-    def cache_step_assignment(self, genome_property_identifier: str, step_number: int, assignment: str):
+    def cache_step_assignment(self, property_identifier: str, step_number: int, assignment: str):
         """
         Stores cached assignment results for a genome property step.
 
-        :param genome_property_identifier: The identifier of the genome property for which the step belongs.
+        :param property_identifier: The identifier of the genome property for which the step belongs.
         :param step_number: The steps number.
         :param assignment: An assignment of YES or NO for the given step.
         """
-        parent_genome_property_step_assignments = self.step_assignments.get(genome_property_identifier)
+        parent_genome_property_step_assignments = self.step_assignments.get(property_identifier)
 
         if parent_genome_property_step_assignments:
             parent_genome_property_step_assignments[step_number] = assignment
         else:
-            self.step_assignments[genome_property_identifier] = {step_number: assignment}
+            self.step_assignments[property_identifier] = {step_number: assignment}
 
-    def get_step_assignment(self, genome_property_identifier: str, step_number: int):
+    def get_step_assignment(self, property_identifier: str, step_number: int):
         """
         Retrieves cached assignment results for a genome property step.
 
-        :param genome_property_identifier: The identifier of the genome property for which the step belongs.
+        :param property_identifier: The identifier of the genome property for which the step belongs.
         :param step_number: The steps number.
         :return: An assignment of YES or NO for the given step.
         """
-        parent_genome_property_step_results = self.step_assignments.get(genome_property_identifier)
+        parent_genome_property_step_results = self.step_assignments.get(property_identifier)
 
         if parent_genome_property_step_results:
             found_step_assignment = parent_genome_property_step_results.get(step_number)
@@ -79,14 +79,14 @@ class AssignmentCache(object):
 
         return cached_step_assignment
 
-    def flush_property_from_cache(self, genome_property_identifier):
+    def flush_property_from_cache(self, property_identifier):
         """
         Remove a genome property from the cache using its identifier.
 
-        :param genome_property_identifier: The identifier of the property to remove from the cache.
+        :param property_identifier: The identifier of the property to remove from the cache.
         """
-        self.property_assignments.pop(genome_property_identifier, None)
-        self.step_assignments.pop(genome_property_identifier, None)
+        self.property_assignments.pop(property_identifier, None)
+        self.step_assignments.pop(property_identifier, None)
 
     @property
     def genome_property_identifiers(self):
@@ -109,21 +109,25 @@ def assign_genome_property(assignment_cache: AssignmentCache, genome_property: G
 
     current_step_assignments = {}
     required_steps = genome_property.required_steps
+    cached_property_assignment = assignment_cache.get_property_assignment(genome_property.id)
 
-    for step in genome_property.steps:
-        current_step_assignments[step.number] = assign_step(assignment_cache, step)
-
-    if required_steps:
-        required_step_numbers = [step.number for step in required_steps]
-        required_step_values = [step_value for step_number, step_value in current_step_assignments.items() if
-                                step_number in required_step_numbers]
-        genome_property_assignment = calculate_property_assignment_from_required_steps(required_step_values,
-                                                                                       genome_property.threshold)
+    if cached_property_assignment:
+        genome_property_assignment = cached_property_assignment
     else:
-        genome_property_assignment = calculate_property_assignment_from_all_steps(
-            list(current_step_assignments.values()))
+        for step in genome_property.steps:
+            current_step_assignments[step.number] = assign_step(assignment_cache, step)
 
-    assignment_cache.cache_property_assignment(genome_property.id, genome_property_assignment)
+        if required_steps:
+            required_step_numbers = [step.number for step in required_steps]
+            required_step_values = [step_value for step_number, step_value in current_step_assignments.items() if
+                                    step_number in required_step_numbers]
+            genome_property_assignment = calculate_property_assignment_from_required_steps(required_step_values,
+                                                                                           genome_property.threshold)
+        else:
+            genome_property_assignment = calculate_property_assignment_from_all_steps(
+                list(current_step_assignments.values()))
+
+        assignment_cache.cache_property_assignment(genome_property.id, genome_property_assignment)
 
     return genome_property_assignment
 
@@ -136,17 +140,24 @@ def assign_step(assignment_cache: AssignmentCache, step: Step):
     :param step: The current step element which needs assignment.
     :return: The assignment for the step.
     """
-    functional_elements = step.functional_elements
 
-    functional_element_assignments = []
-    for element in functional_elements:
-        element_assignment = assign_functional_element(assignment_cache, element)
-        functional_element_assignments.append(element_assignment)
+    property_identifier = step.parent.id
+    cached_step_assignment = assignment_cache.get_step_assignment(property_identifier, step.number)
 
-    step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
-                                                                      sufficient_scheme=True)
+    if cached_step_assignment:
+        step_assignment = cached_step_assignment
+    else:
+        functional_elements = step.functional_elements
 
-    assignment_cache.cache_step_assignment(step.parent.id, step.number, step_assignment)
+        functional_element_assignments = []
+        for element in functional_elements:
+            element_assignment = assign_functional_element(assignment_cache, element)
+            functional_element_assignments.append(element_assignment)
+
+        step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
+                                                                          sufficient_scheme=True)
+
+        assignment_cache.cache_step_assignment(step.parent.id, step.number, step_assignment)
 
     return step_assignment
 
@@ -199,14 +210,7 @@ def assign_evidence(assignment_cache: AssignmentCache, current_evidence: Evidenc
 
     if current_evidence.has_genome_property:
         primary_genome_property = current_evidence.genome_properties[0]
-        primary_property_identifier = primary_genome_property.id
-        cached_property_assignment = assignment_cache.get_property_assignment(primary_property_identifier)
-
-        if cached_property_assignment:
-            evidence_assignment = cached_property_assignment
-        else:
-            evidence_genome_property_assignment = assign_genome_property(assignment_cache, primary_genome_property)
-            evidence_assignment = evidence_genome_property_assignment
+        evidence_assignment = assign_genome_property(assignment_cache, primary_genome_property)
     else:
         unique_interpro_member_identifiers = assignment_cache.interpro_member_database_identifiers
         if unique_interpro_member_identifiers:
