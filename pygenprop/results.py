@@ -9,10 +9,11 @@ Description: The genome property tree class.
 import json
 import pandas as pd
 from copy import deepcopy
-from sqlalchemy.orm import sessionmaker
 from pygenprop.tree import GenomePropertiesTree
+from sqlalchemy import engine as SQLAlchemyEngine
 from pygenprop.assign import assign_genome_property, AssignmentCache
-from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment
+from pygenprop.assignment_database import write_assignment_results_to_database
+
 
 
 class GenomePropertiesResults(object):
@@ -272,47 +273,13 @@ class GenomePropertiesResults(object):
 
         return node_dict
 
-    def create_assignment_database(self, engine):
+    def create_assignment_database(self, engine: SQLAlchemyEngine):
         """
-        Write the assignments to a database.
-        :param engine: An SQLAlchemy engine.
+        Write the given
+
+        :param engine: An SQLAlchemyEngine connection object.
         """
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-
-        current_session = sessionmaker(bind=engine)()
-
-        for sample_name in self.sample_names:
-            sample = Sample(name=sample_name)
-
-            sample_step_assignments = []
-            sample_property_assignments = []
-            for property_identifier in self.properties:
-                property_result = self.get_property_result(property_identifier,
-                                                           sample=sample.name)
-
-                property_assignment = PropertyAssignment(sample=sample)
-                property_assignment.identifier = property_identifier
-                property_assignment.assignment = property_result
-
-                current_steps_assignments = []
-                for step_number in self.get_step_numbers_for_property(property_identifier):
-                    step_result = self.get_step_result(property_identifier, step_number, sample=sample.name)
-
-                    if step_result == 'YES':
-                        current_steps_assignments.append(StepAssignment(number=step_number,
-                                                                        property_assignment=property_assignment))
-                    else:
-                        continue  # Skip steps which are not 'YES' to save space.
-
-                property_assignment.step_assignments = current_steps_assignments
-                sample_step_assignments.extend(current_steps_assignments)
-                sample_property_assignments.append(property_assignment)
-
-            current_session.add_all([sample, *sample_property_assignments, *sample_step_assignments])
-
-        current_session.commit()
-        current_session.close()
+        write_assignment_results_to_database(self, engine)
 
 
 def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assignment_cache: AssignmentCache):

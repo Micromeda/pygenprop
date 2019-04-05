@@ -7,8 +7,12 @@ Description: A set of classes for generating an assignment database.
 """
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, Table
+from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import sessionmaker
+
+from pygenprop.results import GenomePropertiesResults
 
 Base = declarative_base()
 
@@ -177,3 +181,45 @@ class Sequence(Base):
 
     def __repr__(self):
         return "<Sequence(identifier='{}')>".format(self.identifier)
+
+
+def write_assignment_results_to_database(results: GenomePropertiesResults, engine: SQLAlchemyEngine):
+    """
+    Write the assignments to a database.
+    :param results: A results object for Genome Properties.
+    :param engine: An SQLAlchemy engine.
+    """
+
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+    current_session = sessionmaker(bind=engine)()
+    for sample_name in results.sample_names:
+        sample = Sample(name=sample_name)
+
+        sample_step_assignments = []
+        sample_property_assignments = []
+        for property_identifier in results.properties:
+            property_result = results.get_property_result(property_identifier,
+                                                          sample=sample.name)
+
+            property_assignment = PropertyAssignment(sample=sample)
+            property_assignment.identifier = property_identifier
+            property_assignment.assignment = property_result
+
+            current_steps_assignments = []
+            for step_number in results.get_step_numbers_for_property(property_identifier):
+                step_result = results.get_step_result(property_identifier, step_number, sample=sample.name)
+
+                if step_result == 'YES':
+                    current_steps_assignments.append(StepAssignment(number=step_number,
+                                                                    property_assignment=property_assignment))
+                else:
+                    continue  # Skip steps which are not 'YES' to save space.
+
+            property_assignment.step_assignments = current_steps_assignments
+            sample_step_assignments.extend(current_steps_assignments)
+            sample_property_assignments.append(property_assignment)
+
+        current_session.add_all([sample, *sample_property_assignments, *sample_step_assignments])
+    current_session.commit()
+    current_session.close()
