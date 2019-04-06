@@ -6,13 +6,11 @@ Created by: Lee Bergstrand (2019)
 Description: A set of classes for generating an assignment database.
 """
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Table
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import sessionmaker
-
-from pygenprop.results import GenomePropertiesResults
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Table
 
 Base = declarative_base()
 
@@ -183,7 +181,7 @@ class Sequence(Base):
         return "<Sequence(identifier='{}')>".format(self.identifier)
 
 
-def write_assignment_results_to_database(results: GenomePropertiesResults, engine: SQLAlchemyEngine):
+def write_assignment_results_to_database(results, engine: SQLAlchemyEngine):
     """
     Write the assignments to a database.
     :param results: A results object for Genome Properties.

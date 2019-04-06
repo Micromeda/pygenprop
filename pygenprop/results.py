@@ -15,7 +15,6 @@ from pygenprop.assign import assign_genome_property, AssignmentCache
 from pygenprop.assignment_database import write_assignment_results_to_database
 
 
-
 class GenomePropertiesResults(object):
     """
     This class contains a representation of a table of results from one or more genome properties assignments.
