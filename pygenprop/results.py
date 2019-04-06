@@ -7,12 +7,15 @@ Description: The genome property tree class.
 """
 
 import json
-import pandas as pd
 from copy import deepcopy
-from pygenprop.tree import GenomePropertiesTree
+
+import pandas as pd
 from sqlalchemy import engine as SQLAlchemyEngine
+from sqlalchemy.orm import sessionmaker
+
 from pygenprop.assign import assign_genome_property, AssignmentCache
-from pygenprop.assignment_database import write_assignment_results_to_database
+from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment
+from pygenprop.tree import GenomePropertiesTree
 
 
 class GenomePropertiesResults(object):
@@ -109,7 +112,7 @@ class GenomePropertiesResults(object):
         results = self.get_results(*property_identifiers, steps=steps)
 
         if normalize:
-            summary = results.apply(pd.value_counts, normalize=normalize).fillna(0)*100
+            summary = results.apply(pd.value_counts, normalize=normalize).fillna(0) * 100
         else:
             summary = results.apply(pd.value_counts, normalize=normalize).fillna(0)
 
@@ -214,7 +217,7 @@ class GenomePropertiesResults(object):
             results_to_drop = [column for column in single_value_columns]  # Drop all single value columns.
 
         return results_transposed.drop(results_to_drop, axis=1).transpose()
-      
+
     @property
     def properties(self):
         """
@@ -278,7 +281,40 @@ class GenomePropertiesResults(object):
 
         :param engine: An SQLAlchemyEngine connection object.
         """
-        write_assignment_results_to_database(self, engine)
+
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+        current_session = sessionmaker(bind=engine)()
+        for sample_name in self.sample_names:
+            sample = Sample(name=sample_name)
+
+            sample_step_assignments = []
+            sample_property_assignments = []
+            for property_identifier in self.properties:
+                property_result = self.get_property_result(property_identifier,
+                                                           sample=sample.name)
+
+                property_assignment = PropertyAssignment(sample=sample)
+                property_assignment.identifier = property_identifier
+                property_assignment.assignment = property_result
+
+                current_steps_assignments = []
+                for step_number in self.get_step_numbers_for_property(property_identifier):
+                    step_result = self.get_step_result(property_identifier, step_number, sample=sample.name)
+
+                    if step_result == 'YES':
+                        current_steps_assignments.append(StepAssignment(number=step_number,
+                                                                        property_assignment=property_assignment))
+                    else:
+                        continue  # Skip steps which are not 'YES' to save space.
+
+                property_assignment.step_assignments = current_steps_assignments
+                sample_step_assignments.extend(current_steps_assignments)
+                sample_property_assignments.append(property_assignment)
+
+            current_session.add_all([sample, *sample_property_assignments, *sample_step_assignments])
+        current_session.commit()
+        current_session.close()
 
 
 def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assignment_cache: AssignmentCache):
@@ -354,3 +390,26 @@ def create_step_table_rows(step_assignments):
     for genome_property_id, step in step_assignments.items():
         for step_number, step_result in step.items():
             yield genome_property_id, step_number, step_result
+
+
+def create_assignment_results_from_database(engine: SQLAlchemyEngine, properties_tree: GenomePropertiesTree):
+    """
+    Creates a results object from an assignment database file.
+
+    :param engine: An SQLAlchemy engine
+    :param properties_tree: A genome properties tree object
+    :return: A genome properties results object with
+    """
+    current_session = sessionmaker(bind=engine)()
+
+    assignment_caches = []
+    for sample in current_session.query(Sample):
+        sample_cache = AssignmentCache(sample_name=sample.name)
+        for property_assignment in sample.property_assignments:
+            sample_cache.cache_property_assignment(property_assignment.identifier, property_assignment.assignment)
+            for step_assignment in property_assignment.step_assignments:
+                sample_cache.cache_step_assignment(property_assignment.identifier, step_assignment.number,
+                                                   step_assignment.assignment)
+        assignment_caches.append(sample_cache)
+
+    return GenomePropertiesResults(*assignment_caches, properties_tree=properties_tree)
