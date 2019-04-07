@@ -95,7 +95,7 @@ class AssignmentCache(object):
 
         :return: A set of genome property identifiers.
         """
-        return list(self.property_assignments.keys())
+        return set(self.property_assignments.keys())
 
 
 def assign_genome_property(assignment_cache: AssignmentCache, genome_property: GenomeProperty):

@@ -9,6 +9,8 @@ Description: The genome property tree class.
 import json
 import csv
 
+from pygenprop.genome_property import GenomeProperty
+
 
 class GenomePropertiesTree(object):
     """
@@ -226,13 +228,13 @@ class GenomePropertiesTree(object):
                     mapping_data.append(sanitized_row)
         csv.writer(file_handle).writerows(mapping_data)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> GenomeProperty:
         return self.genome_properties_dictionary.get(item)
 
     def __len__(self):
         return len(self.genome_properties_dictionary)
 
-    def __iter__(self):
+    def __iter__(self) -> GenomeProperty:
         for genome_property in self.genome_properties_dictionary.values():
             yield genome_property
 

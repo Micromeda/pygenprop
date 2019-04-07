@@ -7,13 +7,12 @@ Description: The genome property tree class.
 """
 
 import json
-from copy import deepcopy
-
 import pandas as pd
+from copy import deepcopy
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
 
-from pygenprop.assign import assign_genome_property, AssignmentCache
+from pygenprop.assign import assign_genome_property, AssignmentCache, assign_step
 from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment
 from pygenprop.tree import GenomePropertiesTree
 
@@ -36,7 +35,7 @@ class GenomePropertiesResults(object):
         sample_names = []
         for assignment in genome_properties_results:
             sample_names.append(assignment.sample_name)
-            property_table, step_table = create_assignment_tables(properties_tree, assignment)
+            property_table, step_table = create_assignment_tables(assignment, properties_tree)
             property_tables.append(property_table)
             step_tables.append(step_table)
 
@@ -45,10 +44,33 @@ class GenomePropertiesResults(object):
         combined_properties_table.columns = sample_names
         combined_step_table.columns = sample_names
 
+        self._sample_names = None
         self.tree = properties_tree
-        self.sample_names = sample_names
         self.property_results = combined_properties_table
         self.step_results = combined_step_table
+        self.sample_names = sample_names
+
+    @property
+    def sample_names(self):
+        """
+        Returns the sample names for samples represented by the results objects.
+
+        :return: The current sample names
+        """
+        return self._sample_names
+
+    @sample_names.setter
+    def sample_names(self, new_sample_names: list):
+        """
+        Replaces the current sample names with new sample names.
+
+        :param new_sample_names: A list containing the new sample names
+        """
+        self._sample_names = new_sample_names
+        old_sample_names = self.property_results.columns.tolist()
+        old_to_new_mapping = dict(zip(old_sample_names, new_sample_names))
+        self.property_results.rename(columns=old_to_new_mapping, inplace=True)
+        self.step_results.rename(columns=old_to_new_mapping, inplace=True)
 
     def get_results(self, *property_identifiers, steps=False, names=False):
         """
@@ -275,7 +297,7 @@ class GenomePropertiesResults(object):
 
         return node_dict
 
-    def create_assignment_database(self, engine: SQLAlchemyEngine):
+    def write_assignment_database(self, engine: SQLAlchemyEngine):
         """
         Write the given
 
@@ -317,7 +339,7 @@ class GenomePropertiesResults(object):
         current_session.close()
 
 
-def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assignment_cache: AssignmentCache):
+def create_assignment_tables(assignment_cache: AssignmentCache, genome_properties_tree: GenomePropertiesTree):
     """
     Takes a results dictionary from the long form parser and creates two tables. One for property results and
     one for step results. The longform results file has only leaf assignment results. We have to bootstrap the rest.
@@ -343,22 +365,61 @@ def create_assignment_tables(genome_properties_tree: GenomePropertiesTree, assig
     return property_table, step_table
 
 
-def bootstrap_assignments(assignment_cache, genome_properties_tree):
+def bootstrap_assignments(assignment_cache, properties_tree):
     """
     Recursively fills in assignments for all genome properties in the genome properties tree based of existing cached
     assignments and InterPro member database identifiers.
 
     :param assignment_cache: A cache containing step and property assignments and InterPro member database matches.
-    :param genome_properties_tree:
-    :return:
+    :param properties_tree: The global genome properties tree
+    :return: A completed assignment cache with assignments for all genome properties and properties steps.
     """
+
     # Bootstrap the other assignments from the leaf assignments.
-    assign_genome_property(assignment_cache, genome_properties_tree.root)
+    assign_genome_property(assignment_cache, properties_tree.root)
+    bootstrap_missing_step_assignments(assignment_cache, properties_tree)
 
     return assignment_cache
 
 
-def create_synchronized_assignment_cache(assignment_cache, genome_properties_tree):
+def bootstrap_missing_step_assignments(assignment_cache: AssignmentCache, properties_tree: GenomePropertiesTree):
+    """
+    In some cases such as opening up assignment caches where steps assigned NO have been removed we need to bootstrap
+    these step assignments.
+
+    :param assignment_cache: A cache containing step and property assignments and InterPro member database matches.
+    :param properties_tree: The global genome properties tree
+    """
+    
+    # The identifiers of properties with no step assignments.
+    property_identifiers_of_cached_steps = set(assignment_cache.step_assignments.keys())
+    missing = assignment_cache.genome_property_identifiers - property_identifiers_of_cached_steps
+
+    for property_identifier in missing:
+        for step in properties_tree[property_identifier].steps:
+            assign_step(assignment_cache, step)
+
+    missing_steps = []
+    for property_identifier in assignment_cache.genome_property_identifiers:
+        property_steps = properties_tree[property_identifier].steps
+        property_step_cache = assignment_cache.step_assignments[property_identifier]
+
+        number_of_property_steps = len(property_steps)
+        number_of_property_steps_cached = len(property_step_cache)
+        if number_of_property_steps != number_of_property_steps_cached:
+            property_step_numbers = {step.number for step in property_steps}
+            cached_step_numbers = set(property_step_cache.keys())
+            missing_step_numbers = property_step_numbers - cached_step_numbers
+
+            missing_steps = [step for step in property_steps if step.number in missing_step_numbers]
+
+            missing_steps.extend(missing_steps)
+
+    for step in missing_steps:
+        assign_step(assignment_cache, step)
+
+
+def create_synchronized_assignment_cache(assignment_cache: AssignmentCache, genome_properties_tree: GenomePropertiesTree):
     """
     Remove genome properties from the assignment cache that are not found in both the genome properties tree and
     the assignment cache. This prevents situations where different versions of the cache and tree cannot find each
@@ -392,7 +453,7 @@ def create_step_table_rows(step_assignments):
             yield genome_property_id, step_number, step_result
 
 
-def create_assignment_results_from_database(engine: SQLAlchemyEngine, properties_tree: GenomePropertiesTree):
+def load_results_from_database(engine: SQLAlchemyEngine, properties_tree: GenomePropertiesTree):
     """
     Creates a results object from an assignment database file.
 
@@ -411,5 +472,7 @@ def create_assignment_results_from_database(engine: SQLAlchemyEngine, properties
                 sample_cache.cache_step_assignment(property_assignment.identifier, step_assignment.number,
                                                    step_assignment.assignment)
         assignment_caches.append(sample_cache)
+
+    print(len(set(assignment_caches[0].property_assignments.keys()) - set(assignment_caches[0].step_assignments.keys())))
 
     return GenomePropertiesResults(*assignment_caches, properties_tree=properties_tree)

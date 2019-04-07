@@ -290,9 +290,8 @@ class TestAssign(unittest.TestCase):
         test_cache.cache_property_assignment('GenProp0067', 'YES')
         test_cache.cache_property_assignment('GenProp0092', 'NO')
         identifiers = test_cache.genome_property_identifiers
-        identifiers.sort()
 
-        self.assertEqual(identifiers, ['GenProp0067', 'GenProp0092'])
+        self.assertEqual(identifiers, {'GenProp0067', 'GenProp0092'})
 
     def test_assign_evidence_from_no_interpro_identifiers(self):
         """Test we can assign evidence when no InterPro identifiers are in the assignment cache."""
