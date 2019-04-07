@@ -114,7 +114,7 @@ class GenomeProperty(object):
         child_genome_properties_identifiers = []
 
         for step in self.steps:
-            child_genome_properties_identifiers.extend(step.genome_property_identifiers)
+            child_genome_properties_identifiers.extend(step.property_identifiers)
 
         return child_genome_properties_identifiers
 

@@ -289,7 +289,7 @@ class TestAssign(unittest.TestCase):
         test_cache = AssignmentCache()
         test_cache.cache_property_assignment('GenProp0067', 'YES')
         test_cache.cache_property_assignment('GenProp0092', 'NO')
-        identifiers = test_cache.genome_property_identifiers
+        identifiers = test_cache.property_identifiers
 
         self.assertEqual(identifiers, {'GenProp0067', 'GenProp0092'})
 

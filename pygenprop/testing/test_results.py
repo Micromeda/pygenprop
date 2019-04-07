@@ -11,7 +11,7 @@ import unittest
 from pygenprop.assign import AssignmentCache
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
 from pygenprop.database_file_parser import parse_genome_properties_flat_file
-from pygenprop.results import GenomePropertiesResults, create_synchronized_assignment_cache
+from pygenprop.results import GenomePropertiesResults
 
 
 class TestResults(unittest.TestCase):
@@ -144,7 +144,7 @@ class TestResults(unittest.TestCase):
         test_cache.cache_property_assignment('GenProp0456', 'YES')
         test_cache.cache_property_assignment('GenProp0710', 'YES')
 
-        sanitized_cache = create_synchronized_assignment_cache(test_cache, test_tree)
+        test_cache.synchronize_with_tree(test_tree)
 
-        self.assertEqual(len(sanitized_cache.property_assignments), 1)
-        self.assertEqual(sanitized_cache.get_property_assignment('GenProp0710'), 'YES')
+        self.assertEqual(len(test_cache.property_assignments), 1)
+        self.assertEqual(test_cache.get_property_assignment('GenProp0710'), 'YES')

@@ -62,7 +62,7 @@ class Step(object):
         return required_step
 
     @property
-    def genome_property_identifiers(self):
+    def property_identifiers(self):
         """
         Collects all the genome properties identifiers supporting a step.
 
@@ -72,7 +72,7 @@ class Step(object):
         for element in self.functional_elements:
             for evidence in element.evidence:
                 if evidence.has_genome_property:
-                    genome_properties_identifiers.extend(evidence.genome_property_identifiers)
+                    genome_properties_identifiers.extend(evidence.property_identifiers)
 
         return genome_properties_identifiers
 
@@ -83,5 +83,5 @@ class Step(object):
 
         :return: A list of child genome properties for a step.
         """
-        child_identifiers = self.genome_property_identifiers
+        child_identifiers = self.property_identifiers
         return [child_property for child_property in self.parent.children if child_property.id in child_identifiers]

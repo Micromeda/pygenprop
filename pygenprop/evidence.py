@@ -56,7 +56,7 @@ class Evidence(object):
         return genome_property
 
     @property
-    def genome_property_identifiers(self):
+    def property_identifiers(self):
         """
         Gets the genome properties identifiers representing a piece of evidence.
 
@@ -107,4 +107,4 @@ class Evidence(object):
         """
         parent_genome_property = self.parent.parent.parent
         return [genome_property for genome_property in parent_genome_property.children if
-                genome_property.id in self.genome_property_identifiers]
+                genome_property.id in self.property_identifiers]
