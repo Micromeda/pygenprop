@@ -123,7 +123,7 @@ class AssignmentCache(object):
         self.synchronize_with_tree(properties_tree)
 
         # Bootstrap the other assignments from the leaf assignments.
-        assign_genome_property(self, properties_tree.root)
+        self.bootstrap_assignments_from_genome_property(properties_tree.root)
         self.bootstrap_missing_step_assignments(properties_tree)
 
     def bootstrap_missing_step_assignments(self, properties_tree: GenomePropertiesTree):
@@ -140,7 +140,7 @@ class AssignmentCache(object):
 
         for property_identifier in missing_step_identifiers:
             for step in properties_tree[property_identifier].steps:
-                assign_step(self, step)
+                self.bootstrap_assignments_from_step(step)
 
         missing_steps = []
         for property_identifier in self.property_identifiers:
@@ -156,7 +156,129 @@ class AssignmentCache(object):
                 missing_steps.extend(missing_steps)
 
         for step in missing_steps:
-            assign_step(self, step)
+            self.bootstrap_assignments_from_step(step)
+
+    def bootstrap_assignments_from_genome_property(self, genome_property: GenomeProperty):
+        """
+        Recursively assigns a result to a genome property and its children.
+    
+        :param self: A cache containing step and property assignments and InterPro member database matches.
+        :param genome_property: The genome property to assign the results to.
+        :return: The assignment results for the genome property.
+        """
+
+        current_step_assignments = {}
+        required_steps = genome_property.required_steps
+        cached_property_assignment = self.get_property_assignment(genome_property.id)
+
+        if cached_property_assignment:
+            genome_property_assignment = cached_property_assignment
+        else:
+            for step in genome_property.steps:
+                current_step_assignments[step.number] = self.bootstrap_assignments_from_step(step)
+
+            if required_steps:
+                required_step_numbers = [step.number for step in required_steps]
+                required_step_values = [step_value for step_number, step_value in current_step_assignments.items() if
+                                        step_number in required_step_numbers]
+                genome_property_assignment = calculate_property_assignment_from_required_steps(required_step_values,
+                                                                                               genome_property.threshold)
+            else:
+                genome_property_assignment = calculate_property_assignment_from_all_steps(
+                    list(current_step_assignments.values()))
+
+            self.cache_property_assignment(genome_property.id, genome_property_assignment)
+
+        return genome_property_assignment
+
+    def bootstrap_assignments_from_step(self, step: Step):
+        """
+        Assigns a result (YES, NO) to a functional element based on assignments of its functional elements.
+    
+        :param self: A cache containing step and property assignments and InterPro member database matches.
+        :param step: The current step element which needs assignment.
+        :return: The assignment for the step.
+        """
+
+        property_identifier = step.parent.id
+        cached_step_assignment = self.get_step_assignment(property_identifier, step.number)
+
+        if cached_step_assignment:
+            step_assignment = cached_step_assignment
+        else:
+            functional_elements = step.functional_elements
+
+            functional_element_assignments = []
+            for element in functional_elements:
+                element_assignment = self.bootstrap_assignments_from_functional_element(element)
+                functional_element_assignments.append(element_assignment)
+
+            step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
+                                                                              sufficient_scheme=True)
+
+            self.cache_step_assignment(step.parent.id, step.number, step_assignment)
+
+        return step_assignment
+
+    def bootstrap_assignments_from_functional_element(self, functional_element: FunctionalElement):
+        """
+        Assigns a result (YES, NO) to a functional element based on assignments of its evidences.
+
+        :param self: A cache containing step and property assignments and InterPro member database matches.
+        :param functional_element: The current functional_element which needs assignment.
+        :return: The assignment for the functional element.
+        """
+
+        element_evidences = functional_element.evidence
+
+        evidence_assignments_and_sufficients = []
+        for current_evidence in element_evidences:
+            evidence_assignment = self.bootstrap_assignments_from_evidence(current_evidence)
+
+            sufficient = current_evidence.sufficient
+
+            evidence_assignments_and_sufficients.append((evidence_assignment, sufficient))
+
+        sufficient_evidence_assignments = [assignment for assignment, sufficient in evidence_assignments_and_sufficients
+                                           if sufficient]
+
+        if sufficient_evidence_assignments:
+            sufficient_assignment = calculate_step_or_functional_element_assignment(sufficient_evidence_assignments,
+                                                                                    sufficient_scheme=True)
+            if sufficient_assignment == 'YES':
+                functional_element_assignment = 'YES'
+            else:
+                functional_element_assignment = 'NO'
+        else:
+            evidence_assignments = [assignment for assignment, sufficient in evidence_assignments_and_sufficients]
+            functional_element_assignment = calculate_step_or_functional_element_assignment(evidence_assignments)
+
+        return functional_element_assignment
+
+    def bootstrap_assignments_from_evidence(self, current_evidence: Evidence):
+        """
+        Assigns a result (YES, NO) to a evidence based of the presence or absence of InterPro member identifiers or
+        the assignment of evidence child genome properties.
+
+        :param self: A cache containing step and property assignments and InterPro member database matches.
+        :param current_evidence: The current evidence which needs assignment.
+        :return: The assignment for the evidence.
+        """
+
+        if current_evidence.has_genome_property:
+            primary_genome_property = current_evidence.genome_properties[0]
+            evidence_assignment = self.bootstrap_assignments_from_genome_property(primary_genome_property)
+        else:
+            unique_interpro_member_identifiers = self.interpro_member_database_identifiers
+            if unique_interpro_member_identifiers:
+                if unique_interpro_member_identifiers.isdisjoint(set(current_evidence.evidence_identifiers)):
+                    evidence_assignment = 'NO'
+                else:
+                    evidence_assignment = 'YES'
+            else:
+                evidence_assignment = 'NO'
+
+        return evidence_assignment
 
     def synchronize_with_tree(self, properties_tree: GenomePropertiesTree):
         """
@@ -199,132 +321,6 @@ class AssignmentCache(object):
         step_table.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
 
         return property_table, step_table
-
-
-def assign_genome_property(assignment_cache: AssignmentCache, genome_property: GenomeProperty):
-    """
-    Recursively assigns a result to a genome property and its children.
-
-    :param assignment_cache: A cache containing step and property assignments and InterPro member database matches.
-    :param genome_property: The genome property to assign the results to.
-    :return: The assignment results for the genome property.
-    """
-
-    current_step_assignments = {}
-    required_steps = genome_property.required_steps
-    cached_property_assignment = assignment_cache.get_property_assignment(genome_property.id)
-
-    if cached_property_assignment:
-        genome_property_assignment = cached_property_assignment
-    else:
-        for step in genome_property.steps:
-            current_step_assignments[step.number] = assign_step(assignment_cache, step)
-
-        if required_steps:
-            required_step_numbers = [step.number for step in required_steps]
-            required_step_values = [step_value for step_number, step_value in current_step_assignments.items() if
-                                    step_number in required_step_numbers]
-            genome_property_assignment = calculate_property_assignment_from_required_steps(required_step_values,
-                                                                                           genome_property.threshold)
-        else:
-            genome_property_assignment = calculate_property_assignment_from_all_steps(
-                list(current_step_assignments.values()))
-
-        assignment_cache.cache_property_assignment(genome_property.id, genome_property_assignment)
-
-    return genome_property_assignment
-
-
-def assign_step(assignment_cache: AssignmentCache, step: Step):
-    """
-    Assigns a result (YES, NO) to a functional element based on assignments of its functional elements.
-
-    :param assignment_cache: A cache containing step and property assignments and InterPro member database matches.
-    :param step: The current step element which needs assignment.
-    :return: The assignment for the step.
-    """
-
-    property_identifier = step.parent.id
-    cached_step_assignment = assignment_cache.get_step_assignment(property_identifier, step.number)
-
-    if cached_step_assignment:
-        step_assignment = cached_step_assignment
-    else:
-        functional_elements = step.functional_elements
-
-        functional_element_assignments = []
-        for element in functional_elements:
-            element_assignment = assign_functional_element(assignment_cache, element)
-            functional_element_assignments.append(element_assignment)
-
-        step_assignment = calculate_step_or_functional_element_assignment(functional_element_assignments,
-                                                                          sufficient_scheme=True)
-
-        assignment_cache.cache_step_assignment(step.parent.id, step.number, step_assignment)
-
-    return step_assignment
-
-
-def assign_functional_element(assignment_cache: AssignmentCache, functional_element: FunctionalElement):
-    """
-    Assigns a result (YES, NO) to a functional element based on assignments of its evidences.
-
-    :param assignment_cache: A cache containing step and property assignments and InterPro member database matches.
-    :param functional_element: The current functional_element which needs assignment.
-    :return: The assignment for the functional element.
-    """
-
-    element_evidences = functional_element.evidence
-
-    evidence_assignments_and_sufficients = []
-    for current_evidence in element_evidences:
-        evidence_assignment = assign_evidence(assignment_cache, current_evidence)
-
-        sufficient = current_evidence.sufficient
-
-        evidence_assignments_and_sufficients.append((evidence_assignment, sufficient))
-
-    sufficient_evidence_assignments = [assignment for assignment, sufficient in evidence_assignments_and_sufficients
-                                       if sufficient]
-
-    if sufficient_evidence_assignments:
-        sufficient_assignment = calculate_step_or_functional_element_assignment(sufficient_evidence_assignments,
-                                                                                sufficient_scheme=True)
-        if sufficient_assignment == 'YES':
-            functional_element_assignment = 'YES'
-        else:
-            functional_element_assignment = 'NO'
-    else:
-        evidence_assignments = [assignment for assignment, sufficient in evidence_assignments_and_sufficients]
-        functional_element_assignment = calculate_step_or_functional_element_assignment(evidence_assignments)
-
-    return functional_element_assignment
-
-
-def assign_evidence(assignment_cache: AssignmentCache, current_evidence: Evidence):
-    """
-    Assigns a result (YES, NO) to a evidence based of the presence or absence of InterPro member identifiers or
-    the assignment of evidence child genome properties.
-
-    :param assignment_cache: A cache containing step and property assignments and InterPro member database matches.
-    :param current_evidence: The current evidence which needs assignment.
-    :return: The assignment for the evidence.
-    """
-
-    if current_evidence.has_genome_property:
-        primary_genome_property = current_evidence.genome_properties[0]
-        evidence_assignment = assign_genome_property(assignment_cache, primary_genome_property)
-    else:
-        unique_interpro_member_identifiers = assignment_cache.interpro_member_database_identifiers
-        if unique_interpro_member_identifiers:
-            if unique_interpro_member_identifiers.isdisjoint(set(current_evidence.evidence_identifiers)):
-                evidence_assignment = 'NO'
-            else:
-                evidence_assignment = 'YES'
-        else:
-            evidence_assignment = 'NO'
-
-    return evidence_assignment
 
 
 def calculate_property_assignment_from_required_steps(required_step_assignments: list, threshold: int = 0):

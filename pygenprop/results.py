@@ -71,6 +71,46 @@ class GenomePropertiesResults(object):
         self.property_results.rename(columns=old_to_new_mapping, inplace=True)
         self.step_results.rename(columns=old_to_new_mapping, inplace=True)
 
+    @property
+    def differing_property_results(self):
+        """
+        Property results where all properties differ in assignment in at least one sample.
+        :return: A property result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results)
+
+    @property
+    def differing_step_results(self):
+        """
+        Step results where all steps differ in assignment in at least one sample.
+        :return: A step result data frame where properties with the all the same value are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results)
+
+    @property
+    def supported_property_results(self):
+        """
+        Property results where properties which are not supported in any sample are removed.
+        :return: A property result data frame where properties with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.property_results, only_drop_no_assignments=True)
+
+    @property
+    def supported_step_results(self):
+        """
+        Step results where steps which are not supported in any sample are removed.
+        :return: A step result data frame where steps with the all NO values are filtered out.
+        """
+        return self.remove_results_with_shared_assignments(self.step_results, only_drop_no_assignments=True)
+
+    @property
+    def properties(self):
+        """
+        Generates a list of properties for which there are assignments for.
+        :return: A list of genome property identifiers.
+        """
+        return self.property_results.index.tolist()
+
     def get_results(self, *property_identifiers, steps=False, names=False):
         """
         Creates a results dataframe for only a subset of genome properties.
@@ -187,38 +227,6 @@ class GenomePropertiesResults(object):
             property_result = ['NO'] * len(step_results.columns)
         return property_result
 
-    @property
-    def differing_property_results(self):
-        """
-        Property results where all properties differ in assignment in at least one sample.
-        :return: A property result data frame where properties with the all the same value are filtered out.
-        """
-        return self.remove_results_with_shared_assignments(self.property_results)
-
-    @property
-    def differing_step_results(self):
-        """
-        Step results where all steps differ in assignment in at least one sample.
-        :return: A step result data frame where properties with the all the same value are filtered out.
-        """
-        return self.remove_results_with_shared_assignments(self.step_results)
-
-    @property
-    def supported_property_results(self):
-        """
-        Property results where properties which are not supported in any sample are removed.
-        :return: A property result data frame where properties with the all NO values are filtered out.
-        """
-        return self.remove_results_with_shared_assignments(self.property_results, only_drop_no_assignments=True)
-
-    @property
-    def supported_step_results(self):
-        """
-        Step results where steps which are not supported in any sample are removed.
-        :return: A step result data frame where steps with the all NO values are filtered out.
-        """
-        return self.remove_results_with_shared_assignments(self.step_results, only_drop_no_assignments=True)
-
     @staticmethod
     def remove_results_with_shared_assignments(results, only_drop_no_assignments=False):
         """
@@ -238,14 +246,6 @@ class GenomePropertiesResults(object):
             results_to_drop = [column for column in single_value_columns]  # Drop all single value columns.
 
         return results_transposed.drop(results_to_drop, axis=1).transpose()
-
-    @property
-    def properties(self):
-        """
-        Generates a list of properties for which there are assignments for.
-        :return: A list of genome property identifiers.
-        """
-        return self.property_results.index.tolist()
 
     def get_step_numbers_for_property(self, genome_property_id):
         """
@@ -296,7 +296,7 @@ class GenomePropertiesResults(object):
 
         return node_dict
 
-    def write_assignment_database(self, engine: SQLAlchemyEngine):
+    def to_assignment_database(self, engine: SQLAlchemyEngine):
         """
         Write the given
 

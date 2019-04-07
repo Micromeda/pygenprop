@@ -9,8 +9,7 @@ Description: A simple unittest for testing the assign module.
 import unittest
 
 from pygenprop.assign import calculate_property_assignment_from_required_steps, \
-    calculate_property_assignment_from_all_steps, AssignmentCache, calculate_step_or_functional_element_assignment, \
-    assign_evidence, assign_functional_element, assign_step, assign_genome_property
+    calculate_property_assignment_from_all_steps, AssignmentCache, calculate_step_or_functional_element_assignment
 from pygenprop.database_file_parser import parse_evidences, parse_functional_elements, parse_steps, \
     parse_genome_property
 from pygenprop.genome_property import GenomeProperty
@@ -310,7 +309,7 @@ class TestAssign(unittest.TestCase):
 
         evidence = parse_evidences(evidence)[0]
 
-        assignment = assign_evidence(test_cache, evidence)
+        assignment = test_cache.bootstrap_assignments_from_evidence(evidence)
 
         self.assertEqual(assignment, 'NO')
 
@@ -331,7 +330,7 @@ class TestAssign(unittest.TestCase):
 
         evidence = parse_evidences(evidence)[0]
 
-        assignment = assign_evidence(test_cache, evidence)
+        assignment = test_cache.bootstrap_assignments_from_evidence(evidence)
 
         self.assertEqual(assignment, 'YES')
 
@@ -352,7 +351,7 @@ class TestAssign(unittest.TestCase):
 
         evidence = parse_evidences(evidence)[0]
 
-        assignment = assign_evidence(test_cache, evidence)
+        assignment = test_cache.bootstrap_assignments_from_evidence(evidence)
 
         self.assertEqual(assignment, 'NO')
 
@@ -375,7 +374,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'YES')
 
@@ -398,7 +397,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
@@ -421,7 +420,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'YES')
 
@@ -444,7 +443,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
@@ -467,7 +466,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
@@ -490,7 +489,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'YES')
 
@@ -513,7 +512,7 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
@@ -537,7 +536,7 @@ class TestAssign(unittest.TestCase):
         parsed_step = parse_steps(step)[0]
         parsed_step.parent = parent_genome_property
 
-        step_assignment = assign_step(test_cache, parsed_step)
+        step_assignment = test_cache.bootstrap_assignments_from_step(parsed_step)
 
         self.assertEqual(step_assignment, 'YES')
         self.assertEqual(test_cache.get_step_assignment('GenProp0065', 1), 'YES')
@@ -562,7 +561,7 @@ class TestAssign(unittest.TestCase):
         parsed_step = parse_steps(step)[0]
         parsed_step.parent = parent_genome_property
 
-        step_assignment = assign_step(test_cache, parsed_step)
+        step_assignment = test_cache.bootstrap_assignments_from_step(parsed_step)
 
         self.assertEqual(step_assignment, 'NO')
         self.assertEqual(test_cache.get_step_assignment('GenProp0065', 1), 'NO')
@@ -573,7 +572,7 @@ class TestAssign(unittest.TestCase):
         test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03565'])
         test_property = self.tree.root
 
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
 
@@ -583,7 +582,7 @@ class TestAssign(unittest.TestCase):
         test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03565'])
         test_property = self.tree.root
 
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'PARTIAL')
 
@@ -593,7 +592,7 @@ class TestAssign(unittest.TestCase):
         test_cache = AssignmentCache()
         test_property = self.tree.root
 
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'NO')
 
@@ -626,7 +625,7 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
 
@@ -659,7 +658,7 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'PARTIAL')
 
@@ -692,7 +691,7 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'NO')
 
@@ -725,6 +724,6 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
