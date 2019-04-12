@@ -55,57 +55,52 @@ Usage
 
 Below is a simple usage overview. Full API documentation is available [here](https://pygenprop.readthedocs.io/en/latest/py-modindex.html).
 
-### The Property Tree
-[https://github.com/Micromeda/pygenprop/blob/develop/modules/genome_properties_tree.py](https://github.com/Micromeda/pygenprop/blob/develop/modules/genome_properties_tree.py)
+#### Example Workflow
+
+A typical use case for Pygenprop will involve a researcher seeking to compute and compare Genome Properties between organisms of interest. For example, a researcher may have discovered a novel bacterium and would want to compare its functional capabilities to other bacteria within the same genus. The researcher could start the analysis by opening up a Jupyter Notebook and directly importing pre-calculated InterProScan annotations for novel and reference genomes within the same genus. Below is example code for comparing virulence genome properties of *E. coli* K12 and O157:H7.
 
 ```python
-# Create a genome properties tree
-with open(genome_property_flat_file_path) as genome_property_file:
-        properties_tree = genome_property_flat_file(genome_property_file)
+# Parse the flatfile database
+with open('properties.txt') as file:
+    tree = parse_genome_properties_flat_file(file)
 
-# The tree is searchable by property identifier
-genome_property_56 = properties_tree['GP0056']
+# Parse InterProScan files
+with open('E_coli_K12.tsv') as ipr5_file_one:
+    cache_1 = parse_interproscan_file(ipr5_file_one)
 
-# The tree is also iterable
-for property in properties_tree:
-      print(property)
+with open('E_coli_O157_H7.tsv') as ipr5_file_two:
+    cache_2 = parse_interproscan_file(ipr5_file_two)
 
-# Special short cut properties allow quick access
-root_genome_property = properties_tree.root
-leaf_genome_properties = properties_tree.leafs
+# Create results comparison object
+results = GenomePropertiesResults(cache_1, cache_2, 
+                                  properties_tree=tree)
+                                          
+# Get properties with differing assignments
+differing_results = results.differing_property_results
+
+# Get property by identifier
+virulence = tree['GenProp0074']
+
+# Iterate to get the identifiers of 
+# child properties of virulence
+types_of_vir = [genprop.id for genprop in virulence.children]
+
+# Get assignments for virulence properties
+virulence_assignments = results.get_results(*types_of_vir, 
+                                            steps=False)
+
+# Get percentages of virulence steps assigned 
+# YES, NO, and PARTIAL per organism
+virulence_summary = results.get_results_summary(*types_of_vir, 
+                                                steps=True, 
+                                                normalize=True)
 ```
 
-#### Logical Structure:
 
-![pygenprop structure](https://user-images.githubusercontent.com/5819462/48955710-3a89ce80-ef1d-11e8-9969-d021700c04a6.png)
-
-### Property Assignments:
-[https://github.com/Micromeda/pygenprop/blob/develop/modules/genome_properties_results.py](https://github.com/Micromeda/pygenprop/blob/develop/modules/genome_properties_results.py)
-
-```python
-assignments = []
-
-# Generate assignments for each property file
-for path in assignment_file_paths:
-	with open(path) as assignment_file:
-		assignments.append(parse_interproscan_file(assignment_file))
-
-# Combine them into a results object
-results = GenomePropertiesResults(*assignments, properties_tree=properties_tree)
-
-# Get step and property results across samples
-property_result_pandas_dataframe = results.property_results
-step_result_pandas_dataframe = results.step_result
-
-# Get results for specific properties and steps
-result_for_gp_56 = results.get_property_result('GP0056')
-result_for_gp_56_step_1 = results.get_step_result('GP0056', 1)
-
-```
 
 Documentation
 -------------
-Our documentation can be found on [Read the Docs](http://pygenprop.rtfd.io/). 
+Documentation can be found on [Read the Docs](http://pygenprop.rtfd.io/). 
 
 Trouble Shooting
 ----------------
