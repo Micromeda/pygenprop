@@ -39,7 +39,7 @@ pip install .
 
 Acquiring Input Data
 --------------------
-Pygenprop can assign genome properties to an organism from [InterProScan annotation TSV files](https://github.com/ebi-pf-team/interproscan/wiki/OutputFormats#tab-separated-values-format-tsv), [Genome Properties long-form assignment files](https://github.com/Micromeda/pygenprop/blob/master/pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt) (created by the Genome Properties Perl library) or a list of InterPro consortium signatures created in a Jupyter Notebook.
+Pygenprop can assign genome properties to an organism from [InterProScan annotation TSV files](https://github.com/ebi-pf-team/interproscan/wiki/OutputFormats#tab-separated-values-format-tsv), [Genome Properties long-form assignment files](https://github.com/Micromeda/pygenprop/blob/master/pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt) (created by the Genome Properties Perl library) or a list of InterPro consortium signature accessions downloaded into a Jupyter Notebook. Pre-calculated InterProScan results for UniProt proteomes and taxonomies can be downloaded (in signature accession list format) from the [beta version of the InterPro website](https://www.ebi.ac.uk/interpro/beta/proteome/uniprot/#table).
 
 #### Example Data
 
