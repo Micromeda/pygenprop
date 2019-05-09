@@ -78,7 +78,12 @@ class TestAssign(unittest.TestCase):
             ('SN', '1'),
             ('ID', 'LLM-family F420-associated subfamilies'),
             ('RQ', '0'),
-            ('EV', 'IPR019910; TIGR03565; sufficient;')
+            ('EV', 'IPR019910; TIGR03565; sufficient;'),
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'LLM-family F420-associated subfamilies 2'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03566; sufficient;')
         ]
 
         property_one = parse_genome_property(property_rows_one)
@@ -727,3 +732,20 @@ class TestAssign(unittest.TestCase):
         assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
+
+    def test_assign_missing_step_assignments(self):
+
+        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03565', 'TIGR03567'])
+        test_cache.bootstrap_assignments(self.tree)
+
+        step_assignments = test_cache.step_assignments
+
+        del step_assignments['GenProp0092']
+        test_cache.bootstrap_assignments(self.tree)
+
+        self.assertIn('GenProp0092', step_assignments.keys())
+
+        del step_assignments['GenProp0092'][2]
+        test_cache.bootstrap_assignments(self.tree)
+
+        self.assertIn(2, step_assignments['GenProp0092'])

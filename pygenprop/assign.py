@@ -136,26 +136,30 @@ class AssignmentCache(object):
         """
 
         # The identifiers of properties with no step assignments.
-        missing_step_identifiers = self.property_identifiers - self.property_identifiers_of_step_cache
+        property_identifiers_not_in_step_cache = self.property_identifiers - self.property_identifiers_of_step_cache
 
-        for property_identifier in missing_step_identifiers:
+        # Bootstrap step assignments for properties
+        for property_identifier in property_identifiers_not_in_step_cache:
             for step in properties_tree[property_identifier].steps:
                 self.bootstrap_assignments_from_step(step)
 
-        missing_steps = []
+        # Ensure that all steps have an assignment.
+        all_missing_steps = []
         for property_identifier in self.property_identifiers:
-            property_steps = properties_tree[property_identifier].steps
-            property_step_cache = self.step_assignments[property_identifier]
+            property_steps_from_tree = properties_tree[property_identifier].steps
+            property_steps_from_cache = self.step_assignments[property_identifier]
 
-            if len(property_steps) != len(property_step_cache):
-                property_step_numbers = {step.number for step in property_steps}
-                cached_step_numbers = set(property_step_cache.keys())
-                missing_steps = [step for step in property_steps if
-                                 step.number in property_step_numbers - cached_step_numbers]
+            # If there are missing steps for this genome property in the cache.
+            if len(property_steps_from_tree) != len(property_steps_from_cache):
+                tree_step_numbers = {step.number for step in property_steps_from_tree}
+                cached_step_numbers = set(property_steps_from_cache.keys())
+                missing_step_numbers = tree_step_numbers - cached_step_numbers
+                missing_property_steps = [step for step in property_steps_from_tree
+                                          if step.number in missing_step_numbers]
 
-                missing_steps.extend(missing_steps)
+                all_missing_steps.extend(missing_property_steps)
 
-        for step in missing_steps:
+        for step in all_missing_steps:
             self.bootstrap_assignments_from_step(step)
 
     def bootstrap_assignments_from_genome_property(self, genome_property: GenomeProperty):
