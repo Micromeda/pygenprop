@@ -734,6 +734,7 @@ class TestAssign(unittest.TestCase):
         self.assertEqual(assignment, 'YES')
 
     def test_assign_missing_step_assignments(self):
+        """Test that we can get assignment results for all steps."""
 
         test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03565', 'TIGR03567'])
         test_cache.bootstrap_assignments(self.tree)

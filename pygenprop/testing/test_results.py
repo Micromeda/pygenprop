@@ -7,11 +7,11 @@ Description: A simple unittest for testing the results module.
 """
 
 import unittest
-
+from sqlalchemy import create_engine
 from pygenprop.assign import AssignmentCache
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
 from pygenprop.database_file_parser import parse_genome_properties_flat_file
-from pygenprop.results import GenomePropertiesResults
+from pygenprop.results import GenomePropertiesResults, load_results_from_database
 
 
 class TestResults(unittest.TestCase):
@@ -32,6 +32,8 @@ class TestResults(unittest.TestCase):
 
         cls.test_genome_property_results = [properties_one, properties_two]
         cls.test_tree = genome_properties_tree
+
+        cls.engine = create_engine('sqlite://')
 
     def test_results(self):
         """Test parsing longform genome properties assignment files into assignment results."""
@@ -148,3 +150,17 @@ class TestResults(unittest.TestCase):
 
         self.assertEqual(len(test_cache.property_assignments), 1)
         self.assertEqual(test_cache.get_property_assignment('GenProp0710'), 'YES')
+
+    def test_save_assignment_file(self):
+        """Test that we can save an SQLite assignment file."""
+
+        results = GenomePropertiesResults(*self.test_genome_property_results, properties_tree=self.test_tree)
+
+        engine = self.engine
+        results.to_assignment_database(engine)
+
+        new_results = load_results_from_database(engine, self.test_tree)
+
+        self.assertEqual(results.sample_names, new_results.sample_names)
+        self.assertEqual(results.property_results.equals(new_results.property_results), True)
+        #self.assertEqual(results.step_results.equals(new_results.step_results), True)
