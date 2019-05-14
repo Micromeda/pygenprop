@@ -45,8 +45,8 @@ class GenomePropertiesResults(object):
 
         self._sample_names = None
         self.tree = properties_tree
-        self.property_results = combined_properties_table
-        self.step_results = combined_step_table
+        self.property_results = combined_properties_table.sort_index()
+        self.step_results = combined_step_table.sort_index()
         self.sample_names = sample_names
 
     @property
