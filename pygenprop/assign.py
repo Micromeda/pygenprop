@@ -48,6 +48,15 @@ class AssignmentCache(object):
         """
         return set(self.step_assignments.keys())
 
+    @property
+    def unsynchronized_identifiers(self):
+        """
+        Provides a set of genome property identifiers which are not shared between step and property assignments.
+
+        :return: The set of unsynchronized identifiers
+        """
+        return self.property_identifiers - self.property_identifiers_of_step_cache
+
     def cache_property_assignment(self, property_identifier: str, assignment: str):
         """
         Stores cached assignment results for a genome property.
@@ -136,7 +145,7 @@ class AssignmentCache(object):
         """
 
         # The identifiers of properties with no step assignments.
-        property_identifiers_not_in_step_cache = self.property_identifiers - self.property_identifiers_of_step_cache
+        property_identifiers_not_in_step_cache = self.unsynchronized_identifiers
 
         # Bootstrap step assignments for properties
         for property_identifier in property_identifiers_not_in_step_cache:
@@ -325,6 +334,29 @@ class AssignmentCache(object):
         step_table.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
 
         return property_table, step_table
+
+    def __repr__(self):
+        if self.property_assignments:
+            property_assignments = len(self.property_assignments)
+        else:
+            property_assignments = None
+
+        if self.step_assignments:
+            step_assignments = len(self.step_assignments)
+        else:
+            step_assignments = None
+
+        if self.interpro_member_database_identifiers:
+            interpro_identifiers = len(self.interpro_member_database_identifiers)
+        else:
+            interpro_identifiers = None
+
+        repr_data = [str(self.sample_name),
+                     'Property Assignments: ' + str(property_assignments),
+                     'Step Assignments: ' + str(step_assignments),
+                     'InterPro Identifiers: ' + str(interpro_identifiers),
+                     'Unsynchronized Identifiers: ' + str(len(self.unsynchronized_identifiers))]
+        return ', '.join(repr_data)
 
 
 def calculate_property_assignment_from_required_steps(required_step_assignments: list, threshold: int = 0):
