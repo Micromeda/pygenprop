@@ -31,7 +31,7 @@ class PropertyAssignment(Base):
 
     __tablename__ = 'property_assignments'
 
-    assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
+    property_assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
     property_number = Column(Integer)
     numeric_assignment = Column(Integer)  # 0 = YES, 1 = PARTIAL, 2 = NO
     sample_name = Column(String, ForeignKey('samples.name'))
@@ -119,7 +119,7 @@ class StepAssignment(Base):
     __tablename__ = 'step_assignments'
 
     step_assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
-    property_number = Column(Integer, ForeignKey('property_assignments.property_number'))
+    property_assignment_identifier = Column(Integer, ForeignKey('property_assignments.property_assignment_identifier'))
     number = Column(Integer)
 
     property_assignment = relationship('PropertyAssignment', back_populates='step_assignments')
