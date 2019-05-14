@@ -183,7 +183,7 @@ class GenomePropertiesResults(object):
         """
         Gets the assignment results for a given genome property.
 
-        :param sample:
+        :param sample: The sample for which to grab results for.
         :param genome_property_id: The id of the genome property to get results for.
         :return: A list containing the assignment results for the genome property in question.
         """
@@ -298,7 +298,7 @@ class GenomePropertiesResults(object):
 
     def to_assignment_database(self, engine: SQLAlchemyEngine):
         """
-        Write the given
+        Write the given results object to an SQL database.
 
         :param engine: An SQLAlchemyEngine connection object.
         """
@@ -338,16 +338,14 @@ class GenomePropertiesResults(object):
         current_session.close()
 
 
-def load_results_from_database(engine: SQLAlchemyEngine, properties_tree: GenomePropertiesTree):
+def load_assignment_caches_from_database(engine):
     """
-    Creates a results object from an assignment database file.
+    Creates a series of assignment caches from an assignment database file.
 
     :param engine: An SQLAlchemy engine
-    :param properties_tree: A genome properties tree object
-    :return: A genome properties results object with
+    :return: List of assignment caches representing the assignments stored in the database.
     """
     current_session = sessionmaker(bind=engine)()
-
     assignment_caches = []
     for sample in current_session.query(Sample):
         sample_cache = AssignmentCache(sample_name=sample.name)
@@ -357,5 +355,4 @@ def load_results_from_database(engine: SQLAlchemyEngine, properties_tree: Genome
                 sample_cache.cache_step_assignment(property_assignment.identifier, step_assignment.number,
                                                    step_assignment.assignment)
         assignment_caches.append(sample_cache)
-
-    return GenomePropertiesResults(*assignment_caches, properties_tree=properties_tree)
+    return assignment_caches

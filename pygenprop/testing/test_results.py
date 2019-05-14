@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from pygenprop.assign import AssignmentCache
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
 from pygenprop.database_file_parser import parse_genome_properties_flat_file
-from pygenprop.results import GenomePropertiesResults, load_results_from_database
+from pygenprop.results import GenomePropertiesResults, load_assignment_caches_from_database
 
 
 class TestResults(unittest.TestCase):
@@ -159,8 +159,9 @@ class TestResults(unittest.TestCase):
         engine = self.engine
         results.to_assignment_database(engine)
 
-        new_results = load_results_from_database(engine, self.test_tree)
+        assignment_caches = load_assignment_caches_from_database(engine)
+        new_results = GenomePropertiesResults(*assignment_caches, properties_tree=self.test_tree)
 
         self.assertEqual(results.sample_names, new_results.sample_names)
         self.assertEqual(results.property_results.equals(new_results.property_results), True)
-        #self.assertEqual(results.step_results.equals(new_results.step_results), True)
+        self.assertEqual(results.step_results.equals(new_results.step_results), True)
