@@ -37,8 +37,24 @@ cd /path/to/pygenprop_source_dir
 pip install .
 ```
 
+Accessing The Genome Properties Database
+----------------------------------------
+
+The primary way for Pygenprop to access the Genome Properites database is through the parsing of a Genome Properties release file found in the [EBI Genome Properties database repository](https://github.com/ebi-pf-team/genome-properties). This file is called ```genomeProperties.txt``` and is located in the flatfiles folder (https://github.com/ebi-pf-team/genome-properties/blob/master/flatfiles/genomeProperties.txt). This file is generated for each Genome Properties release and only contains **public** genome properties.
+
+#### Compatibility
+
+As Genome Properties evolves, Pygenprop is updated to be compatible.
+
+| Genome Properties Release 	| genomeProperties.txt URL	| Pygenprop Release 	|
+|---------------------------	|----------------------	    |-------------------	|
+| 1.1 	| https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel1.1/flatfiles/genomeProperties.txt 	| 0.6 	|
+| 2.0 	|  https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel2.0/flatfiles/genomeProperties.txt	| 0.6 	|
+| Latest    | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt | 0.6
+
 Acquiring Input Data
 --------------------
+
 Pygenprop can assign genome properties to an organism from [InterProScan annotation TSV files](https://github.com/ebi-pf-team/interproscan/wiki/OutputFormats#tab-separated-values-format-tsv), [Genome Properties long-form assignment files](https://github.com/Micromeda/pygenprop/blob/master/pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt) (created by the Genome Properties Perl library) or a list of InterPro consortium signature accessions downloaded into a Jupyter Notebook. Pre-calculated InterProScan results for UniProt proteomes and taxonomies can be downloaded (in signature accession list format) from the [beta version of the InterPro website](https://www.ebi.ac.uk/interpro/beta/proteome/uniprot/#table).
 
 #### Example Data
