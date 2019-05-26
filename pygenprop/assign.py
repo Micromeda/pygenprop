@@ -20,13 +20,20 @@ class AssignmentCache(object):
     This class contains a representation of precomputed assignment results and InterPro member database matches.
     """
 
-    def __init__(self, interpro_member_database_identifiers: list = None, sample_name=None):
-        if interpro_member_database_identifiers:
-            interpro_member_database_identifiers = set(interpro_member_database_identifiers)
+    def __init__(self, interpro_signature_accessions: list = None, sample_name=None):
+        """
+        Constructs an assignment cache object.
+
+        :param sample_name: The name of the sample
+        :param interpro_signature_accessions: A set of InterPro signature accessions found in an organism's InterProScan
+                                              annotation file.
+        """
+        if interpro_signature_accessions:
+            interpro_signature_accessions = set(interpro_signature_accessions)
 
         self.property_assignments = {}
         self.step_assignments = {}
-        self.interpro_member_database_identifiers = interpro_member_database_identifiers
+        self.interpro_signature_accessions = interpro_signature_accessions
         self.sample_name = sample_name
 
     @property
@@ -282,7 +289,7 @@ class AssignmentCache(object):
             primary_genome_property = current_evidence.genome_properties[0]
             evidence_assignment = self.bootstrap_assignments_from_genome_property(primary_genome_property)
         else:
-            unique_interpro_member_identifiers = self.interpro_member_database_identifiers
+            unique_interpro_member_identifiers = self.interpro_signature_accessions
             if unique_interpro_member_identifiers:
                 if unique_interpro_member_identifiers.isdisjoint(set(current_evidence.evidence_identifiers)):
                     evidence_assignment = 'NO'
@@ -329,11 +336,22 @@ class AssignmentCache(object):
                                                 orient='index', columns=['Property_Result'])
         property_table.index.names = ['Property_Identifier']
 
-        step_table = pd.DataFrame(create_step_table_rows(self.step_assignments),
+        step_table = pd.DataFrame(self.create_step_table_rows(self.step_assignments),
                                   columns=['Property_Identifier', 'Step_Number', 'Step_Result'])
         step_table.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
 
         return property_table, step_table
+
+    @staticmethod
+    def create_step_table_rows(step_assignments):
+        """
+        Unfolds a step result dict of dict and yields a step table row.
+
+        :param step_assignments: A dict of dicts containing step assignment information ({gp_key -> {stp_key --> result}})
+        """
+        for genome_property_id, step in step_assignments.items():
+            for step_number, step_result in step.items():
+                yield genome_property_id, step_number, step_result
 
     def __repr__(self):
         if self.property_assignments:
@@ -346,8 +364,8 @@ class AssignmentCache(object):
         else:
             step_assignments = None
 
-        if self.interpro_member_database_identifiers:
-            interpro_identifiers = len(self.interpro_member_database_identifiers)
+        if self.interpro_signature_accessions:
+            interpro_identifiers = len(self.interpro_signature_accessions)
         else:
             interpro_identifiers = None
 
@@ -480,12 +498,15 @@ def calculate_step_or_functional_element_assignment(child_assignments: list, suf
     return result
 
 
-def create_step_table_rows(step_assignments):
-    """
-    Unfolds a step result dict of dict and yields a step table row.
+class AssignmentCacheWithMatches(AssignmentCache):
+    def __init__(self, interproscan_file, fasta_file):
+        """
+        Constructs the extended genome properties results object.
 
-    :param step_assignments: A dict of dicts containing step assignment information ({gp_key -> {stp_key --> result}})
-    """
-    for genome_property_id, step in step_assignments.items():
-        for step_number, step_result in step.items():
-            yield genome_property_id, step_number, step_result
+        :param interproscan_file: A file handle to the sample's InterProScan TSV file.
+        :param fasta_file: A file handle to the sample's FASTA file.
+        """
+
+
+
+        AssignmentCache.__init__(self, interpro_signature_accessions= None, sample_name=None)

@@ -77,6 +77,43 @@ class Step(object):
         return genome_properties_identifiers
 
     @property
+    def consortium_identifiers(self):
+        """
+        All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the step.
+
+        :return: A set of all unique consortium identifiers used used by the step.
+        """
+        return self.get_evidence_identifiers(consortium=True)
+
+    @property
+    def interpro_identifiers(self):
+        """
+        All global InterPro identifiers (IPRXXXX, etc.) used by the step.
+
+        :return: A set of all unique InterPro identifiers used used by the step.
+        """
+        return self.get_evidence_identifiers()
+
+    def get_evidence_identifiers(self, consortium=False):
+        """
+        Gets evidence identifiers from all evidences of the step.
+
+        :param consortium: If true, list the consortium signature identifiers (PFAM, TIGRFAM)
+        :return: A set of all unique evidence identifiers used by the step.
+        """
+        global_identifiers = []
+        for functional_element in self.functional_elements:
+            for evidence in functional_element.evidence:
+                if consortium:
+                    current_identifiers = evidence.consortium_identifiers
+                else:
+                    current_identifiers = evidence.interpro_identifiers
+
+                if current_identifiers:
+                    global_identifiers.extend(current_identifiers)
+        return global_identifiers
+
+    @property
     def genome_properties(self):
         """
         Collects all the child genome properties supporting a step.

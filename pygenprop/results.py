@@ -7,6 +7,7 @@ Description: The genome property tree class.
 """
 
 import json
+
 import pandas as pd
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
@@ -26,7 +27,7 @@ class GenomePropertiesResults(object):
         Constructs the genome properties results object.
 
         :param properties_tree: The global genome properties tree.
-        :param genome_properties_results_dict: One or more parsed genome properties assignments.
+        :param genome_properties_results: One or more parsed genome properties assignments.
         """
 
         property_tables = []
@@ -356,3 +357,22 @@ def load_assignment_caches_from_database(engine):
                                                    step_assignment.assignment)
         assignment_caches.append(sample_cache)
     return assignment_caches
+
+
+class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
+    """
+    This class extends the GenomePropertiesResults object to include supporting information such as InterProScan
+    E-values and FASTA sequences of proteins that support property existence.
+    """
+
+    def __init__(self, *genome_properties_results: AssignmentCache, properties_tree: GenomePropertiesTree):
+        """
+        Constructs the extended genome properties results object.
+
+        :param genome_properties_results: One or more parsed genome properties assignments.
+        :param properties_tree: The global genome properties tree.
+        :param interproscan: A file handle to a concatenated InterProScan TSV file
+        :param fasta: A file handle
+        """
+
+        GenomePropertiesResults.__init__(*genome_properties_results, properties_tree=properties_tree)

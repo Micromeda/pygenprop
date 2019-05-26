@@ -196,17 +196,11 @@ class GenomePropertiesTree(object):
         global_identifiers = []
         for genome_property in self:
             for step in genome_property.steps:
-                for functional_element in step.functional_elements:
-                    for evidence in functional_element.evidence:
-                        if consortium:
-                            current_identifiers = evidence.consortium_identifiers
-                        else:
-                            current_identifiers = evidence.interpro_identifiers
-
-                        if current_identifiers:
-                            global_identifiers.extend(current_identifiers)
+                global_identifiers.extend(step.get_evidence_identifiers(consortium))
 
         return set(global_identifiers)
+
+
 
     def create_metabolism_database_mapping_file(self, file_handle):
         """
