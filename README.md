@@ -43,6 +43,10 @@ Acquiring Genome Properties Data
 
 Before Pygenprop can assign genome properties to an organism, it first has to gather information from to the Genome Properties database. The easiest way to gain access is through the parsing of a Genome Properties Database release file. This file is found in the [EBI Genome Properties Github repository](https://github.com/ebi-pf-team/genome-properties) and is called [```genomeProperties.txt```](https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt). The file is located in the repository's [flatfiles folder](https://github.com/ebi-pf-team/genome-properties/blob/master/flatfiles). For each release of Genome Properties, a ```genomeProperties.txt``` file is generated from the description files of all **public** genome properties.
 
+#### Acquiring Release Files  
+
+```genomeProperties.txt``` files can be found at URLs in the compatibility section below using a web browser or UNIX commands such as ```wget``` or ```curl```. They can also be streamed directly into Jupyter notebooks using the [requests python library](https://3.python-requests.org). Code for streaming the database into a Jupyter notebook can be found [here](https://github.com/Micromeda/pygenprop/blob/master/docs/source/_static/tutorial/tutorial.ipynb).
+
 #### Compatibility
 
 Pygenprop will be continually updated to take into account changes in the schema of the Genome Properties database. Below is a compatibility table that maps between Genome Properties and Pygenprop releases.
