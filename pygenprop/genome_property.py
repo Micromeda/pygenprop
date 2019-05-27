@@ -16,7 +16,7 @@ class GenomeProperty(object):
     """
 
     def __init__(self, accession_id, name, property_type, threshold=0, parents=None,
-                 children=None, references=None, databases=None, steps=None, public=False,
+                 children=None, references=None, databases=None, steps=None, public=True,
                  description=None, private_notes=None, tree=None):
         """
         Creates a new GenomeProperty object.
