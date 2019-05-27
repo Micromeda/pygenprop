@@ -12,12 +12,13 @@ Pygenprop is a python library for programmatic exploration and usage of the [EBI
 Features
 --------
 
-At its core, the library contains four major components:
+At its core, the library contains five major components:
 
-- An object model for representing the Genome Properties database as an in-memory rooted direct acyclic graph.
-- A parser for Genome Properties database flat files.
-- A parser for Genome Properties assignment long form files.
-- A parser for InterProScan TSV files.
+- An object model for representing the Genome Properties database as an in-memory rooted direct acyclic graph
+- A parser for Genome Properties database flat files
+- A parser for Genome Properties assignment long form files
+- A parser for InterProScan TSV files
+- A results class which is used to assign genome properties to one or more organisms and compare assignments between multiple organisms
 
 Installation
 ------------
@@ -37,23 +38,31 @@ cd /path/to/pygenprop_source_dir
 pip install .
 ```
 
-Accessing The Genome Properties Database
-----------------------------------------
+Acquiring Genome Properties Data
+--------------------------------
 
-The primary way for Pygenprop to access the Genome Properites database is through the parsing of a Genome Properties release file found in the [EBI Genome Properties database repository](https://github.com/ebi-pf-team/genome-properties). This file is called ```genomeProperties.txt``` and is located in the flatfiles folder (https://github.com/ebi-pf-team/genome-properties/blob/master/flatfiles/genomeProperties.txt). This file is generated for each Genome Properties release and only contains **public** genome properties.
+Before Pygenprop can assign genome properties to an organism, it first has to gather information from to the Genome Properties database. The easiest way to gain access is through the parsing of a Genome Properties Database release file. This file is found in the [EBI Genome Properties Github repository](https://github.com/ebi-pf-team/genome-properties) and is called [```genomeProperties.txt```](https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt). The file is located in the repository's [flatfiles folder](https://github.com/ebi-pf-team/genome-properties/blob/master/flatfiles). For each release of Genome Properties, a ```genomeProperties.txt``` file is generated from the description files of all **public** genome properties.
 
 #### Compatibility
 
-As Genome Properties evolves, Pygenprop is updated to be compatible.
+Pygenprop will be continually updated to take into account changes in the schema of the Genome Properties database. Below is a compatibility table that maps between Genome Properties and Pygenprop releases.
 
-| Genome Properties Release 	| genomeProperties.txt URL	| Pygenprop Release 	|
+| Genome Properties Release 	| genomeProperties.txt URL	| Compatible Pygenprop Release 	|
 |---------------------------	|----------------------	    |-------------------	|
 | 1.1 	| https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel1.1/flatfiles/genomeProperties.txt 	| 0.6 	|
 | 2.0 	|  https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel2.0/flatfiles/genomeProperties.txt	| 0.6 	|
 | Latest    | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt | 0.6
 
-Acquiring Input Data
---------------------
+#### Accessing Non-public Properties
+
+The [```./data```](https://github.com/ebi-pf-team/genome-properties/tree/master/data) folder of the [EBI Genome Properties Github repository](https://github.com/ebi-pf-team/genome-properties) contains a series of folders with information about both public and non-public genome properties. Each folder contains both a description (```DESC```) file and a status (```status```) file. The status file contains information on whether a property is public or not (```public:	0``` means that a property is not public). One can use these status files to find non-public properties. The description files for these non-public properties can be parsed using the same parser as used for ```genomeProperties.txt```. Each [genome property object](https://pygenprop.readthedocs.io/en/latest/pygenprop.html#module-pygenprop.genome_property) that results from the parsing of a description file has an object attribute called **public** which can be set to **true** or **false** to designate a property as public or not.
+
+```python
+property_one.public = False 
+```
+
+Acquiring Annotation Data
+-------------------------
 
 Pygenprop can assign genome properties to an organism from [InterProScan annotation TSV files](https://github.com/ebi-pf-team/interproscan/wiki/OutputFormats#tab-separated-values-format-tsv), [Genome Properties long-form assignment files](https://github.com/Micromeda/pygenprop/blob/master/pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt) (created by the Genome Properties Perl library) or a list of InterPro consortium signature accessions downloaded into a Jupyter Notebook. Pre-calculated InterProScan results for UniProt proteomes and taxonomies can be downloaded (in signature accession list format) from the [beta version of the InterPro website](https://www.ebi.ac.uk/interpro/beta/proteome/uniprot/#table).
 
