@@ -499,14 +499,19 @@ def calculate_step_or_functional_element_assignment(child_assignments: list, suf
 
 
 class AssignmentCacheWithMatches(AssignmentCache):
-    def __init__(self, interproscan_file, fasta_file):
+    """
+    This class contains a representation of precomputed assignment results and InterPro member database matches.
+    It also contains InterProScan and FASTA sequences supporting these assignments.
+    """
+
+    def __init__(self, match_info_frame, sequence_frame, sample_name):
         """
         Constructs the extended genome properties results object.
 
-        :param interproscan_file: A file handle to the sample's InterProScan TSV file.
-        :param fasta_file: A file handle to the sample's FASTA file.
+        :param match_info_frame: TODO
+        :param sequence_frame: TODO
         """
 
+        identifiers = match_info_frame['Signature_Accession'].to_list()
+        AssignmentCache.__init__(self, interpro_signature_accessions=identifiers, sample_name=sample_name)
 
-
-        AssignmentCache.__init__(self, interpro_signature_accessions= None, sample_name=None)

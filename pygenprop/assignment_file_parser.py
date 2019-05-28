@@ -9,7 +9,7 @@ import csv
 import skbio
 import pandas as pd
 from os.path import basename, splitext
-from pygenprop.assign import AssignmentCache
+from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
 
 
 def parse_genome_property_longform_file(longform_file):
@@ -56,6 +56,21 @@ def parse_interproscan_file(interproscan_file):
                            sample_name=splitext(basename(interproscan_file.name))[0])
 
 
+def parse_interproscan_file_and_fast_file(interproscan_file, fasta_file):
+    """
+    Parses InterProScan TSV files into an assignment cache with match information.
+
+    :param interproscan_file: A InterProScan file handle object.
+    :param fasta_file: An assignment cache with match information object.
+    """
+    signatures_and_basic_match_info = create_match_dataframe(interproscan_file)
+    sequence_info = create_sequence_dataframe(fasta_file)
+
+    return AssignmentCacheWithMatches(match_info_frame=signatures_and_basic_match_info,
+                                      sequence_frame=sequence_info,
+                                      sample_name=splitext(basename(interproscan_file.name))[0])
+
+
 def create_match_dataframe(interproscan_file):
     """
     Parses InterProScan TSV files
@@ -90,3 +105,4 @@ def yield_identifier_sequence_mappings(fasta_file):
     """
     for sequence in skbio.io.read(fasta_file, format='fasta'):
         yield (sequence.metadata['id'], str(sequence))
+
