@@ -280,7 +280,6 @@ class AssignmentCache(object):
         Assigns a result (YES, NO) to a evidence based of the presence or absence of InterPro member identifiers or
         the assignment of evidence child genome properties.
 
-        :param self: A cache containing step and property assignments and InterPro member database matches.
         :param current_evidence: The current evidence which needs assignment.
         :return: The assignment for the evidence.
         """
@@ -306,17 +305,27 @@ class AssignmentCache(object):
         the assignment cache. This prevents situations where different versions of the cache and tree cannot find each
         others genome properties.
 
-        :param self: A cache containing step and property assignments and InterPro member database matches.
         :param properties_tree: The global genome properties tree.
         :return: An assignment cache containing data for genome properties shared between the tree and cache.
         """
-        tree_identifiers = properties_tree.genome_property_identifiers
-        assignment_cache_identifiers = set(self.property_identifiers)
 
-        unshared_identifiers = tree_identifiers.symmetric_difference(assignment_cache_identifiers)
+        unshared_identifiers = self.get_unshared_identifiers(properties_tree)
 
         for identifier in unshared_identifiers:
             self.flush_property_from_cache(identifier)
+
+    def get_unshared_identifiers(self, properties_tree: GenomePropertiesTree):
+        """
+        Gets genome properties from the assignment cache that are not found in both the genome properties tree and
+        the assignment cache. This prevents situations where different versions of the cache and tree cannot find each
+        others genome properties.
+
+        :param properties_tree: The global genome properties tree.
+        :return: A set of identifiers not shared between the tree and assignment cache.
+        """
+        tree_identifiers = properties_tree.genome_property_identifiers
+        assignment_cache_identifiers = self.property_identifiers
+        return assignment_cache_identifiers - tree_identifiers
 
     def create_results_tables(self, properties_tree: GenomePropertiesTree):
         """
@@ -375,6 +384,27 @@ class AssignmentCache(object):
                      'InterPro Identifiers: ' + str(interpro_identifiers),
                      'Unsynchronized Identifiers: ' + str(len(self.unsynchronized_identifiers))]
         return ', '.join(repr_data)
+
+
+class AssignmentCacheWithMatches(AssignmentCache):
+    """
+    This class contains a representation of precomputed assignment results and InterPro member database matches.
+    It also contains InterProScan and FASTA sequences supporting these assignments.
+    """
+
+    def __init__(self, match_info_frame, sequence_frame, sample_name):
+        """
+        Constructs the extended genome properties results object.
+
+        :param match_info_frame: A pandas dataframe containing match information.
+        :param sequence_frame: A panadas dataframe containing sequence information
+        """
+
+        identifiers = match_info_frame['Signature_Accession'].to_list()
+        AssignmentCache.__init__(self, interpro_signature_accessions=identifiers, sample_name=sample_name)
+        self.matches = match_info_frame.merge(sequence_frame, left_on='Protein_Accession',
+                                              right_on='Protein_Accession',
+                                              copy=False).set_index('Signature_Accession')
 
 
 def calculate_property_assignment_from_required_steps(required_step_assignments: list, threshold: int = 0):
@@ -496,22 +526,3 @@ def calculate_step_or_functional_element_assignment(child_assignments: list, suf
             result = 'NO'
 
     return result
-
-
-class AssignmentCacheWithMatches(AssignmentCache):
-    """
-    This class contains a representation of precomputed assignment results and InterPro member database matches.
-    It also contains InterProScan and FASTA sequences supporting these assignments.
-    """
-
-    def __init__(self, match_info_frame, sequence_frame, sample_name):
-        """
-        Constructs the extended genome properties results object.
-
-        :param match_info_frame: TODO
-        :param sequence_frame: TODO
-        """
-
-        identifiers = match_info_frame['Signature_Accession'].to_list()
-        AssignmentCache.__init__(self, interpro_signature_accessions=identifiers, sample_name=sample_name)
-

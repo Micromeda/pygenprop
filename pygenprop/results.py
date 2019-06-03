@@ -9,10 +9,11 @@ Description: The genome property tree class.
 import json
 
 import pandas as pd
+from skbio.sequence import Protein
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
 
-from pygenprop.assign import AssignmentCache
+from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
 from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment
 from pygenprop.tree import GenomePropertiesTree
 
@@ -365,14 +366,114 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
     E-values and FASTA sequences of proteins that support property existence.
     """
 
-    def __init__(self, *genome_properties_results: AssignmentCache, properties_tree: GenomePropertiesTree):
+    def __init__(self, *genome_properties_results: AssignmentCacheWithMatches, properties_tree: GenomePropertiesTree):
         """
         Constructs the extended genome properties results object.
 
         :param genome_properties_results: One or more parsed genome properties assignments.
         :param properties_tree: The global genome properties tree.
-        :param interproscan: A file handle to a concatenated InterProScan TSV file
-        :param fasta: A file handle
         """
 
         GenomePropertiesResults.__init__(*genome_properties_results, properties_tree=properties_tree)
+        property_identifiers = properties_tree.consortium_identifiers_dataframe
+
+        all_matches = []
+        for assignment in genome_properties_results:
+            step_matches = property_identifiers.merge(assignment.matches, left_on='Signature_Accession',
+                                                      right_index=True, copy=False)
+
+            # Drop genome properties which are not found in the assignment cache.
+            step_matches.drop(assignment.get_unshared_identifiers(properties_tree),
+                              axis=0, level=0, errors='ignore', inplace=True)
+
+            all_matches.append(pd.concat([step_matches], keys=[assignment.sample_name], names=['Sample_Name']))
+
+        self.step_matches = pd.concat(all_matches, copy=False).sort_index()
+
+    @property
+    def top_step_matches(self):
+        """
+        Filters matches to those with the lowest E-values.
+
+        :return: A step matches dataframe
+        """
+        return self.step_matches.sort_values('E-value').groupby(['Sample_Name',
+                                                                 'Property_Identifier',
+                                                                 'Step_Number'])['Signature_Accession',
+                                                                                 'Protein_Accession',
+                                                                                 'E-value', 'Sequence'].first()
+
+    def get_property_matches(self, genome_property_id, sample=None, top=False):
+        """
+        Gets the assignment results for a given genome property.
+
+        :param top: Get only the matches with the lowest e-value.
+        :param sample: The sample for which to grab results for.
+        :param genome_property_id: The id of the genome property to get results for.
+        :return: A list containing the assignment results for the genome property in question.
+        """
+
+        if top:
+            all_matches = self.top_step_matches
+        else:
+            all_matches = self.step_matches
+
+        if sample:
+            matches = all_matches.loc[sample].loc[genome_property_id]
+        else:
+            matches = all_matches.reorder_levels(['Property_Identifier', 'Step_Number',
+                                                  'Sample_Name']).loc[genome_property_id]
+
+        return matches
+
+    def get_step_matches(self, genome_property_id, step_number, sample=None, top=False):
+        """
+        Gets the assignment results for a given step of a genome property.
+
+        :param top: Get only the matches with the lowest e-value.
+        :param sample: The sample for which to grab results for.
+        :param genome_property_id: The id of the genome property that the step belongs too.
+        :param step_number: The step number of the step.
+        :return: A list containing the assignment results for the step in question.
+        """
+
+        property_matches = self.get_property_matches(genome_property_id, sample=sample, top=top)
+        return property_matches.loc[step_number]
+
+    def get_proteins_for_matches(self, genome_property_id, step_number, top=False):
+        """
+        Creates a series of protein objects representing the proteins which support specific genome property steps.
+
+        :param genome_property_id: The id of the genome property that the step belongs too.
+        :param step_number: The step number of the step.
+        :param top: Get only the matches with the lowest e-value.
+        :return: A list of protein sequence objects
+        """
+        step_sequences = self.get_step_matches(genome_property_id, step_number,
+                                               top=top)[['Protein_Accession', 'Sequence']]
+
+        return step_sequences.apply(self.create_protein_sequence, axis=1).tolist()
+
+    @staticmethod
+    def create_protein_sequence(matches_row):
+        """
+        Creates a protein object from a row of a step matches dataframe.
+
+        :param matches_row: A dataframe row from a step matches dataframe
+        :return: A protien object
+        """
+        return Protein(sequence=(matches_row['Sequence']), metadata={'id': (matches_row['Protein_Accession'])})
+
+    def write_matches_fasta(self, file_handle, genome_property_id, step_number, top=False):
+        """
+        Write proteins which cause InterProScan matches for a genome property step to FASTA file.
+
+        :param file_handle: A file handle object to write the file to.
+        :param genome_property_id: The id of the genome property that the step belongs too.
+        :param step_number: The step number of the step.
+        :param top: Get only the matches with the lowest e-value.
+        """
+        match_sequences = self.get_proteins_for_matches(genome_property_id, step_number, top=top)
+
+        for sequence in match_sequences:
+            sequence.write(file_handle, format='fasta')

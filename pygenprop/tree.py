@@ -8,6 +8,7 @@ Description: The genome property tree class.
 
 import json
 import csv
+import pandas as pd
 
 from pygenprop.genome_property import GenomeProperty
 
@@ -178,6 +179,25 @@ class GenomePropertiesTree(object):
         return self.get_evidence_identifiers(consortium=True)
 
     @property
+    def consortium_identifiers_dataframe(self):
+        """
+        All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the genome properties database.
+
+        :return: A pandas dataframe.
+        """
+        consortium_mapping = []
+        for genome_property in self:
+            for step in genome_property.steps:
+                for identifier in step.consortium_identifiers:
+                    consortium_mapping.append((genome_property.id, step.number, identifier))
+
+        consortium_dataframe = pd.DataFrame(data=consortium_mapping, columns=['Property_Identifier', 'Step_Number',
+                                                                              'Signature_Accession'])
+        consortium_dataframe.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
+
+        return consortium_dataframe
+
+    @property
     def interpro_identifiers(self):
         """
         All global InterPro identifiers (IPRXXXX, etc.) used by the genome properties database.
@@ -199,8 +219,6 @@ class GenomePropertiesTree(object):
                 global_identifiers.extend(step.get_evidence_identifiers(consortium))
 
         return set(global_identifiers)
-
-
 
     def create_metabolism_database_mapping_file(self, file_handle):
         """

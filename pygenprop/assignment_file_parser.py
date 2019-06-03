@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
 """
-Created by: Lee Bergstrand (2017)
+Created by: Lee Bergstrand (2019)
 
-Description: A parser for parsing genome properties longform files.
+Description: A parser for parsing genome properties longform, InterProScan and FASTA files.
 """
-import csv
-import skbio
-import pandas as pd
 from os.path import basename, splitext
+
+import pandas as pd
+import skbio
+
 from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
 
 
@@ -50,13 +51,13 @@ def parse_interproscan_file(interproscan_file):
     :return: An assignment cache object.
     """
     signatures_and_basic_match_info = create_match_dataframe(interproscan_file)
-    identifiers = signatures_and_basic_match_info['Signature_Accession'].to_list()
+    identifiers = signatures_and_basic_match_info['Signature_Accession'].tolist()
 
     return AssignmentCache(interpro_signature_accessions=identifiers,
                            sample_name=splitext(basename(interproscan_file.name))[0])
 
 
-def parse_interproscan_file_and_fast_file(interproscan_file, fasta_file):
+def parse_interproscan_file_and_fasta_file(interproscan_file, fasta_file):
     """
     Parses InterProScan TSV files into an assignment cache with match information.
 
@@ -79,10 +80,8 @@ def create_match_dataframe(interproscan_file):
     :return: A pandas DataFrame with InterProScan information.
     """
     # Grab just columns 0, 4, 8 as these are the only ones we need.
-    signatures_and_basic_match_info = pd.read_csv(interproscan_file, sep='\t', header=None).iloc[:, [0, 4, 8]]
-    signatures_and_basic_match_info.columns = ['Protein_Accession', 'Signature_Accession', 'E-value']
-
-    return signatures_and_basic_match_info
+    return pd.read_csv(interproscan_file, sep='\t', header=None, usecols=[0, 4, 8],
+                       names=['Protein_Accession', 'Signature_Accession', 'E-value'])
 
 
 def create_sequence_dataframe(fasta_file):
@@ -98,11 +97,10 @@ def create_sequence_dataframe(fasta_file):
 
 def yield_identifier_sequence_mappings(fasta_file):
     """
-    Yields identifier sequence pairings
+    Yields identifier sequence pairings from a FASTA file.
 
     :param fasta_file: A FASTA file handle object.
     :return: A
     """
     for sequence in skbio.io.read(fasta_file, format='fasta'):
         yield (sequence.metadata['id'], str(sequence))
-
