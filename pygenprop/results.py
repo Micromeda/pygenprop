@@ -7,6 +7,8 @@ Description: The genome property tree class.
 """
 
 import json
+from collections import defaultdict
+from functools import partial
 
 import pandas as pd
 from skbio.sequence import Protein
@@ -14,7 +16,8 @@ from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
 
 from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
-from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment
+from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment, InterProScanMatch, Sequence, \
+    step_match_association_table
 from pygenprop.tree import GenomePropertiesTree
 
 
@@ -298,16 +301,20 @@ class GenomePropertiesResults(object):
 
         return node_dict
 
-    def to_assignment_database(self, engine: SQLAlchemyEngine):
+    def to_assignment_database(self, engine: SQLAlchemyEngine, drop_existing=True):
         """
         Write the given results object to an SQL database.
 
+        :param drop_existing: Drop all existing tables in the database before insert.
         :param engine: An SQLAlchemyEngine connection object.
         """
 
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+        if drop_existing:
+            Base.metadata.drop_all(engine)
+
+        Base.metadata.create_all(engine, checkfirst=True)
         current_session = sessionmaker(bind=engine)()
+
         for sample_name in self.sample_names:
             sample = Sample(name=sample_name)
 
@@ -336,6 +343,7 @@ class GenomePropertiesResults(object):
                 sample_property_assignments.append(property_assignment)
 
             current_session.add_all([sample, *sample_property_assignments, *sample_step_assignments])
+
         current_session.commit()
         current_session.close()
 
@@ -348,16 +356,24 @@ def load_assignment_caches_from_database(engine):
     :return: List of assignment caches representing the assignments stored in the database.
     """
     current_session = sessionmaker(bind=engine)()
+
     assignment_caches = []
     for sample in current_session.query(Sample):
         sample_cache = AssignmentCache(sample_name=sample.name)
-        for property_assignment in sample.property_assignments:
-            sample_cache.cache_property_assignment(property_assignment.identifier, property_assignment.assignment)
-            for step_assignment in property_assignment.step_assignments:
-                sample_cache.cache_step_assignment(property_assignment.identifier, step_assignment.number,
-                                                   step_assignment.assignment)
+        load_sample_assignments_from_database(sample_cache, sample)
         assignment_caches.append(sample_cache)
+
+    current_session.close()
+
     return assignment_caches
+
+
+def load_sample_assignments_from_database(sample_cache, sample):
+    for property_assignment in sample.property_assignments:
+        sample_cache.cache_property_assignment(property_assignment.identifier, property_assignment.assignment)
+        for step_assignment in property_assignment.step_assignments:
+            sample_cache.cache_step_assignment(property_assignment.identifier, step_assignment.number,
+                                               step_assignment.assignment)
 
 
 class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
@@ -374,7 +390,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :param properties_tree: The global genome properties tree.
         """
 
-        GenomePropertiesResults.__init__(*genome_properties_results, properties_tree=properties_tree)
+        GenomePropertiesResults.__init__(self, *genome_properties_results, properties_tree=properties_tree)
         property_identifiers = properties_tree.consortium_identifiers_dataframe
 
         all_matches = []
@@ -388,7 +404,29 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
 
             all_matches.append(pd.concat([step_matches], keys=[assignment.sample_name], names=['Sample_Name']))
 
-        self.step_matches = pd.concat(all_matches, copy=False).sort_index()
+        # Vertically join all matches from all samples into a single table.
+        step_matches = pd.concat(all_matches, copy=False)
+
+        # Keep matches for ony steps which are assigned "YES". Drop those which are found for "NO" assignments.
+        # Note: Unfortunately, this drops matches for step assignments which were assigned NO due to partial evidence.
+        # For example, the step has evidence from one InterPro sig. but not the other which is also required. We decided
+        # to drop IPR5 matches for these partial assignments in order to save space in micromeda files and to simplify
+        # our ability to determine if our micromeda files are saving correctly. We assume finding IPR5 matches for
+        # assignments assigned NO is a corner case.
+
+        # Converted supported steps to dataframe whose index can be used as a filter.
+        supported_steps = self.supported_step_results.stack()
+
+        if isinstance(supported_steps, pd.Series):
+            supported_steps = supported_steps.to_frame()
+
+        supported_steps.index.rename('Sample_Name', level=2, inplace=True)
+        supported_steps = supported_steps.reorder_levels(['Sample_Name', 'Property_Identifier', 'Step_Number'])
+
+        # Filter to only supported ('YES') steps.
+        supported_step_matches = step_matches[step_matches.index.isin(supported_steps.index)]
+
+        self.step_matches = supported_step_matches.sort_index()
 
     @property
     def top_step_matches(self):
@@ -402,6 +440,21 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
                                                                  'Step_Number'])['Signature_Accession',
                                                                                  'Protein_Accession',
                                                                                  'E-value', 'Sequence'].first()
+
+    def get_sample_matches(self, sample, top=False):
+        """
+        Get matches for a single sample.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :return:
+        """
+        if top:
+            all_matches = self.top_step_matches
+        else:
+            all_matches = self.step_matches
+
+        return all_matches.loc[sample]
 
     def get_property_matches(self, genome_property_id, sample=None, top=False):
         """
@@ -418,11 +471,14 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         else:
             all_matches = self.step_matches
 
-        if sample:
-            matches = all_matches.loc[sample].loc[genome_property_id]
-        else:
-            matches = all_matches.reorder_levels(['Property_Identifier', 'Step_Number',
-                                                  'Sample_Name']).loc[genome_property_id]
+        try:
+            if sample:
+                matches = all_matches.loc[sample].loc[genome_property_id]
+            else:
+                matches = all_matches.reorder_levels(['Property_Identifier', 'Step_Number',
+                                                      'Sample_Name']).loc[genome_property_id]
+        except KeyError:
+            matches = None
 
         return matches
 
@@ -437,10 +493,18 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :return: A list containing the assignment results for the step in question.
         """
 
-        property_matches = self.get_property_matches(genome_property_id, sample=sample, top=top)
-        return property_matches.loc[step_number]
+        try:
+            property_matches = self.get_property_matches(genome_property_id, sample=sample, top=top)
+            if property_matches is not None:
+                step_matches = property_matches.loc[step_number]
+            else:
+                step_matches = None
+        except KeyError:
+            step_matches = None
 
-    def get_proteins_for_matches(self, genome_property_id, step_number, top=False):
+        return step_matches
+
+    def get_proteins_for_step(self, genome_property_id, step_number, top=False):
         """
         Creates a series of protein objects representing the proteins which support specific genome property steps.
 
@@ -452,19 +516,19 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         step_sequences = self.get_step_matches(genome_property_id, step_number,
                                                top=top)[['Protein_Accession', 'Sequence']]
 
-        return step_sequences.apply(self.create_protein_sequence, axis=1).tolist()
+        return step_sequences.apply(self.create_skbio_protein_sequence, axis=1).tolist()
 
     @staticmethod
-    def create_protein_sequence(matches_row):
+    def create_skbio_protein_sequence(match_row):
         """
         Creates a protein object from a row of a step matches dataframe.
 
-        :param matches_row: A dataframe row from a step matches dataframe
+        :param match_row: A dataframe row from a step matches dataframe
         :return: A protien object
         """
-        return Protein(sequence=(matches_row['Sequence']), metadata={'id': (matches_row['Protein_Accession'])})
+        return Protein(sequence=(match_row['Sequence']), metadata={'id': (match_row['Protein_Accession'])})
 
-    def write_matches_fasta(self, file_handle, genome_property_id, step_number, top=False):
+    def write_step_match_fasta(self, file_handle, genome_property_id, step_number, top=False):
         """
         Write proteins which cause InterProScan matches for a genome property step to FASTA file.
 
@@ -473,7 +537,181 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :param step_number: The step number of the step.
         :param top: Get only the matches with the lowest e-value.
         """
-        match_sequences = self.get_proteins_for_matches(genome_property_id, step_number, top=top)
+        match_sequences = self.get_proteins_for_step(genome_property_id, step_number, top=top)
 
         for sequence in match_sequences:
             sequence.write(file_handle, format='fasta')
+
+    def get_unique_matches(self, sample=None, top=False, sequences=False):
+        """
+        Get unique matches for a sample or across all samples in the dataset.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :param sequences: Retrieve only unique protein sequences
+        :return: A dataframe of unique matches
+        """
+        if top:
+            all_matches = self.top_step_matches
+        else:
+            all_matches = self.step_matches
+
+        if sample:
+            all_matches = all_matches.loc[sample]
+
+        if sequences:
+            result = all_matches.reset_index()[['Protein_Accession', 'Sequence']].drop_duplicates()
+        else:
+            result = all_matches.reset_index()[['Signature_Accession', 'Protein_Accession',
+                                                'E-value']].drop_duplicates()
+        return result
+
+    def get_unique_interproscan_matches(self, sample=None, top=False):
+        """
+        Get unique interproscan matches for a sample or across all samples in the dataset.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :return: A dataframe of unique inteproscan matches
+        """
+        return self.get_unique_matches(sample=sample, top=top)
+
+    def get_unique_sequences(self, sample=None, top=False):
+        """
+        Get unique sequences for a sample or across all samples in the dataset.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :return: A dataframe of unique sequences
+        """
+        return self.get_unique_matches(sample=sample, top=top, sequences=True)
+
+    def to_assignment_database(self, engine: SQLAlchemyEngine, drop_existing=True):
+        """
+        Write the given results object to an SQL database.
+
+        :param drop_existing: Drop all existing tables in the database before insert.
+        :param engine: An SQLAlchemyEngine connection object.
+        """
+
+        if drop_existing:
+            Base.metadata.drop_all(engine)
+
+        Base.metadata.create_all(engine, checkfirst=True)
+        current_session = sessionmaker(bind=engine)()
+
+        # Write samples, genome property assignments and step assignments to the database.
+        GenomePropertiesResults.to_assignment_database(self, engine=engine, drop_existing=False)
+
+        for sample in current_session.query(Sample):
+
+            unique_interproscan = self.get_unique_interproscan_matches(sample.name).apply(
+                self.create_interproscan_match,
+                axis=1).tolist()
+            unique_sequences = self.get_unique_sequences(sample.name).apply(self.create_sequence, axis=1).tolist()
+
+            current_session.add_all([*unique_interproscan, *unique_sequences])
+
+            unique_sequence_dict = {sequence.identifier: sequence for sequence in unique_sequences}
+
+            unique_interproscan_dict = defaultdict(lambda: defaultdict(dict))
+            for interproscan in unique_interproscan:
+                # Add matching sequences as children of interproascan matches
+                interproscan.sequence = unique_sequence_dict[interproscan.sequence_identifier]
+
+                # Add interproscan object to the interproscan match dict.
+                unique_interproscan_dict[interproscan.interpro_signature][interproscan.sequence_identifier][
+                    interproscan.expected_value] = interproscan
+
+            for property_assignment in sample.property_assignments:
+                for step_assignment in property_assignment.step_assignments:
+                    step_matches = self.get_step_matches(property_assignment.identifier, step_assignment.number,
+                                                         sample=sample.name)
+
+                    if step_matches is not None:
+                        wrapper = partial(self.connect_step_assignments_to_interproscan_matches,
+                                          step_assignment=step_assignment,
+                                          unique_interproscan_dict=unique_interproscan_dict)
+
+                        # Add the interproscan matches to each step assignment
+                        if isinstance(step_matches, pd.Series):
+                            wrapper(step_matches)
+                        else:
+                            step_matches.apply(wrapper, axis=1)
+
+        current_session.commit()
+        current_session.close()
+
+    @staticmethod
+    def create_interproscan_match(match_row):
+        """
+        Creates a assignment database InterProScanMatch object from a row of a step matches dataframe.
+
+        :param match_row: A dataframe row from a step matches dataframe
+        :return: An assignment database InterProScanMatch sqlalchemy object
+        """
+
+        return InterProScanMatch(sequence_identifier=match_row['Protein_Accession'],
+                                 interpro_signature=match_row['Signature_Accession'],
+                                 expected_value=match_row['E-value'])
+
+    @staticmethod
+    def create_sequence(match_row):
+        """
+        Creates a assignment database InterProScanMatch object from a row of a step matches dataframe.
+
+        :param match_row: A dataframe row from a step matches dataframe
+        :return: An assignment database InterProScanMatch sqlalchemy object
+        """
+        return Sequence(identifier=match_row['Protein_Accession'], sequence=match_row['Sequence'])
+
+    @staticmethod
+    def connect_step_assignments_to_interproscan_matches(match_row, step_assignment, unique_interproscan_dict):
+        """
+        Connects each step assigment object to its child interproscan objects.
+
+        :param match_row: A dataframe row from a step matches dataframe
+        :param step_assignment: A step assignment object that is parent to the matches.
+        :param unique_interproscan_dict: A dict of unique interproscan objects indexed by a triple level dict.
+        """
+        interpro_signature = match_row['Signature_Accession']
+        protein_identifier = match_row['Protein_Accession']
+        e_value = match_row['E-value']
+        current_interproscan = unique_interproscan_dict[interpro_signature][protein_identifier][e_value]
+        step_assignment.interproscan_matches.append(current_interproscan)
+
+
+def load_assignment_caches_from_database_with_matches(engine):
+    """
+    Creates a series of assignment caches from an assignment database file.
+
+    :param engine: An SQLAlchemy engine
+    :return: List of assignment caches representing the assignments stored in the database.
+    """
+    current_session = sessionmaker(bind=engine)()
+
+    assignment_caches = []
+    for sample in current_session.query(Sample):
+        query_part_one = current_session.query(InterProScanMatch.interpro_signature,
+                                               InterProScanMatch.sequence_identifier,
+                                               InterProScanMatch.expected_value,
+                                               Sequence.sequence)
+
+        query_part_two = query_part_one.join(InterProScanMatch).join(step_match_association_table)
+        query_part_three = query_part_two.join(StepAssignment).join(PropertyAssignment).join(Sample)
+        final_query = query_part_three.filter(Sample.name == sample.name).distinct()
+
+        matches_frame = pd.read_sql(final_query.statement, engine)
+        matches_frame.columns = ['Signature_Accession', 'Protein_Accession', 'E-value', 'Sequence']
+        matches_frame.set_index('Signature_Accession', inplace=True)
+
+        sample_cache = AssignmentCacheWithMatches(sample_name=sample.name)
+        sample_cache.matches = matches_frame
+
+        load_sample_assignments_from_database(sample_cache, sample)
+
+        assignment_caches.append(sample_cache)
+
+    current_session.close()
+
+    return assignment_caches

@@ -153,14 +153,8 @@ class InterProScanMatch(Base):
     sequence = relationship('Sequence', back_populates='matches')
 
     def __repr__(self):
-        sequence = self.sequence
-        if sequence:
-            sequence_identifier = sequence.sequence
-        else:
-            sequence_identifier = 'unknown'
-
         return "<InterProScanMatch(sequence_identifier='{0:s}', signature='{1:s}', assignment='{2:1.3e}')>".format(
-            sequence_identifier,
+            self.sequence_identifier if self.sequence_identifier else 'unknown',
             self.interpro_signature if self.interpro_signature else 'unknown',
             self.expected_value if self.expected_value else 1337)
 

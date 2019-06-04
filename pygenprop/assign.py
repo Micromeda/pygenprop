@@ -392,19 +392,24 @@ class AssignmentCacheWithMatches(AssignmentCache):
     It also contains InterProScan and FASTA sequences supporting these assignments.
     """
 
-    def __init__(self, match_info_frame, sequence_frame, sample_name):
+    def __init__(self, match_info_frame=None, sequence_frame=None, sample_name=None):
         """
         Constructs the extended genome properties results object.
 
         :param match_info_frame: A pandas dataframe containing match information.
         :param sequence_frame: A panadas dataframe containing sequence information
         """
+        if match_info_frame is None or sequence_frame is None:
+            identifiers = None
+            self.matches = None
+        else:
+            self.matches = match_info_frame.merge(sequence_frame, left_on='Protein_Accession',
+                                                  right_on='Protein_Accession',
+                                                  copy=False).set_index('Signature_Accession')
 
-        identifiers = match_info_frame['Signature_Accession'].to_list()
+            identifiers = match_info_frame['Signature_Accession'].to_list()
+
         AssignmentCache.__init__(self, interpro_signature_accessions=identifiers, sample_name=sample_name)
-        self.matches = match_info_frame.merge(sequence_frame, left_on='Protein_Accession',
-                                              right_on='Protein_Accession',
-                                              copy=False).set_index('Signature_Accession')
 
 
 def calculate_property_assignment_from_required_steps(required_step_assignments: list, threshold: int = 0):
