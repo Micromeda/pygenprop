@@ -504,7 +504,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
 
         return step_matches
 
-    def get_proteins_for_step(self, genome_property_id, step_number, top=False):
+    def get_supporting_proteins_for_step(self, genome_property_id, step_number, top=False):
         """
         Creates a series of protein objects representing the proteins which support specific genome property steps.
 
@@ -528,7 +528,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         """
         return Protein(sequence=(match_row['Sequence']), metadata={'id': (match_row['Protein_Accession'])})
 
-    def write_step_match_fasta(self, file_handle, genome_property_id, step_number, top=False):
+    def write_supporting_proteins_for_step_fasta(self, file_handle, genome_property_id, step_number, top=False):
         """
         Write proteins which cause InterProScan matches for a genome property step to FASTA file.
 
@@ -537,7 +537,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :param step_number: The step number of the step.
         :param top: Get only the matches with the lowest e-value.
         """
-        match_sequences = self.get_proteins_for_step(genome_property_id, step_number, top=top)
+        match_sequences = self.get_supporting_proteins_for_step(genome_property_id, step_number, top=top)
 
         for sequence in match_sequences:
             sequence.write(file_handle, format='fasta')
@@ -697,7 +697,7 @@ def load_assignment_caches_from_database_with_matches(engine):
                                                InterProScanMatch.expected_value,
                                                Sequence.sequence)
 
-        query_part_two = query_part_one.join(InterProScanMatch).join(step_match_association_table)
+        query_part_two = query_part_one.join(Sequence).join(step_match_association_table)
         query_part_three = query_part_two.join(StepAssignment).join(PropertyAssignment).join(Sample)
         final_query = query_part_three.filter(Sample.name == sample.name).distinct()
 

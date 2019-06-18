@@ -405,7 +405,7 @@ class AssignmentCacheWithMatches(AssignmentCache):
         else:
             self.matches = match_info_frame.merge(sequence_frame, left_on='Protein_Accession',
                                                   right_on='Protein_Accession',
-                                                  copy=False).set_index('Signature_Accession')
+                                                  copy=False).drop_duplicates().set_index('Signature_Accession')
 
             identifiers = match_info_frame['Signature_Accession'].to_list()
 
