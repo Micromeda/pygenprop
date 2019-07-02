@@ -158,7 +158,7 @@ class TestEvidence(unittest.TestCase):
         ]
 
         evidence = parse_evidences(evidences)[0]
-        self.assertEqual(evidence.genome_property_identifiers, ['GenProp0066', 'GenProp0067'])
+        self.assertEqual(evidence.property_identifiers, ['GenProp0066', 'GenProp0067'])
 
     def test_get_interpro_identifiers(self):
         """Test that we can get the InterPro identifiers for an evidence."""
@@ -200,7 +200,7 @@ class TestEvidence(unittest.TestCase):
         test_evidence = self.tree.root.steps[0].functional_elements[0].evidence[0]
 
         self.assertEqual(test_evidence.has_genome_property, True)
-        self.assertEqual(test_evidence.genome_property_identifiers, ['GenProp0089'])
+        self.assertEqual(test_evidence.property_identifiers, ['GenProp0089'])
 
         test_child_genome_property = test_evidence.genome_properties[0]
 

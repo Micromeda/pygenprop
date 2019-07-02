@@ -31,7 +31,7 @@ class PropertyAssignment(Base):
 
     __tablename__ = 'property_assignments'
 
-    assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
+    property_assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
     property_number = Column(Integer)
     numeric_assignment = Column(Integer)  # 0 = YES, 1 = PARTIAL, 2 = NO
     sample_name = Column(String, ForeignKey('samples.name'))
@@ -119,12 +119,13 @@ class StepAssignment(Base):
     __tablename__ = 'step_assignments'
 
     step_assignment_identifier = Column(Integer, primary_key=True, autoincrement=True)
-    property_number = Column(Integer, ForeignKey('property_assignments.property_number'))
+    property_assignment_identifier = Column(Integer, ForeignKey('property_assignments.property_assignment_identifier'))
     number = Column(Integer)
 
     property_assignment = relationship('PropertyAssignment', back_populates='step_assignments')
     interproscan_matches = relationship('InterProScanMatch', secondary=step_match_association_table,
                                         back_populates='step_assignments')
+    assignment = 'YES'
 
     def __repr__(self):
         property_assignment = self.property_assignment
@@ -133,9 +134,8 @@ class StepAssignment(Base):
         else:
             property_identifier = 'unknown'
 
-        return "<StepAssignment(Property='{}', number='{}', assignment='YES')>".format(
-            property_identifier,
-            self.number)
+        return "<StepAssignment(Property='{}', number='{}', assignment={}')>".format(
+            property_identifier, self.number, self.assignment)
 
 
 class InterProScanMatch(Base):
@@ -153,14 +153,8 @@ class InterProScanMatch(Base):
     sequence = relationship('Sequence', back_populates='matches')
 
     def __repr__(self):
-        sequence = self.sequence
-        if sequence:
-            sequence_identifier = sequence.sequence
-        else:
-            sequence_identifier = 'unknown'
-
         return "<InterProScanMatch(sequence_identifier='{0:s}', signature='{1:s}', assignment='{2:1.3e}')>".format(
-            sequence_identifier,
+            self.sequence_identifier if self.sequence_identifier else 'unknown',
             self.interpro_signature if self.interpro_signature else 'unknown',
             self.expected_value if self.expected_value else 1337)
 

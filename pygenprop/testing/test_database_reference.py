@@ -43,6 +43,3 @@ class TestDatabaseReference(unittest.TestCase):
         references = parse_database_references(database_references)
 
         self.assertEqual(len(references), 2)
-
-
-
