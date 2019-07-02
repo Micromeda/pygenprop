@@ -454,7 +454,12 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         else:
             all_matches = self.step_matches
 
-        return all_matches.loc[sample]
+        try:
+            sample_matches = all_matches.loc[sample]
+        except KeyError:
+            sample_matches = None
+
+        return sample_matches
 
     def get_property_matches(self, genome_property_id, sample=None, top=False):
         """
@@ -477,6 +482,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
             else:
                 matches = all_matches.reorder_levels(['Property_Identifier', 'Step_Number',
                                                       'Sample_Name']).loc[genome_property_id]
+                matches = matches.reorder_levels(['Sample_Name', 'Step_Number'])
         except KeyError:
             matches = None
 
@@ -496,6 +502,9 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         try:
             property_matches = self.get_property_matches(genome_property_id, sample=sample, top=top)
             if property_matches is not None:
+                if isinstance(property_matches.index, pd.MultiIndex):
+                    property_matches = property_matches.reorder_levels(['Step_Number', 'Sample_Name'])
+
                 step_matches = property_matches.loc[step_number]
             else:
                 step_matches = None
@@ -513,10 +522,14 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :param top: Get only the matches with the lowest e-value.
         :return: A list of protein sequence objects
         """
-        step_sequences = self.get_step_matches(genome_property_id, step_number,
-                                               top=top)[['Protein_Accession', 'Sequence']]
+        step_matches = self.get_step_matches(genome_property_id, step_number, top=top)
 
-        return step_sequences.apply(self.create_skbio_protein_sequence, axis=1).tolist()
+        if step_matches is not None:
+            step_sequences = step_matches[['Protein_Accession', 'Sequence']]
+            proteins = step_sequences.apply(self.create_skbio_protein_sequence, axis=1).tolist()
+        else:
+            proteins = None
+        return proteins
 
     @staticmethod
     def create_skbio_protein_sequence(match_row):
@@ -539,8 +552,11 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         """
         match_sequences = self.get_supporting_proteins_for_step(genome_property_id, step_number, top=top)
 
-        for sequence in match_sequences:
-            sequence.write(file_handle, format='fasta')
+        if match_sequences is not None:
+            for sequence in match_sequences:
+                sequence.write(file_handle, format='fasta')
+        else:
+            raise KeyError
 
     def get_unique_matches(self, sample=None, top=False, sequences=False):
         """

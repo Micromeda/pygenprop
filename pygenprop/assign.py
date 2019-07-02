@@ -407,7 +407,7 @@ class AssignmentCacheWithMatches(AssignmentCache):
                                                   right_on='Protein_Accession',
                                                   copy=False).drop_duplicates().set_index('Signature_Accession')
 
-            identifiers = match_info_frame['Signature_Accession'].to_list()
+            identifiers = match_info_frame['Signature_Accession'].tolist()
 
         AssignmentCache.__init__(self, interpro_signature_accessions=identifiers, sample_name=sample_name)
 
