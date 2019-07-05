@@ -369,6 +369,12 @@ def load_assignment_caches_from_database(engine):
 
 
 def load_sample_assignments_from_database(sample_cache, sample):
+    """
+    For a given sample, loads the sample property and step assignments from the database.
+
+    :param sample_cache: A sample cache to put property and step assignments into.
+    :param sample: A Sample object (SQLAlchemy table class)
+    """
     for property_assignment in sample.property_assignments:
         sample_cache.cache_property_assignment(property_assignment.identifier, property_assignment.assignment)
         for step_assignment in property_assignment.step_assignments:
