@@ -14,4 +14,5 @@ script:
   - ./pygenprop/testing/test_parse_genome_properties_file.py -i ./genome-properties/flatfiles/genomeProperties.txt
   - ./pygenprop/testing/test_parse_genome_properties_assignments.py -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt -o ./test1.json
   - ./pygenprop/testing/test_parse_interproscan.py -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.tsv -o ./test2.json
+  - ./pygenprop/testing/test_generate_micromeda_file.py -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.tsv pygenprop/testing/test_constants/C_luteolum_DSM_273.tsv -o ./test_micro_file.micro -p
   - ./pygenprop/testing/test_parse_genome_properties_end_to_end.sh
