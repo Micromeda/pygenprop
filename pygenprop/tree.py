@@ -216,7 +216,10 @@ class GenomePropertiesTree(object):
         global_identifiers = []
         for genome_property in self:
             for step in genome_property.steps:
-                global_identifiers.extend(step.get_evidence_identifiers(consortium))
+                if consortium:
+                    global_identifiers.extend(step.consortium_identifiers)
+                else:
+                    global_identifiers.extend(step.interpro_identifiers)
 
         return set(global_identifiers)
 

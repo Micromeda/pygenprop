@@ -83,7 +83,7 @@ class Step(object):
 
         :return: A set of all unique consortium identifiers used used by the step.
         """
-        return self.get_evidence_identifiers(consortium=True)
+        return self._get_evidence_identifiers(consortium=True)
 
     @property
     def interpro_identifiers(self):
@@ -92,9 +92,9 @@ class Step(object):
 
         :return: A set of all unique InterPro identifiers used used by the step.
         """
-        return self.get_evidence_identifiers()
+        return self._get_evidence_identifiers()
 
-    def get_evidence_identifiers(self, consortium=False):
+    def _get_evidence_identifiers(self, consortium=False):
         """
         Gets evidence identifiers from all evidences of the step.
 
