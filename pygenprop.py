@@ -37,10 +37,10 @@ def main(args):
         genome_properties_tree, sanitized_input_file_paths = get_shared_args(args)
         add_proteins = args.add_protein_sequences
         build_micromeda_file(genome_properties_tree, sanitized_input_file_paths, output_file_path, add_proteins)
-    if hasattr(args, 'merge'):
+    elif hasattr(args, 'merge'):
         genome_properties_tree, sanitized_input_file_paths = get_shared_args(args)
         merge_micromeda_files(genome_properties_tree, sanitized_input_file_paths, output_file_path)
-    if hasattr(args, 'info'):
+    elif hasattr(args, 'info'):
         micromeda_file_info(args.input_file_path)
     else:
         parser.print_help()
@@ -170,8 +170,8 @@ def micromeda_file_info(micromeda_file_path):
     The Micromeda file contains the following:
     
     Samples: {}
-    Properties: {}
-    Steps: {}
+    Property Assignments: {}
+    Step Assignments: {}
     InterProScan Matches: {}
     Protein Sequences: {}
     """.format(sample_count, property_count, step_count, match_count, sequence_count)
