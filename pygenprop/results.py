@@ -16,8 +16,8 @@ from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
 
 from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
-from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment, InterProScanMatch, Sequence, \
-    step_match_association_table
+from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment, InterProScanMatch, \
+    Sequence, step_match_association_table
 from pygenprop.tree import GenomePropertiesTree
 
 
