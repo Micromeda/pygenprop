@@ -17,6 +17,7 @@ setup(name='pygenprop',
       license='Apache License 2.0',
       packages=['pygenprop'],
       install_requires=[
+          'numpy>=1.13.3'
           'Cython>=0.29.13',
           'pandas>=0.25.1',
           'sqlalchemy>=1.3.12',
