@@ -2,14 +2,14 @@
 set -euo pipefail
 
 extract_info_stats() {
-# Converts human readable output from pygenprop.py info into a column of numbers.
+# Converts human readable output from pygenprop info into a column of numbers.
     grep -v 'The Micromeda file contains the following:' | grep ":" | cut -d':' -f 2 | awk '{$1=$1};1'
 }
 
-RESULT_JOINED=$(./pygenprop.py info -i joined_cloroflexi_data.micro | extract_info_stats)
-RESULT_LUT=$(./pygenprop.py info -i luteolum_data.micro | extract_info_stats)
-RESULT_CHL=$(./pygenprop.py info -i chloromatii_data.micro | extract_info_stats)
-RESULT_MERGED=$(./pygenprop.py info -i merged_cholorflexi_data.micro | extract_info_stats)
+RESULT_JOINED=$(pygenprop info -i joined_cloroflexi_data.micro | extract_info_stats)
+RESULT_LUT=$(pygenprop info -i luteolum_data.micro | extract_info_stats)
+RESULT_CHL=$(pygenprop info -i chloromatii_data.micro | extract_info_stats)
+RESULT_MERGED=$(pygenprop info -i merged_cholorflexi_data.micro | extract_info_stats)
 
 if [[ ${RESULT_JOINED} == ${RESULT_MERGED} ]]
 then

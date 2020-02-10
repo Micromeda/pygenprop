@@ -9,7 +9,7 @@ Description: Setup for installing pygenprop.
 from setuptools import setup
 
 setup(name='pygenprop',
-      version='0.5',
+      version='0.8',
       description='A python library for programmatic usage of EBI InterPro Genome Properties.',
       url='https://github.com/Micromeda/pygenprop',
       author='Lee Bergstrand',
@@ -17,9 +17,10 @@ setup(name='pygenprop',
       license='Apache License 2.0',
       packages=['pygenprop'],
       install_requires=[
-          'Cython>=0.28.5',
-          'pandas>=0.23.4',
-          'sqlalchemy>=1.2.18',
+          'Cython>=0.29.13',
+          'pandas>=0.25.1',
+          'sqlalchemy>=1.3.12',
           'scikit-bio>=0.5.5'
       ],
-      zip_safe=False)
+      scripts=['bin/pygenprop'],
+      zip_safe=True)
