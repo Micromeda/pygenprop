@@ -219,7 +219,7 @@ The **build** command is used to generate Micromeda files. It requires a copy of
 pygenprop build -d ./genomeProperties.txt -i *.tsv -o ecoli_genomes_properties.micro
 ```
 
-The `-p` flag is used to add protein sequences to the output Micromeda file. With this flag active, Pygenprop searches the FASTA files that were scanned by InterProScan for proteins that support genome property steps and adds them to the output Micromeda file. The FASTA files must be in the same directory as the InterProScan files and share the same basename (e.g., filename without file extension).
+The **build** command has a `-p` flag that is used to add protein sequences to the output Micromeda file. With this flag active, Pygenprop searches the FASTA files that were scanned by InterProScan for proteins that support genome property steps and adds them to the output Micromeda file. The FASTA files must be in the same directory as the InterProScan files and share the same basename (e.g., filename without file extension).
 
 ```
 data/
@@ -230,13 +230,13 @@ data/
 
 ```
 
-For the above directory structure the following shell command would be used:
+For the above directory structure the following shell command would be used to generate a Micromeda file that integrates protein sequences:
 
 ```bash
 pygenprop build -d ./genomeProperties.txt -i *.tsv -o ecoli_genomes_properties.micro -p
 ```
 
-The **merge** command is used to merge multiple Micromeda files into a single output Micromeda file. It requires a copy of ```genomeProperties.txt```.
+The **merge** command is used to merge multiple Micromeda files into a single output Micromeda file. It also requires a copy of ```genomeProperties.txt```.
 
 ```bash
 pygenprop merge -d ./genomeProperties.txt -i *.micro -o merged_ecoli_genomes_properties.micro
