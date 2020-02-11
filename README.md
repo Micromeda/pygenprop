@@ -92,7 +92,7 @@ Usage
 
 A typical use case for Pygenprop will involve a researcher seeking to compute and compare Genome Properties between organisms of interest. For example, a researcher may have discovered a novel bacterium and would want to compare its functional capabilities to other bacteria within the same genus. The researcher could start the analysis by opening up a Jupyter Notebook and directly importing pre-calculated InterProScan annotations for novel and reference genomes within the same genus. Below is an example code for comparing virulence genome properties of *E. coli* K12 and O157:H7.
 
-**An interactive Jupyter notebook version of this workflow, with outputs for each step, can be found [here](https://github.com/Micromeda/pygenprop/blob/master/docs/source/_static/tutorial/tutorial.ipynb)**. Full API documentation is available [here](https://pygenprop.readthedocs.io/en/latest/py-modindex.html).
+**An interactive Jupyter Notebook with an extended version of this workflow, with outputs for each step, can be found [here](https://github.com/Micromeda/pygenprop/blob/master/docs/source/_static/tutorial/tutorial.ipynb)**. Full API documentation is available [here](https://pygenprop.readthedocs.io/en/latest/py-modindex.html).
 
 
 ```python
