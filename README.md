@@ -54,9 +54,9 @@ Pygenprop will be continually updated to take into account changes in the schema
 
 | Genome Properties Release     | genomeProperties.txt URL    | Compatible Pygenprop Release     |
 |---------------------------    |----------------------        |-------------------    |
-| 1.1     | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel1.1/flatfiles/genomeProperties.txt     | >= 0.5     |
-| 2.0     |  https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel2.0/flatfiles/genomeProperties.txt    | >= 0.5     |
-| Latest    | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt | >= 0.5
+| 1.1     | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel1.1/flatfiles/genomeProperties.txt     | >= 0.6     |
+| 2.0     |  https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel2.0/flatfiles/genomeProperties.txt    | >= 0.6     |
+| Latest    | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt | >= 0.6
 
 #### Accessing Non-public Properties
 
