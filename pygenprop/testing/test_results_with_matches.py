@@ -55,7 +55,7 @@ class TestResults(unittest.TestCase):
 
         results = GenomePropertiesResultsWithMatches(*self.test_genome_property_results, properties_tree=self.test_tree)
 
-        self.assertEqual(len(results.top_step_matches), 2)
+        self.assertEqual(len(results._top_step_matches), 2)
 
         cad3_top_matches = results.get_sample_matches('C_chlorochromatii_CaD3', top=True)
         dsm_273_top_matches = results.get_sample_matches('C_luteolum_DSM_273', top=True)

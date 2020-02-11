@@ -434,19 +434,6 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
 
         self.step_matches = supported_step_matches.sort_index()
 
-    @property
-    def top_step_matches(self):
-        """
-        Filters matches to those with the lowest E-values.
-
-        :return: A step matches dataframe
-        """
-        return self.step_matches.sort_values('E-value').groupby(['Sample_Name',
-                                                                 'Property_Identifier',
-                                                                 'Step_Number'])['Signature_Accession',
-                                                                                 'Protein_Accession',
-                                                                                 'E-value', 'Sequence'].first()
-
     def get_sample_matches(self, sample, top=False):
         """
         Get matches for a single sample.
@@ -456,7 +443,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :return:
         """
         if top:
-            all_matches = self.top_step_matches
+            all_matches = self._top_step_matches
         else:
             all_matches = self.step_matches
 
@@ -478,7 +465,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         """
 
         if top:
-            all_matches = self.top_step_matches
+            all_matches = self._top_step_matches
         else:
             all_matches = self.step_matches
 
@@ -526,26 +513,16 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :param genome_property_id: The id of the genome property that the step belongs too.
         :param step_number: The step number of the step.
         :param top: Get only the matches with the lowest e-value.
-        :return: A list of protein sequence objects
+        :return: A list of skbio protein sequence objects
         """
         step_matches = self.get_step_matches(genome_property_id, step_number, top=top)
 
         if step_matches is not None:
-            step_sequences = step_matches[['Protein_Accession', 'Sequence']]
+            step_sequences = step_matches.reset_index()[['Sample_Name', 'Protein_Accession', 'Sequence']]
             proteins = step_sequences.apply(self.create_skbio_protein_sequence, axis=1).tolist()
         else:
             proteins = None
         return proteins
-
-    @staticmethod
-    def create_skbio_protein_sequence(match_row):
-        """
-        Creates a protein object from a row of a step matches dataframe.
-
-        :param match_row: A dataframe row from a step matches dataframe
-        :return: A protien object
-        """
-        return Protein(sequence=(match_row['Sequence']), metadata={'id': (match_row['Protein_Accession'])})
 
     def write_supporting_proteins_for_step_fasta(self, file_handle, genome_property_id, step_number, top=False):
         """
@@ -563,50 +540,6 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
                 sequence.write(file_handle, format='fasta')
         else:
             raise KeyError
-
-    def get_unique_matches(self, sample=None, top=False, sequences=False):
-        """
-        Get unique matches for a sample or across all samples in the dataset.
-
-        :param sample: The sample for which to grab results for.
-        :param top: Get only the matches with the lowest e-value.
-        :param sequences: Retrieve only unique protein sequences
-        :return: A dataframe of unique matches
-        """
-        if top:
-            all_matches = self.top_step_matches
-        else:
-            all_matches = self.step_matches
-
-        if sample:
-            all_matches = all_matches.loc[sample]
-
-        if sequences:
-            result = all_matches.reset_index()[['Protein_Accession', 'Sequence']].drop_duplicates()
-        else:
-            result = all_matches.reset_index()[['Signature_Accession', 'Protein_Accession',
-                                                'E-value']].drop_duplicates()
-        return result
-
-    def get_unique_interproscan_matches(self, sample=None, top=False):
-        """
-        Get unique interproscan matches for a sample or across all samples in the dataset.
-
-        :param sample: The sample for which to grab results for.
-        :param top: Get only the matches with the lowest e-value.
-        :return: A dataframe of unique inteproscan matches
-        """
-        return self.get_unique_matches(sample=sample, top=top)
-
-    def get_unique_sequences(self, sample=None, top=False):
-        """
-        Get unique sequences for a sample or across all samples in the dataset.
-
-        :param sample: The sample for which to grab results for.
-        :param top: Get only the matches with the lowest e-value.
-        :return: A dataframe of unique sequences
-        """
-        return self.get_unique_matches(sample=sample, top=top, sequences=True)
 
     def to_assignment_database(self, engine: SQLAlchemyEngine, drop_existing=True):
         """
@@ -627,10 +560,10 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
 
         for sample in current_session.query(Sample):
 
-            unique_interproscan = self.get_unique_interproscan_matches(sample.name).apply(
+            unique_interproscan = self._get_unique_interproscan_matches(sample.name).apply(
                 self.create_interproscan_match,
                 axis=1).tolist()
-            unique_sequences = self.get_unique_sequences(sample.name).apply(self.create_sequence, axis=1).tolist()
+            unique_sequences = self._get_unique_sequences(sample.name).apply(self.create_sequence, axis=1).tolist()
 
             current_session.add_all([*unique_interproscan, *unique_sequences])
 
@@ -663,6 +596,75 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
 
         current_session.commit()
         current_session.close()
+
+    @property
+    def _top_step_matches(self):
+        """
+        Filters matches to those with the lowest E-values.
+
+        :return: A step matches dataframe
+        """
+        return self.step_matches.sort_values('E-value').groupby(['Sample_Name',
+                                                                 'Property_Identifier',
+                                                                 'Step_Number'])['Signature_Accession',
+                                                                                 'Protein_Accession',
+                                                                                 'E-value', 'Sequence'].first()
+
+    def _get_unique_matches(self, sample=None, top=False, sequences=False):
+        """
+        If a protein contains multiple copies of the exact same domain, only return one copy.
+        Get unique matches for a sample or across all samples in the dataset.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :param sequences: Retrieve only unique protein sequences
+        :return: A dataframe of unique matches
+        """
+        if top:
+            all_matches = self._top_step_matches
+        else:
+            all_matches = self.step_matches
+
+        if sample:
+            all_matches = all_matches.loc[sample]
+
+        if sequences:
+            result = all_matches.reset_index()[['Protein_Accession', 'Sequence']].drop_duplicates()
+        else:
+            result = all_matches.reset_index()[['Signature_Accession', 'Protein_Accession',
+                                                'E-value']].drop_duplicates()
+        return result
+
+    def _get_unique_interproscan_matches(self, sample=None, top=False):
+        """
+        Get unique interproscan matches for a sample or across all samples in the dataset.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :return: A dataframe of unique inteproscan matches
+        """
+        return self._get_unique_matches(sample=sample, top=top)
+
+    def _get_unique_sequences(self, sample=None, top=False):
+        """
+        Get unique sequences for a sample or across all samples in the dataset.
+
+        :param sample: The sample for which to grab results for.
+        :param top: Get only the matches with the lowest e-value.
+        :return: A dataframe of unique sequences
+        """
+        return self._get_unique_matches(sample=sample, top=top, sequences=True)
+
+    @staticmethod
+    def create_skbio_protein_sequence(match_row):
+        """
+        Creates a protein object from a row of a step matches dataframe.
+
+        :param match_row: A dataframe row from a step matches dataframe
+        :return: A protein object
+        """
+        metadata = {'id': match_row['Protein_Accession'], 'description': ('(From ' + match_row['Sample_Name'] + ')')}
+        return Protein(sequence=match_row['Sequence'], metadata=metadata)
 
     @staticmethod
     def create_interproscan_match(match_row):
