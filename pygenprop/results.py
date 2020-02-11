@@ -515,10 +515,10 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         :param top: Get only the matches with the lowest e-value.
         :return: A list of skbio protein sequence objects
         """
-        step_matches = self.get_step_matches(genome_property_id, step_number, top=top).reset_index()
+        step_matches = self.get_step_matches(genome_property_id, step_number, top=top)
 
         if step_matches is not None:
-            step_sequences = step_matches[['Sample_Name', 'Protein_Accession', 'Sequence']]
+            step_sequences = step_matches.reset_index()[['Sample_Name', 'Protein_Accession', 'Sequence']]
             proteins = step_sequences.apply(self.create_skbio_protein_sequence, axis=1).tolist()
         else:
             proteins = None
