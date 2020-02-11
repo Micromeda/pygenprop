@@ -8,6 +8,12 @@ Description: Setup for installing pygenprop.
 
 from setuptools import setup
 
+# read the contents of your README file
+from os import path
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as readme_file:
+    long_description = readme_file.read()
+
 setup(name='pygenprop',
       version='0.8',
       description='A python library for programmatic usage of EBI InterPro Genome Properties.',
@@ -24,4 +30,6 @@ setup(name='pygenprop',
           'scikit-bio>=0.5.5'
       ],
       scripts=['bin/pygenprop'],
-      zip_safe=True)
+      zip_safe=True,
+      long_description=long_description,
+      long_description_content_type='text/markdown')
