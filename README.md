@@ -80,10 +80,14 @@ Pygenprop can assign genome properties to an organism from [InterProScan annotat
 
 InterProScan generates InterProScan annotation TSV files via domain annotation of an organism's proteins. Details and install instructions for InterProScan5 can be found [here](https://github.com/ebi-pf-team/interproscan/wiki). For convenience, a Docker container for installing and running InterProScan5 can be found [here](https://github.com/Micromeda/InterProScan-Docker).
 
+#### Integrating Protein Sequences
+
+Pygenprop can be used to extract protein sequences that provide evidence for an organism possessing a genome property.  To use this feature, the organism's proteome FASTA files that were annotated by InterProScan must be opened and passed to Pygenprop. See the workflow below for more details on using this feature. 
+
 Micromeda Files
 ---------------
 
-Micromeda files are a new SQLite3-based pathway annotation storage format that allows for the simultaneous transfer of multiple organism's Genome Properties assignments and supporting information such as InterProScan annotations and protein sequences. These files allow for the transfer of complete Genome properties Datasets between researchers and software applications.
+Pygenprop can generate Micromeda files, which are a new SQLite3-based pathway annotation storage format that allows for the simultaneous transfer of multiple organism's Genome Properties assignments and supporting information. Examples of supporting information include the InterProScan annotations and protein sequences that support assignments. These files allow for the transfer of complete Genome properties Datasets between researchers and software applications.
 
 Usage
 -----
@@ -103,6 +107,9 @@ from pygenprop.results import GenomePropertiesResults, GenomePropertiesResultsWi
 from pygenprop.database_file_parser import parse_genome_properties_flat_file
 from pygenprop.assignment_file_parser import parse_interproscan_file, \
     parse_interproscan_file_and_fasta_file
+
+# Compare Properties and Steps Across Organisms 
+# =============================================
 
 # Parse the flatfile database
 with open('properties.txt') as file:
@@ -138,6 +145,10 @@ virulence_assignments = results.get_results(*types_of_vir,
 virulence_summary = results.get_results_summary(*types_of_vir, 
                                                 steps=True, 
                                                 normalize=True)
+
+# Analyze InterProScan Annotations and Protein Sequences
+# That Support Genome Properties Across Organisms
+# ==================================================
 
 # Parse InterProScan files and FASTA files
 with open('./E_coli_K12.tsv') as ipr5_file_one:
