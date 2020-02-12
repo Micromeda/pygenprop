@@ -80,16 +80,16 @@ class TestParseLongform(unittest.TestCase):
     def test_parse_interproscan_file(self):
         """Test parsing assignments from InterProScan tsv files."""
 
-        simulated_interproscan_file = """1\t1\t1\t1\tTIGR00063
-        1\t1\t1\t1\tTIGR00065
-        1\t1\t1\t1\tTIGR00067
-        1\t1\t1\t1\tTIGR00063"""
+        simulated_interproscan_file = """BGM_001\t1\t1\t1\tTIGR00063\t1\t1\t1\t0.2567
+        BGM_002\t1\t1\t1\tTIGR00065\t1\t1\t1\t0.2567
+        BGM_003\t1\t1\t1\tTIGR00067\t1\t1\t1\t0.2567
+        BGM_004\t1\t1\t1\tTIGR00063\t1\t1\t1\t0.2567"""
 
         rows = StringIO(simulated_interproscan_file)
         rows.name = './testing/test1'
 
         assignment_cache = parse_interproscan_file(rows)
-        cached_interproscan_member_database_identifiers = assignment_cache.interpro_member_database_identifiers
+        cached_interproscan_member_database_identifiers = assignment_cache.interpro_signature_accessions
 
         self.assertEqual(len(cached_interproscan_member_database_identifiers), 3)
         self.assertEqual(cached_interproscan_member_database_identifiers, {'TIGR00063', 'TIGR00065', 'TIGR00067'})

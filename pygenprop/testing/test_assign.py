@@ -9,8 +9,7 @@ Description: A simple unittest for testing the assign module.
 import unittest
 
 from pygenprop.assign import calculate_property_assignment_from_required_steps, \
-    calculate_property_assignment_from_all_steps, AssignmentCache, calculate_step_or_functional_element_assignment, \
-    assign_evidence, assign_functional_element, assign_step, assign_genome_property
+    calculate_property_assignment_from_all_steps, AssignmentCache, calculate_step_or_functional_element_assignment
 from pygenprop.database_file_parser import parse_evidences, parse_functional_elements, parse_steps, \
     parse_genome_property
 from pygenprop.genome_property import GenomeProperty
@@ -79,7 +78,12 @@ class TestAssign(unittest.TestCase):
             ('SN', '1'),
             ('ID', 'LLM-family F420-associated subfamilies'),
             ('RQ', '0'),
-            ('EV', 'IPR019910; TIGR03565; sufficient;')
+            ('EV', 'IPR019910; TIGR03565; sufficient;'),
+            ('--', ''),
+            ('SN', '2'),
+            ('ID', 'LLM-family F420-associated subfamilies 2'),
+            ('RQ', '0'),
+            ('EV', 'IPR019910; TIGR03566; sufficient;')
         ]
 
         property_one = parse_genome_property(property_rows_one)
@@ -289,10 +293,9 @@ class TestAssign(unittest.TestCase):
         test_cache = AssignmentCache()
         test_cache.cache_property_assignment('GenProp0067', 'YES')
         test_cache.cache_property_assignment('GenProp0092', 'NO')
-        identifiers = test_cache.genome_property_identifiers
-        identifiers.sort()
+        identifiers = test_cache.property_identifiers
 
-        self.assertEqual(identifiers, ['GenProp0067', 'GenProp0092'])
+        self.assertEqual(identifiers, {'GenProp0067', 'GenProp0092'})
 
     def test_assign_evidence_from_no_interpro_identifiers(self):
         """Test we can assign evidence when no InterPro identifiers are in the assignment cache."""
@@ -311,14 +314,14 @@ class TestAssign(unittest.TestCase):
 
         evidence = parse_evidences(evidence)[0]
 
-        assignment = assign_evidence(test_cache, evidence)
+        assignment = test_cache.bootstrap_assignments_from_evidence(evidence)
 
         self.assertEqual(assignment, 'NO')
 
     def test_assign_evidence_from_interpro_identifiers(self):
         """Test that we can assign evidence based on InterPro identifiers in the assignment cache."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03114', 'TIGR03115', 'TIGR03113'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03114', 'TIGR03115', 'TIGR03113'])
 
         evidence = [
             ('--', ''),
@@ -332,14 +335,14 @@ class TestAssign(unittest.TestCase):
 
         evidence = parse_evidences(evidence)[0]
 
-        assignment = assign_evidence(test_cache, evidence)
+        assignment = test_cache.bootstrap_assignments_from_evidence(evidence)
 
         self.assertEqual(assignment, 'YES')
 
     def test_assign_evidence_when_missing_interpro_identifiers(self):
         """Test assign evidence based on InterPro identifiers that are missing from the assignment cache."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03192', 'TIGR03193', 'TIGR03194'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03192', 'TIGR03193', 'TIGR03194'])
 
         evidence = [
             ('--', ''),
@@ -353,14 +356,14 @@ class TestAssign(unittest.TestCase):
 
         evidence = parse_evidences(evidence)[0]
 
-        assignment = assign_evidence(test_cache, evidence)
+        assignment = test_cache.bootstrap_assignments_from_evidence(evidence)
 
         self.assertEqual(assignment, 'NO')
 
     def test_assign_functional_element_all_identifiers(self):
         """Test assignment of a functional element when all evidence markers are present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03114', 'TIGR03117', 'TIGR03120'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03114', 'TIGR03117', 'TIGR03120'])
 
         functional_element = [
             ('--', ''),
@@ -376,14 +379,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'YES')
 
     def test_assign_functional_element_one_non_sufficient_identifier(self):
         """Test assignment of a functional element when there is one non-sufficient identifier present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03115', 'TIGR03118', 'TIGR03120'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03115', 'TIGR03118', 'TIGR03120'])
 
         functional_element = [
             ('--', ''),
@@ -399,14 +402,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
     def test_assign_functional_element_when_two_sufficient_identifiers(self):
         """Test assignment of a functional element when there are two sufficient identifiers and one is present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03115', 'TIGR03117', 'TIGR03121'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03115', 'TIGR03117', 'TIGR03121'])
 
         functional_element = [
             ('--', ''),
@@ -422,14 +425,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'YES')
 
     def test_assign_functional_element_when_two_sufficient_identifiers_both_not_present(self):
         """Test assignment of a functional element when two sufficient identifiers and both are not present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03115', 'TIGR03118', 'TIGR03121'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03115', 'TIGR03118', 'TIGR03121'])
 
         functional_element = [
             ('--', ''),
@@ -445,14 +448,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
     def test_assign_functional_element_no_sufficient_one_present(self):
         """Test assignment of a functional element when no sufficient identifiers and one is present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03115', 'TIGR03117', 'TIGR03120'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03115', 'TIGR03117', 'TIGR03120'])
 
         functional_element = [
             ('--', ''),
@@ -468,14 +471,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
     def test_assign_functional_element_no_sufficient_all_present(self):
         """Test assignment of a functional element when no sufficient identifiers and all present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03114', 'TIGR03117', 'TIGR03120'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03114', 'TIGR03117', 'TIGR03120'])
 
         functional_element = [
             ('--', ''),
@@ -491,14 +494,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'YES')
 
     def test_assign_functional_element_none_sufficient_all_not_present(self):
         """Test assignment of a functional element when no sufficient identifiers and none present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03115', 'TIGR03118', 'TIGR03121'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03115', 'TIGR03118', 'TIGR03121'])
 
         functional_element = [
             ('--', ''),
@@ -514,14 +517,14 @@ class TestAssign(unittest.TestCase):
 
         parsed_functional_element = parse_functional_elements(functional_element)[0]
 
-        assignment = assign_functional_element(test_cache, parsed_functional_element)
+        assignment = test_cache.bootstrap_assignments_from_functional_element(parsed_functional_element)
 
         self.assertEqual(assignment, 'NO')
 
     def test_assign_step_multiple_functional_elements_one_present(self):
         """Test assignment of multiple elements and one present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03114'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03114'])
         parent_genome_property = GenomeProperty(accession_id='GenProp0065', name='YOLO', property_type="TEMP")
 
         step = [
@@ -538,7 +541,7 @@ class TestAssign(unittest.TestCase):
         parsed_step = parse_steps(step)[0]
         parsed_step.parent = parent_genome_property
 
-        step_assignment = assign_step(test_cache, parsed_step)
+        step_assignment = test_cache.bootstrap_assignments_from_step(parsed_step)
 
         self.assertEqual(step_assignment, 'YES')
         self.assertEqual(test_cache.get_step_assignment('GenProp0065', 1), 'YES')
@@ -563,7 +566,7 @@ class TestAssign(unittest.TestCase):
         parsed_step = parse_steps(step)[0]
         parsed_step.parent = parent_genome_property
 
-        step_assignment = assign_step(test_cache, parsed_step)
+        step_assignment = test_cache.bootstrap_assignments_from_step(parsed_step)
 
         self.assertEqual(step_assignment, 'NO')
         self.assertEqual(test_cache.get_step_assignment('GenProp0065', 1), 'NO')
@@ -571,20 +574,20 @@ class TestAssign(unittest.TestCase):
     def test_genome_property_assignment_non_required_all_identifiers_present(self):
         """Test assignment of a genome property when all marker are present but none are required."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03565'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03564', 'TIGR03565'])
         test_property = self.tree.root
 
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
 
     def test_genome_property_assignment_non_required_one_present(self):
         """Test assignment of a genome property when one marker is present but none are required."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03565'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03565'])
         test_property = self.tree.root
 
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'PARTIAL')
 
@@ -594,14 +597,14 @@ class TestAssign(unittest.TestCase):
         test_cache = AssignmentCache()
         test_property = self.tree.root
 
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'NO')
 
     def test_genome_property_assignment_one_required_one_present(self):
         """Test assignment of genome properties when one marker is required and one is present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03564'])
 
         property_rows = [
             ('AC', 'GenProp0089'),
@@ -627,14 +630,14 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
 
     def test_genome_property_assignment_two_required_two_present(self):
         """Test assignment of genome properties when two markers are required and two are present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03567'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03564', 'TIGR03567'])
 
         property_rows = [
             ('AC', 'GenProp0089'),
@@ -660,7 +663,7 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'PARTIAL')
 
@@ -693,14 +696,14 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'NO')
 
     def test_genome_property_assignment_two_required_all_present(self):
         """Test assignment of genome properties when two markers are required and all are present."""
 
-        test_cache = AssignmentCache(interpro_member_database_identifiers=['TIGR03564', 'TIGR03567', 'TIGR03568'])
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03564', 'TIGR03567', 'TIGR03568'])
 
         property_rows = [
             ('AC', 'GenProp0089'),
@@ -726,6 +729,24 @@ class TestAssign(unittest.TestCase):
         test_property = parse_genome_property(property_rows)
 
         test_property.threshold = 0
-        assignment = assign_genome_property(test_cache, test_property)
+        assignment = test_cache.bootstrap_assignments_from_genome_property(test_property)
 
         self.assertEqual(assignment, 'YES')
+
+    def test_assign_missing_step_assignments(self):
+        """Test that we can get assignment results for all steps."""
+
+        test_cache = AssignmentCache(interpro_signature_accessions=['TIGR03564', 'TIGR03565', 'TIGR03567'])
+        test_cache.bootstrap_assignments(self.tree)
+
+        step_assignments = test_cache.step_assignments
+
+        del step_assignments['GenProp0092']
+        test_cache.bootstrap_assignments(self.tree)
+
+        self.assertIn('GenProp0092', step_assignments.keys())
+
+        del step_assignments['GenProp0092'][2]
+        test_cache.bootstrap_assignments(self.tree)
+
+        self.assertIn(2, step_assignments['GenProp0092'])

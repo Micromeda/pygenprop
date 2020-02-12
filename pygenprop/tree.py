@@ -8,6 +8,9 @@ Description: The genome property tree class.
 
 import json
 import csv
+import pandas as pd
+
+from pygenprop.genome_property import GenomeProperty
 
 
 class GenomePropertiesTree(object):
@@ -176,6 +179,25 @@ class GenomePropertiesTree(object):
         return self.get_evidence_identifiers(consortium=True)
 
     @property
+    def consortium_identifiers_dataframe(self):
+        """
+        All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the genome properties database.
+
+        :return: A pandas dataframe.
+        """
+        consortium_mapping = []
+        for genome_property in self:
+            for step in genome_property.steps:
+                for identifier in step.consortium_identifiers:
+                    consortium_mapping.append((genome_property.id, step.number, identifier))
+
+        consortium_dataframe = pd.DataFrame(data=consortium_mapping, columns=['Property_Identifier', 'Step_Number',
+                                                                              'Signature_Accession'])
+        consortium_dataframe.set_index(['Property_Identifier', 'Step_Number'], inplace=True)
+
+        return consortium_dataframe
+
+    @property
     def interpro_identifiers(self):
         """
         All global InterPro identifiers (IPRXXXX, etc.) used by the genome properties database.
@@ -194,15 +216,10 @@ class GenomePropertiesTree(object):
         global_identifiers = []
         for genome_property in self:
             for step in genome_property.steps:
-                for functional_element in step.functional_elements:
-                    for evidence in functional_element.evidence:
-                        if consortium:
-                            current_identifiers = evidence.consortium_identifiers
-                        else:
-                            current_identifiers = evidence.interpro_identifiers
-
-                        if current_identifiers:
-                            global_identifiers.extend(current_identifiers)
+                if consortium:
+                    global_identifiers.extend(step.consortium_identifiers)
+                else:
+                    global_identifiers.extend(step.interpro_identifiers)
 
         return set(global_identifiers)
 
@@ -226,13 +243,13 @@ class GenomePropertiesTree(object):
                     mapping_data.append(sanitized_row)
         csv.writer(file_handle).writerows(mapping_data)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> GenomeProperty:
         return self.genome_properties_dictionary.get(item)
 
     def __len__(self):
         return len(self.genome_properties_dictionary)
 
-    def __iter__(self):
+    def __iter__(self) -> GenomeProperty:
         for genome_property in self.genome_properties_dictionary.values():
             yield genome_property
 
