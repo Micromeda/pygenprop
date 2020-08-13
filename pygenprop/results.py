@@ -21,6 +21,7 @@ from pygenprop.assignment_database import Base, Sample, PropertyAssignment, Step
     Sequence, step_match_association_table
 from pygenprop.tree import GenomePropertiesTree
 
+serialization_context = pa.default_serialization_context()
 
 class GenomePropertiesResults(object):
     """
@@ -357,7 +358,7 @@ class GenomePropertiesResults(object):
         """
         results_frames = (self.property_results,
                           self.step_results)
-        serialization = pa.serialize(results_frames).to_buffer().to_pybytes()
+        serialization = serialization_context.serialize(results_frames).to_buffer().to_pybytes()
 
         return serialization
 
@@ -727,7 +728,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         results_frames = (self.property_results,
                           self.step_results,
                           self.step_matches)
-        serialization = pa.serialize(results_frames).to_buffer().to_pybytes()
+        serialization = serialization_context.serialize(results_frames).to_buffer().to_pybytes()
 
         return serialization
 
@@ -799,7 +800,7 @@ def load_results_from_serialization(serialized_results, properties_tree: GenomeP
     :param properties_tree: The global genome properties tree.
     :return: Either a GenomePropertiesResultsWithMatches or a GenomePropertiesResults.
     """
-    stored_dataframes = pa.deserialize(serialized_results)
+    stored_dataframes = serialization_context.deserialize(serialized_results)
     property_results = stored_dataframes[0]
     step_results = stored_dataframes[1]
 
