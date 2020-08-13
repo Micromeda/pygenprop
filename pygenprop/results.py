@@ -21,7 +21,9 @@ from pygenprop.assignment_database import Base, Sample, PropertyAssignment, Step
     Sequence, step_match_association_table
 from pygenprop.tree import GenomePropertiesTree
 
+# Change pyarrow's serialization context to use custom serializers for pandas data types.
 serialization_context = pa.default_serialization_context()
+
 
 class GenomePropertiesResults(object):
     """
