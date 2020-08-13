@@ -11,6 +11,7 @@ from collections import defaultdict
 from functools import partial
 
 import pandas as pd
+import pyarrow as pa
 from skbio.sequence import Protein
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
@@ -354,9 +355,11 @@ class GenomePropertiesResults(object):
 
         :return: A msgpack format serialization of the results object.
         """
-        results_frames = [self.property_results,
-                          self.step_results]
-        return pd.to_msgpack(None, *results_frames)
+        results_frames = (self.property_results,
+                          self.step_results)
+        serialization = pa.serialize(results_frames).to_buffer().to_pybytes()
+
+        return serialization
 
 
 def load_assignment_caches_from_database(engine):
@@ -721,10 +724,12 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
 
         :return: A msgpack format serialization of the results object.
         """
-        results_frames = [self.property_results,
+        results_frames = (self.property_results,
                           self.step_results,
-                          self.step_matches]
-        return pd.to_msgpack(None, *results_frames)
+                          self.step_matches)
+        serialization = pa.serialize(results_frames).to_buffer().to_pybytes()
+
+        return serialization
 
 
 def load_assignment_caches_from_database_with_matches(engine):
@@ -794,7 +799,7 @@ def load_results_from_serialization(serialized_results, properties_tree: GenomeP
     :param properties_tree: The global genome properties tree.
     :return: Either a GenomePropertiesResultsWithMatches or a GenomePropertiesResults.
     """
-    stored_dataframes = pd.read_msgpack(serialized_results)
+    stored_dataframes = pa.deserialize(serialized_results)
     property_results = stored_dataframes[0]
     step_results = stored_dataframes[1]
 
