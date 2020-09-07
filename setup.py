@@ -25,9 +25,10 @@ setup(name='pygenprop',
       install_requires=[
           'numpy>=1.13.3'
           'Cython>=0.29.13',
-          'pandas>=0.25.0,<1.0.0',
+          'pandas>=1.0.0',
           'sqlalchemy>=1.3.12',
           'scikit-bio>=0.5.5'
+          'pyarrow>=1.0.0'
       ],
       scripts=['bin/pygenprop'],
       zip_safe=True,
