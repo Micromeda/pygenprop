@@ -1,9 +1,9 @@
+os: linux
 dist: xenial
 language: python
 python:
   - "3.6"
   - "3.7"
-cache: pip
 install:
   - pip install .
 before_script:
