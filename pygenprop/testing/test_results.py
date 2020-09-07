@@ -180,3 +180,11 @@ class TestResults(unittest.TestCase):
         self.assertEqual(results.property_results.equals(new_results.property_results), True)
         self.assertEqual(results.step_results.equals(new_results.step_results), True)
         self.assertIsInstance(new_results, GenomePropertiesResults)
+
+    def test_generate_json_tree(self):
+        """Test that a JSON tree can be built."""
+
+        results = GenomePropertiesResults(*self.test_genome_property_results, properties_tree=self.test_tree)
+        json = results.to_json()
+
+        self.assertIsNotNone(json)
