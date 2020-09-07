@@ -118,20 +118,42 @@ class GenomeProperty(object):
 
         return child_genome_properties_identifiers
 
-    def to_json(self, as_dict=False):
+    def to_json(self, as_dict=False, add_supports=False, add_private_notes=False):
         """
         Converts the object to a JSON representation.
 
+        :param add_private_notes: Add private notes to the JSON.
+        :param add_supports: Add literature and database references for the property to the JSON.
         :param as_dict: Return a dictionary for incorporation into other json objects.
         :return: A JSON formatted string or dictionary representing the object.
         """
-        json_dict = {
-            'id': self.id,
-            'name': self.name,
-            'type': self.type,
-            'description': self.description,
-            'notes': self.private_notes
-        }
+
+        json_dict = {'id': self.id,
+                     'name': self.name,
+                     'type': self.type,
+                     'description': self.description}
+
+        databases_info = {}
+        databases = self.databases
+        if add_supports:
+            literature = [reference.pubmed_id for reference in self.references]
+
+            if databases:
+                for database_reference in databases:
+                    database_name = database_reference.database_name
+                    identifiers = database_reference.record_ids
+
+                    if database_name in databases_info.keys():
+                        databases_info[database_name].append(identifiers)
+                    else:
+                        databases_info[database_name] = identifiers
+
+            supporting_information = {'pubmed': literature, 'databases': databases_info}
+
+            json_dict.update(supporting_information)
+
+        if add_private_notes:
+            json_dict['notes'] = self.private_notes
 
         if as_dict:
             output = json_dict
