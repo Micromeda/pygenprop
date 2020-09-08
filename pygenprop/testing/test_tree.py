@@ -171,13 +171,11 @@ class TestGenomePropertyTree(unittest.TestCase):
         names = {node['name'] for node in json_nodes}
         types = {node['type'] for node in json_nodes}
         descriptions = {node['description'] for node in json_nodes}
-        notes = {node['notes'] for node in json_nodes}
 
         self.assertCountEqual(ids, {'GenProp0002', 'GenProp0003', 'GenProp0066', 'GenProp0089', 'GenProp0092'})
         self.assertEqual(names, {'Coenzyme F420 utilization'})
         self.assertEqual(types, {'GUILD'})
         self.assertEqual(descriptions, {None})
-        self.assertEqual(notes, {None})
 
     def test_create_nested_json(self):
         """Test that we can create nested json."""
@@ -216,13 +214,11 @@ class TestGenomePropertyTree(unittest.TestCase):
 
         test_json = property_tree.to_json()
 
-        expected_json_one = '''{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null, "notes": null,
-         "children": [{"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                       "notes": null, "children": [
-                 {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                  "notes": null, "children": []},
-                 {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                  "notes": null, "children": []}]}]}'''
+        expected_json_one = '''{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", 
+        "description": null, "children": [{"id": "GenProp0066", "name": "Coenzyme F420 utilization", 
+        "type": "GUILD", "description": null, "children": [{"id": "GenProp0089", "name": "Coenzyme F420 utilization", 
+        "type": "GUILD", "description": null, "children": []}, {"id": "GenProp0092", 
+        "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,"children": []}]}]}'''
 
         test_json_parsed = json.loads(test_json)
         expected_json_parsed_one = json.loads(expected_json_one)
@@ -241,16 +237,11 @@ class TestGenomePropertyTree(unittest.TestCase):
         test_json = property_tree.to_json(nodes_and_links=True)
 
         expected_json = '''{
-        "nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                    "notes": null},
-                   {"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                    "notes": null},
-                   {"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                    "notes": null},
-                   {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                    "notes": null},
-                   {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null,
-                    "notes": null}],
+        "nodes": [{"id": "GenProp0002", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null},
+                   {"id": "GenProp0003", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null},
+                   {"id": "GenProp0066", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null},
+                   {"id": "GenProp0089", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null},
+                   {"id": "GenProp0092", "name": "Coenzyme F420 utilization", "type": "GUILD", "description": null}],
         "links": [{"parent": "GenProp0002", "child": "GenProp0066"}, {"parent": "GenProp0003", "child": "GenProp0066"},
                    {"parent": "GenProp0066", "child": "GenProp0089"},
                    {"parent": "GenProp0066", "child": "GenProp0092"}]}'''
