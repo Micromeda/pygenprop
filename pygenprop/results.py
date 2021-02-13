@@ -9,6 +9,7 @@ Description: The genome property tree class.
 import json
 from collections import defaultdict
 from functools import partial
+from math import isnan
 
 import pandas as pd
 import pyarrow as pa
@@ -718,7 +719,27 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         interpro_signature = match_row['Signature_Accession']
         protein_identifier = match_row['Protein_Accession']
         e_value = match_row['E-value']
-        current_interproscan = unique_interproscan_dict[interpro_signature][protein_identifier][e_value]
+
+        matches_for_protein = unique_interproscan_dict[interpro_signature][protein_identifier]
+        try:
+            current_interproscan = matches_for_protein[e_value]
+        except KeyError:
+            '''
+            Two independently generated nan values are not equal as they are both objects. In cases where the e-value of
+            a protein match is left blank the resulting InterProScanMatch object object's e-value is set to NaN. The 
+            code above selects a InterProScanMatch object from a dict of dict of dict. The inner most 
+            layer of this data structure is a index by e-value. However, the NaN object of the e_value of the match row
+            is not the same as the NaN object found in the keys the inner layer of the dict of dict of dict. Thus a key 
+            error is returned even though both values are NaN. This except block checks if the missing value is 
+            NaN and if so it the block automatically returns the appropriate InterProScanMatch object.
+            '''
+
+            nan_matches = [match for e_value, match in matches_for_protein.items() if isnan(e_value)]
+            if len(nan_matches) > 0:
+                current_interproscan = nan_matches[0]
+            else:
+                raise KeyError
+
         step_assignment.interproscan_matches.append(current_interproscan)
 
     def to_serialization(self):
