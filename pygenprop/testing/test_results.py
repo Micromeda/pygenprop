@@ -36,6 +36,7 @@ class TestResults(unittest.TestCase):
 
         cls.engine = create_engine('sqlite://')
 
+
     def test_results(self):
         """Test parsing longform genome properties assignment files into assignment results."""
 
