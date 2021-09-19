@@ -28,7 +28,7 @@ setup(name='pygenprop',
           'pandas>=1.1.5',
           'sqlalchemy>=1.3.23',
           'scikit-bio>=0.5.5',
-          'pyarrow>=1.0.1'
+          'pyarrow>=1.0.1,<3.0.0',
       ],
       scripts=['bin/pygenprop'],
       zip_safe=True,
