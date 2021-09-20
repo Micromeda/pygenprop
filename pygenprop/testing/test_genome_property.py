@@ -103,7 +103,7 @@ class TestGenomeProperty(unittest.TestCase):
 
         new_property = parse_genome_property(self.property_rows[0])
 
-        json_dict = new_property.to_json(as_dict=True)
+        json_dict = new_property.to_json(as_dict=True, add_private_notes=True)
 
         self.assertEqual(json_dict['id'], 'GenProp0002')
         self.assertEqual(json_dict['name'], 'Coenzyme F420 utilization')

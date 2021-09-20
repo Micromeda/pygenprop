@@ -9,8 +9,10 @@ Description: The genome property tree class.
 import json
 from collections import defaultdict
 from functools import partial
+from math import isnan
 
 import pandas as pd
+import pyarrow as pa
 from skbio.sequence import Protein
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
@@ -19,6 +21,9 @@ from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
 from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment, InterProScanMatch, \
     Sequence, step_match_association_table
 from pygenprop.tree import GenomePropertiesTree
+
+# Change pyarrow's serialization context to use custom serializers for pandas data types.
+serialization_context = pa.default_serialization_context()
 
 
 class GenomePropertiesResults(object):
@@ -168,7 +173,8 @@ class GenomePropertiesResults(object):
     def get_results_summary(self, *property_identifiers, steps=False, normalize=False):
         """
         Creates a summary table for yes, no and partial assignments of a given set of properties or property steps.
-        Display counts or percentage of yes no partial assignment for the given properties or steps of the given properties.
+        Display counts or percentage of yes no partial assignment for the given properties or steps of the given
+        properties.
 
         :param property_identifiers: The id of one or more genome properties to get results for.
         :param steps: Summarize results for the steps of the input properties
@@ -346,6 +352,18 @@ class GenomePropertiesResults(object):
 
         current_session.commit()
         current_session.close()
+
+    def to_serialization(self):
+        """
+        Creates a serialization of the results object.
+
+        :return: A msgpack format serialization of the results object.
+        """
+        results_frames = (self.property_results,
+                          self.step_results)
+        serialization = serialization_context.serialize(results_frames).to_buffer().to_pybytes()
+
+        return serialization
 
 
 def load_assignment_caches_from_database(engine):
@@ -701,8 +719,41 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         interpro_signature = match_row['Signature_Accession']
         protein_identifier = match_row['Protein_Accession']
         e_value = match_row['E-value']
-        current_interproscan = unique_interproscan_dict[interpro_signature][protein_identifier][e_value]
+
+        matches_for_protein = unique_interproscan_dict[interpro_signature][protein_identifier]
+        try:
+            current_interproscan = matches_for_protein[e_value]
+        except KeyError:
+            '''
+            Two independently generated nan values are not equal as they are both objects. In cases where the e-value of
+            a protein match is left blank the resulting InterProScanMatch object object's e-value is set to NaN. The 
+            code above selects a InterProScanMatch object from a dict of dict of dict. The inner most 
+            layer of this data structure is a index by e-value. However, the NaN object of the e_value of the match row
+            is not the same as the NaN object found in the keys the inner layer of the dict of dict of dict. Thus a key 
+            error is returned even though both values are NaN. This except block checks if the missing value is 
+            NaN and if so it the block automatically returns the appropriate InterProScanMatch object.
+            '''
+
+            nan_matches = [match for e_value, match in matches_for_protein.items() if isnan(e_value)]
+            if len(nan_matches) > 0:
+                current_interproscan = nan_matches[0]
+            else:
+                raise KeyError
+
         step_assignment.interproscan_matches.append(current_interproscan)
+
+    def to_serialization(self):
+        """
+        Creates a serialization of the results object.
+
+        :return: A msgpack format serialization of the results object.
+        """
+        results_frames = (self.property_results,
+                          self.step_results,
+                          self.step_matches)
+        serialization = serialization_context.serialize(results_frames).to_buffer().to_pybytes()
+
+        return serialization
 
 
 def load_assignment_caches_from_database_with_matches(engine):
@@ -739,3 +790,50 @@ def load_assignment_caches_from_database_with_matches(engine):
     current_session.close()
 
     return assignment_caches
+
+
+class GenomePropertiesResultsFromDataFrames(GenomePropertiesResultsWithMatches):
+    """
+    A mock class that build an object analogous to a GenomePropertiesResultsWithMatches object but built from
+    DataFrames. This is useful for building GenomePropertiesResultsWithMatches with matches objects from copies
+    of their underlying results DataFrames.
+    """
+
+    def __init__(self, property_results_frame, step_results_frame, properties_tree, step_matches_frame=None):
+        """
+        Constructs the GenomePropertiesResultsWithMatchesFromDataFrames object.
+
+        :param property_results_frame: A GenomePropertiesResultsWithMatches property_results DataFrame.
+        :param step_results_frame: A GenomePropertiesResultsWithMatches step_results DataFrame.
+        :param step_matches_frame: A GenomePropertiesResultsWithMatches step_matches DataFrame.
+        :param properties_tree: The global genome properties tree.
+        """
+        self.property_results = property_results_frame
+        self.step_results = step_results_frame
+        self.step_matches = step_matches_frame
+        self.tree = properties_tree
+        self.sample_names = self.property_results.columns.tolist()
+
+
+def load_results_from_serialization(serialized_results, properties_tree: GenomePropertiesTree):
+    """
+    Takes a msgpack serialization and converts it to a GenomePropertiesResults object.
+
+    :param serialized_results: Results in msgpack format.
+    :param properties_tree: The global genome properties tree.
+    :return: Either a GenomePropertiesResultsWithMatches or a GenomePropertiesResults.
+    """
+    stored_dataframes = serialization_context.deserialize(serialized_results)
+    property_results = stored_dataframes[0]
+    step_results = stored_dataframes[1]
+
+    result = GenomePropertiesResultsFromDataFrames(property_results_frame=property_results,
+                                                   step_results_frame=step_results,
+                                                   properties_tree=properties_tree)
+    if len(stored_dataframes) > 2:
+        result.step_matches = stored_dataframes[2]
+        result.__class__ = GenomePropertiesResultsWithMatches
+    else:
+        result.__class__ = GenomePropertiesResults
+
+    return result

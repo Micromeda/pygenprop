@@ -12,7 +12,8 @@ from sqlalchemy import create_engine
 from io import StringIO
 from pygenprop.assignment_file_parser import parse_interproscan_file_and_fasta_file
 from pygenprop.database_file_parser import parse_genome_properties_flat_file
-from pygenprop.results import GenomePropertiesResultsWithMatches, load_assignment_caches_from_database_with_matches
+from pygenprop.results import GenomePropertiesResultsWithMatches, load_assignment_caches_from_database_with_matches, \
+    load_results_from_serialization
 
 
 class TestResults(unittest.TestCase):
@@ -137,3 +138,28 @@ class TestResults(unittest.TestCase):
         self.assertEqual(results.property_results.equals(new_results.property_results), True)
         self.assertEqual(results.step_results.equals(new_results.step_results), True)
         self.assertEqual(results.step_matches.equals(new_results.step_matches), True)
+
+    def test_save_serialization(self):
+        """Test that we can serialize."""
+
+        results = GenomePropertiesResultsWithMatches(*self.test_genome_property_results,
+                                                     properties_tree=self.test_tree)
+
+        serialization = results.to_serialization()
+
+        new_results = load_results_from_serialization(serialized_results=serialization, properties_tree=self.test_tree)
+
+        self.assertEqual(results.sample_names, new_results.sample_names)
+        self.assertEqual(results.property_results.equals(new_results.property_results), True)
+        self.assertEqual(results.step_results.equals(new_results.step_results), True)
+        self.assertEqual(results.step_matches.equals(new_results.step_matches), True)
+        self.assertIsInstance(new_results, GenomePropertiesResultsWithMatches)
+
+    def test_generate_json_tree(self):
+        """Test that a JSON tree can be built."""
+
+        results = GenomePropertiesResultsWithMatches(*self.test_genome_property_results,
+                                                     properties_tree=self.test_tree)
+        json = results.to_json()
+
+        self.assertIsNotNone(json)

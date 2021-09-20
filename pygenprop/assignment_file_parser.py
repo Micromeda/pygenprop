@@ -80,7 +80,7 @@ def create_match_dataframe(interproscan_file):
     :return: A pandas DataFrame with InterProScan information.
     """
     # Grab just columns 0, 4, 8 as these are the only ones we need.
-    return pd.read_csv(interproscan_file, sep='\t', header=None, usecols=[0, 4, 8],
+    return pd.read_csv(interproscan_file, sep='\t', header=None, usecols=[0, 4, 8], na_values="-",
                        names=['Protein_Accession', 'Signature_Accession', 'E-value'])
 
 

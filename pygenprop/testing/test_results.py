@@ -11,7 +11,8 @@ from sqlalchemy import create_engine
 from pygenprop.assign import AssignmentCache
 from pygenprop.assignment_file_parser import parse_genome_property_longform_file
 from pygenprop.database_file_parser import parse_genome_properties_flat_file
-from pygenprop.results import GenomePropertiesResults, load_assignment_caches_from_database
+from pygenprop.results import GenomePropertiesResults, load_assignment_caches_from_database, \
+    load_results_from_serialization
 
 
 class TestResults(unittest.TestCase):
@@ -34,6 +35,7 @@ class TestResults(unittest.TestCase):
         cls.test_tree = genome_properties_tree
 
         cls.engine = create_engine('sqlite://')
+
 
     def test_results(self):
         """Test parsing longform genome properties assignment files into assignment results."""
@@ -165,3 +167,25 @@ class TestResults(unittest.TestCase):
         self.assertEqual(results.sample_names, new_results.sample_names)
         self.assertEqual(results.property_results.equals(new_results.property_results), True)
         self.assertEqual(results.step_results.equals(new_results.step_results), True)
+
+    def test_save_serialization(self):
+        """Test that we can serialize."""
+
+        results = GenomePropertiesResults(*self.test_genome_property_results, properties_tree=self.test_tree)
+
+        serialization = results.to_serialization()
+
+        new_results = load_results_from_serialization(serialized_results=serialization, properties_tree=self.test_tree)
+
+        self.assertEqual(results.sample_names, new_results.sample_names)
+        self.assertEqual(results.property_results.equals(new_results.property_results), True)
+        self.assertEqual(results.step_results.equals(new_results.step_results), True)
+        self.assertIsInstance(new_results, GenomePropertiesResults)
+
+    def test_generate_json_tree(self):
+        """Test that a JSON tree can be built."""
+
+        results = GenomePropertiesResults(*self.test_genome_property_results, properties_tree=self.test_tree)
+        json = results.to_json()
+
+        self.assertIsNotNone(json)
