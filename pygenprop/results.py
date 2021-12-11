@@ -12,7 +12,7 @@ from functools import partial
 from math import isnan
 
 import pandas as pd
-import pyarrow as pa
+import pickle
 from skbio.sequence import Protein
 from sqlalchemy import engine as SQLAlchemyEngine
 from sqlalchemy.orm import sessionmaker
@@ -21,9 +21,6 @@ from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
 from pygenprop.assignment_database import Base, Sample, PropertyAssignment, StepAssignment, InterProScanMatch, \
     Sequence, step_match_association_table
 from pygenprop.tree import GenomePropertiesTree
-
-# Change pyarrow's serialization context to use custom serializers for pandas data types.
-serialization_context = pa.default_serialization_context()
 
 
 class GenomePropertiesResults(object):
@@ -361,9 +358,7 @@ class GenomePropertiesResults(object):
         """
         results_frames = (self.property_results,
                           self.step_results)
-        serialization = serialization_context.serialize(results_frames).to_buffer().to_pybytes()
-
-        return serialization
+        return pickle.dumps(results_frames)
 
 
 def load_assignment_caches_from_database(engine):
@@ -751,9 +746,7 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         results_frames = (self.property_results,
                           self.step_results,
                           self.step_matches)
-        serialization = serialization_context.serialize(results_frames).to_buffer().to_pybytes()
-
-        return serialization
+        return pickle.dumps(results_frames)
 
 
 def load_assignment_caches_from_database_with_matches(engine):
@@ -823,7 +816,7 @@ def load_results_from_serialization(serialized_results, properties_tree: GenomeP
     :param properties_tree: The global genome properties tree.
     :return: Either a GenomePropertiesResultsWithMatches or a GenomePropertiesResults.
     """
-    stored_dataframes = serialization_context.deserialize(serialized_results)
+    stored_dataframes = pickle.loads(serialized_results)
     property_results = stored_dataframes[0]
     step_results = stored_dataframes[1]
 
