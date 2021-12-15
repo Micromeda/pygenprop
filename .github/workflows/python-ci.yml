@@ -15,23 +15,28 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ hashFiles('setup.py') }}-${{ hashFiles('dev-requirements.txt') }}
+      with:
+        path: ~/.cache/pip
+        key: ${{ hashFiles('setup.py') }}-${{ hashFiles('dev-requirements.txt') }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade --upgrade-strategy eager pip
         python -m pip install --upgrade --upgrade-strategy eager nose numpy wheel
         python -m pip install --upgrade --upgrade-strategy eager .
         git clone https://github.com/Micromeda/genome-properties
+
     - name: Test with Nose
       run: |
         nosetests -v ./
+
     - name: Test CLI
       run: |
         ./pygenprop/testing/test_parse_genome_properties_file.py -i ./genome-properties/flatfiles/genomeProperties.txt
