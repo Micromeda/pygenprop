@@ -58,7 +58,4 @@ class FunctionalElement(object):
         """
         ec_numbers = EC_REGEX.findall(self.name)
 
-        if not ec_numbers:
-            ec_numbers = None
-
         return ec_numbers
