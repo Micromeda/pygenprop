@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+
+name: Build Python Package
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.6","3.7","3.8","3.9"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ hashFiles('setup.py') }}-${{ hashFiles('dev-requirements.txt') }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade --upgrade-strategy eager pip
+        python -m pip install --upgrade --upgrade-strategy eager nose numpy wheel
+        python -m pip install --upgrade --upgrade-strategy eager .
+        git clone https://github.com/Micromeda/genome-properties
+
+    - name: Test with Nose
+      run: |
+        nosetests -v ./
+
+    - name: Test CLI
+      run: |
+        ./pygenprop/testing/test_parse_genome_properties_file.py -i ./genome-properties/flatfiles/genomeProperties.txt
+        ./pygenprop/testing/test_parse_genome_properties_assignments.py -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.txt -o ./test1.json
+        ./pygenprop/testing/test_parse_interproscan.py -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.tsv -o ./test2.json
+        pygenprop build -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.tsv pygenprop/testing/test_constants/C_luteolum_DSM_273.tsv -o ./joined_cloroflexi_data.micro -p
+        pygenprop build -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_chlorochromatii_CaD3.tsv -o ./chloromatii_data.micro -p
+        pygenprop build -d ./genome-properties/flatfiles/genomeProperties.txt -i pygenprop/testing/test_constants/C_luteolum_DSM_273.tsv -o ./luteolum_data.micro -p
+        pygenprop merge -d ./genome-properties/flatfiles/genomeProperties.txt -i ./chloromatii_data.micro ./luteolum_data.micro -o ./merged_cholorflexi_data.micro
+        ./pygenprop/testing/test_parse_genome_properties_end_to_end.sh
+        ./pygenprop/testing/test_cli.sh
