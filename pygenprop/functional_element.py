@@ -7,6 +7,10 @@ Description: The functional element class.
 """
 from pygenprop.step import Step
 
+import re
+
+EC_REGEX = re.compile('[0-9]+[.][0-9-]+[.][0-9-]+[.][0-9-]+')
+
 
 class FunctionalElement(object):
     """A functional element (enzyme, structural component or sub-genome property) that can carry out a step."""
@@ -45,3 +49,16 @@ class FunctionalElement(object):
                      'Evidences: ' + str(self.evidence),
                      'Required: ' + str(self.required)]
         return '(' + ', '.join(repr_data) + ')'
+
+    @property
+    def expasy_enzyme_numbers(self):
+        """
+        Extracts the expasy enzyme numbers from the elements name.
+        :return: A list of EC numbers
+        """
+        ec_numbers = EC_REGEX.findall(self.name)
+
+        if not ec_numbers:
+            ec_numbers = None
+
+        return ec_numbers
