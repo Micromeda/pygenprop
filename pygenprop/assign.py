@@ -129,8 +129,8 @@ class AssignmentCache(object):
 
     def bootstrap_assignments(self, properties_tree: GenomePropertiesTree):
         """
-        Recursively fills in assignments for all genome properties in the genome properties tree based of existing cached
-        assignments and InterPro member database identifiers.
+        Recursively fills in assignments for all genome properties in the genome properties tree based of existing
+        cached assignments and InterPro member database identifiers.
 
         :param self: A cache containing step and property assignments and InterPro member database matches.
         :param properties_tree: The global genome properties tree

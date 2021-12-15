@@ -12,7 +12,7 @@ from pygenprop.genome_property import GenomeProperty
 class Step(object):
     """A class representing a step that supports the existence of a genome property."""
 
-    def __init__(self, number, functional_elements: list=None, parent: GenomeProperty=None):
+    def __init__(self, number, functional_elements: list = None, parent: GenomeProperty = None):
         """
         Creates a new Step object.
 

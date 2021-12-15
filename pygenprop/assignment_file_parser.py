@@ -103,4 +103,4 @@ def yield_identifier_sequence_mappings(fasta_file):
     :return: A
     """
     for sequence in skbio.io.read(fasta_file, format='fasta'):
-        yield (sequence.metadata['id'], str(sequence))
+        yield sequence.metadata['id'], str(sequence)

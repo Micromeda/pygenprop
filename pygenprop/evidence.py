@@ -12,7 +12,7 @@ class Evidence(object):
     """A piece of evidence (ex. InterPro HMM hit or GenProp) that supports the existence of a functional element."""
 
     def __init__(self, evidence_identifiers=None, gene_ontology_terms=None,
-                 sufficient=False, parent: FunctionalElement=None):
+                 sufficient=False, parent: FunctionalElement = None):
         """
         Creates a new Evidence object.
 
