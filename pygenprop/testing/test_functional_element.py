@@ -18,7 +18,7 @@ class TestFunctionalElement(unittest.TestCase):
         """Test that functional element rows can be parsed."""
         functional_element = [
             ('ID', 'Aferr subtype specific proteins'),
-            ('DN', 'Crispy Proteins'),
+            ('DN', 'Crispy Proteins (EC 3.5.1.26)'),
             ('RQ', '0'),
             ('EV', 'IPR017545; TIGR03114; sufficient;'),
             ('TG', 'GO:0043571; GO:0043579;')
@@ -29,9 +29,10 @@ class TestFunctionalElement(unittest.TestCase):
         self.assertEqual(len(parsed_functional_element), 1)
         first_functional_element = parsed_functional_element[0]
         self.assertEqual(first_functional_element.id, 'Aferr subtype specific proteins')
-        self.assertEqual(first_functional_element.name, 'Crispy Proteins')
+        self.assertEqual(first_functional_element.name, 'Crispy Proteins (EC 3.5.1.26)')
         self.assertEqual(first_functional_element.required, False)
         self.assertEqual(len(first_functional_element.evidence), 1)
+        self.assertIn('3.5.1.26', first_functional_element.expasy_enzyme_numbers)
 
     def test_parse_missing_rows(self):
         """Test that functional elements can be parsed if they are missing non-essential rows."""
