@@ -207,7 +207,7 @@ def parse_literature_references(genome_property_record):
                                                                  pubmed_id=current_literature_reference.get('RM'),
                                                                  title=current_literature_reference.get('RT'),
                                                                  authors=current_literature_reference.get('RA'),
-                                                                 citation=current_literature_reference.get('RL')))
+                                                                 journal=current_literature_reference.get('RL')))
                 if marker == 'RN':
                     content = int(content.strip('[]'))
 
@@ -222,7 +222,7 @@ def parse_literature_references(genome_property_record):
                                                      pubmed_id=current_literature_reference.get('RM'),
                                                      title=current_literature_reference.get('RT'),
                                                      authors=current_literature_reference.get('RA'),
-                                                     citation=current_literature_reference.get('RL')))
+                                                     journal=current_literature_reference.get('RL')))
     return literature_references
 
 
