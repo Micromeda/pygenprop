@@ -33,7 +33,7 @@ class TestLiteratureReference(unittest.TestCase):
         self.assertEqual(first_reference.pubmed_id, 11952905)
         self.assertEqual(first_reference.title, 'Identification of genes that are associated with DNA repeats.')
         self.assertEqual(first_reference.authors, 'Jansen R, Embden JD, Gaastra W, Schouls LM;')
-        self.assertEqual(first_reference.citation, 'Mol Microbiol. 2002;43:1565-1575.')
+        self.assertEqual(first_reference.journal, 'Mol Microbiol. 2002;43:1565-1575.')
 
     def test_parse_multiple_database_references(self):
         """Test that literature reference rows consisting of multiple references can be parsed."""
