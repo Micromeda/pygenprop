@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python>=3.6
+  - numpy>=1.16.5
+  - Cython>=0.29.13
+  - pandas>=1.1.5
+  - sqlalchemy>=1.3.23
+  - scikit-bio>=0.5.5
