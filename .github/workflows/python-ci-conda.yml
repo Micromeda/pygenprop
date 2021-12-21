@@ -31,8 +31,7 @@ jobs:
         conda install -y -c conda-forge conda-build
         conda build . --no-anaconda-upload -c conda-forge -c bioconda
         BUILD_PATH=$(conda build . --output)
-        echo $BUILD_PATH
-        conda install -c conda-forge -c bioconda BUILD_PATH
+        conda install -c conda-forge -c bioconda $BUILD_PATH
 
     - name: Test with Nose
       run: |
