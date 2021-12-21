@@ -21,10 +21,8 @@ build:
   script: python -m pip install --no-deps -vv .
 
 test:
-  requires:
-    - nose
   commands:
-    - nosetests .
+    - pygenprop -h
 
 about:
   home: https://github.com/Micromeda/pygenprop
