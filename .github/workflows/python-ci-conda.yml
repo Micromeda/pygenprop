@@ -30,7 +30,7 @@ jobs:
       run: |
         conda install -y -c conda-forge mamba
         mamba install -y -c conda-forge conda-build nose
-        mamba env update --file environment.yaml
+        mamba env update --file environment.yaml --name base
         conda build . --no-anaconda-upload -c conda-forge -c bioconda
         BUILD_PATH=$(conda build . --output)
         mamba install -y -c conda-forge -c bioconda $BUILD_PATH
