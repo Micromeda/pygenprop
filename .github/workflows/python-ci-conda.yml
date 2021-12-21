@@ -34,6 +34,7 @@ jobs:
         conda build . --no-anaconda-upload -c conda-forge -c bioconda
         BUILD_PATH=$(conda build . --output)
         mamba install -y -c conda-forge -c bioconda $BUILD_PATH
+        git clone https://github.com/Micromeda/genome-properties
 
     - name: Test with Nose
       run: |
