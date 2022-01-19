@@ -24,7 +24,7 @@ At its core, the library contains five major components:
 Installation
 ------------
 
-Pygenprop is compatible with Python 3.6 or higher (3.5 may work, but it is not tested). Requirements can be found in ```requirements.txt```.
+Pygenprop is compatible with Python 3.6 or higher (3.5 may work, but it is not tested). Requirements can be found in ```environment.yaml```.
 
 #### To install from PyPi
 
