@@ -619,9 +619,9 @@ class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
         """
         return self.step_matches.sort_values('E-value').groupby(['Sample_Name',
                                                                  'Property_Identifier',
-                                                                 'Step_Number'])['Signature_Accession',
-                                                                                 'Protein_Accession',
-                                                                                 'E-value', 'Sequence'].first()
+                                                                 'Step_Number'])[['Signature_Accession',
+                                                                                  'Protein_Accession',
+                                                                                  'E-value', 'Sequence']].first()
 
     def _get_unique_matches(self, sample=None, top=False, sequences=False):
         """
