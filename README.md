@@ -2,8 +2,8 @@
 # Pygenprop
 | Branch     |  Status     |
 |---------    |----------------------------------------------------------------------------------------------------------------------------    |
-| Master     | [![Build Status](https://travis-ci.org/Micromeda/pygenprop.svg?branch=master)](https://travis-ci.org/Micromeda/pygenprop)     |
-| Develop     | [![Build Status](https://travis-ci.org/Micromeda/pygenprop.svg?branch=develop)](https://travis-ci.org/Micromeda/pygenprop)     |
+| Master     | [![Build Python Package Conda](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml/badge.svg?branch=master)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml) [![Build Python Package PIP](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml/badge.svg?branch=master)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml)    |
+| Develop     | [![Build Python Package Conda](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml/badge.svg?branch=develop)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml) [![Build Python Package PIP](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml/badge.svg?branch=develop)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml)     |
 | Docs         | [![Documentation Status](https://readthedocs.org/projects/pygenprop/badge/?version=latest)](https://pygenprop.readthedocs.io/en/latest/?badge=latest)
 
 Pygenprop is a python library for programmatic exploration and usage of the [EBI Genome Properties database](https://github.com/ebi-pf-team/genome-properties).   
