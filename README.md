@@ -271,71 +271,72 @@ File Manifest
 .
 ├── LICENSE
 ├── README.md
-├── bin
-│   └── pygenprop
 ├── docs
-│   ├── Makefile
-│   ├── build
-│   └── source
-│       ├── _static
-│       │   ├── Figure_1A.jpg
-│       │   ├── Figure_1B.jpg
-│       │   └── tutorial
-│       │       ├── E_coli_K12.tsv
-│       │       ├── E_coli_O157_H7.tsv
-│       │       └── tutorial.ipynb
-│       ├── _templates
-│       ├── conf.py
-│       ├── index.rst
-│       ├── modules.rst
-│       ├── pygenprop.rst
-│       └── pygenprop.testing.rst
+│   ├── Makefile
+│   ├── build
+│   ├── make.bat
+│   └── source
+│       ├── _static
+│       │   ├── Figure_1A.jpg
+│       │   ├── Figure_1B.jpg
+│       │   └── tutorial
+│       │       ├── E_coli_K12.faa
+│       │       ├── E_coli_K12.tsv
+│       │       ├── E_coli_O157_H7.faa
+│       │       ├── E_coli_O157_H7.tsv
+│       │       └── tutorial.ipynb
+│       ├── _templates
+│       ├── conf.py
+│       ├── index.rst
+│       ├── modules.rst
+│       ├── pygenprop.rst
+│       └── pygenprop.testing.rst
+├── environment.yaml
+├── meta.yaml
 ├── pygenprop
-│   ├── __init__.py
-│   ├── assign.py
-│   ├── assignment_database.py
-│   ├── assignment_file_parser.py
-│   ├── database_file_parser.py
-│   ├── database_reference.py
-│   ├── evidence.py
-│   ├── functional_element.py
-│   ├── genome_property.py
-│   ├── lib.py
-│   ├── literature_reference.py
-│   ├── results.py
-│   ├── step.py
-│   ├── testing
-│   │   ├── __init__.py
-│   │   ├── test_constants
-│   │   │   ├── C_chlorochromatii_CaD3.faa
-│   │   │   ├── C_chlorochromatii_CaD3.tsv
-│   │   │   ├── C_chlorochromatii_CaD3.txt
-│   │   │   ├── C_luteolum_DSM_273.faa
-│   │   │   ├── C_luteolum_DSM_273.tsv
-│   │   │   ├── C_luteolum_DSM_273.txt
-│   │   │   ├── data.micro
-│   │   │   ├── test_genome_properties.txt
-│   │   │   └── test_genome_properties_two.txt
-│   │   ├── compare_assignment_to_assign_properties_perl.ipynb
-│   │   ├── test_assign.py
-│   │   ├── test_cli.sh
-│   │   ├── test_database_reference.py
-│   │   ├── test_evidence.py
-│   │   ├── test_functional_element.py
-│   │   ├── test_genome_property.py
-│   │   ├── test_lib.py
-│   │   ├── test_literature_reference.py
-│   │   ├── test_parse.py
-│   │   ├── test_parse_genome_properties_assignments.py
-│   │   ├── test_parse_genome_properties_end_to_end.sh
-│   │   ├── test_parse_genome_properties_file.py
-│   │   ├── test_parse_interproscan.py
-│   │   ├── test_results.py
-│   │   ├── test_results_with_matches.py
-│   │   ├── test_step.py
-│   │   └── test_tree.py
-│   └── tree.py
-├── requirements.txt
+│   ├── __init__.py
+│   ├── assign.py
+│   ├── assignment_database.py
+│   ├── assignment_file_parser.py
+│   ├── database_file_parser.py
+│   ├── database_reference.py
+│   ├── evidence.py
+│   ├── functional_element.py
+│   ├── genome_property.py
+│   ├── lib.py
+│   ├── literature_reference.py
+│   ├── results.py
+│   ├── step.py
+│   ├── testing
+│   │   ├── __init__.py
+│   │   ├── compare_assignment_to_assign_properties_perl.ipynb
+│   │   ├── test_assign.py
+│   │   ├── test_cli.sh
+│   │   ├── test_constants
+│   │   │   ├── C_chlorochromatii_CaD3.faa
+│   │   │   ├── C_chlorochromatii_CaD3.tsv
+│   │   │   ├── C_chlorochromatii_CaD3.txt
+│   │   │   ├── C_luteolum_DSM_273.faa
+│   │   │   ├── C_luteolum_DSM_273.tsv
+│   │   │   ├── C_luteolum_DSM_273.txt
+│   │   │   ├── test_genome_properties.txt
+│   │   │   └── test_genome_properties_two.txt
+│   │   ├── test_database_reference.py
+│   │   ├── test_evidence.py
+│   │   ├── test_functional_element.py
+│   │   ├── test_genome_property.py
+│   │   ├── test_lib.py
+│   │   ├── test_literature_reference.py
+│   │   ├── test_parse.py
+│   │   ├── test_parse_genome_properties_assignments.py
+│   │   ├── test_parse_genome_properties_end_to_end.sh
+│   │   ├── test_parse_genome_properties_file.py
+│   │   ├── test_parse_interproscan.py
+│   │   ├── test_results.py
+│   │   ├── test_results_with_matches.py
+│   │   ├── test_step.py
+│   │   └── test_tree.py
+│   └── tree.py
 └── setup.py
 ```
 
