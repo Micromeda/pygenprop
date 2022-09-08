@@ -5,6 +5,7 @@ Created by: Lee Bergstrand (2017)
 
 Description: Functions for assigning genome properties.
 """
+import re
 
 import pandas as pd
 
@@ -410,6 +411,75 @@ class AssignmentCacheWithMatches(AssignmentCache):
             identifiers = match_info_frame['Signature_Accession'].tolist()
 
         AssignmentCache.__init__(self, interpro_signature_accessions=identifiers, sample_name=sample_name)
+
+
+class AssignmentCacheFromDatabaseCrossReference(AssignmentCache):
+    """
+    This class contains a representation of precomputed assignment results derived from MetaCyc pathway identifiers, and/or
+    and Expazy enzyme numbers.
+    """
+
+    def __init__(self, expasy_list=None, metacyc_list=None, sample_name=None):
+        """
+        Constructs an assignment cache object.
+        :param sample_name: The name of the sample
+        :param expasy_list: A list of expasy enzyme numbers (e.g., EC:1.2.4.5)
+        :param metacyc_list: A list of MetaCyc pathway numbers (e.g., ARO-PWY)
+        """
+
+        super().__init__(sample_name)
+        self.property_assignments = {}
+        self.step_assignments = {}
+        self.expasy_enzyme_numbers = expasy_list
+        self.metacyc_list = metacyc_list
+        self.sample_name = sample_name
+
+    def bootstrap_assignments(self, properties_tree: GenomePropertiesTree):
+        """
+        Recursively fills in assignments for all genome properties in the genome properties tree based of existing
+        cached assignments and InterPro member database identifiers.
+
+        :param self: A cache containing step and property assignments and InterPro member database matches.
+        :param properties_tree: The global genome properties tree
+        :return: A completed assignment cache with assignments for all genome properties and properties steps.
+        """
+
+        if self.metacyc_list:
+            for genome_property in properties_tree:
+                if genome_property.databases:
+                    for database in genome_property.databases:
+                        if database.database_name == 'MetaCyc':
+                            for identifier in database.record_ids:
+                                if identifier in self.metacyc_list:
+                                    self.property_assignments[genome_property.id] = 'YES'
+                                    break
+
+        if self.expasy_enzyme_numbers:
+            for genome_property in properties_tree:
+                for step in genome_property.steps:
+                    if step.expasy_enzyme_numbers:
+                        for expasy_id in step.expasy_enzyme_numbers:
+                            has_shared_identifier = False
+                            if '-' in expasy_id:
+                                expasy_regex = re.compile('^' + expasy_id.split('-')[0])
+                                for input_expasy in self.expasy_enzyme_numbers:
+                                    if bool(expasy_regex.search(input_expasy)):
+                                        has_shared_identifier = True
+                                        break
+                            else:
+                                if expasy_id in self.expasy_enzyme_numbers:
+                                    has_shared_identifier = True
+
+                            if has_shared_identifier:
+                                self.step_assignments[genome_property.id][step.number] = 'YES'
+                                break
+
+        self.synchronize_with_tree(properties_tree)
+
+        # Bootstrap the other assignments from the leaf assignments.
+        self.bootstrap_assignments_from_genome_property(properties_tree.root)
+        self.bootstrap_missing_step_assignments(properties_tree)
+
 
 
 def calculate_property_assignment_from_required_steps(required_step_assignments: list, threshold: int = 0):

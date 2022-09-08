@@ -77,6 +77,19 @@ class Step(object):
         return genome_properties_identifiers
 
     @property
+    def expasy_enzyme_numbers(self):
+        """
+        Extracts the expasy enzyme numbers from the elements name.
+        :return: A list of EC numbers
+        :return:
+        """
+        expasy_numbers = []
+        for element in self.functional_elements:
+            expasy_numbers = expasy_numbers + element.expasy_enzyme_numbers
+
+        return expasy_numbers
+
+    @property
     def consortium_identifiers(self):
         """
         All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the step.
