@@ -23,10 +23,10 @@ setup(name='pygenprop',
       license='Apache License 2.0',
       packages=['pygenprop'],
       install_requires=[
-          'numpy>=1.16.5'
+          'numpy>=1.16.5',
           'Cython>=0.29.13',
           'pandas>=1.1.5',
-          'sqlalchemy>=1.3.23',
+          'sqlalchemy>=1.3.23,<=1.4.46',
           'scikit-bio>=0.5.5'
       ],
       scripts=['bin/pygenprop'],
