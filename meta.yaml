@@ -18,7 +18,7 @@ requirements:
     - scikit-bio>=0.5.5
 
 build:
-  script: python -m pip install --no-deps -vv .
+  script: pip install --no-deps -vv .
 
 test:
   commands:
