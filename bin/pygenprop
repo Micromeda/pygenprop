@@ -177,6 +177,7 @@ def micromeda_file_info(micromeda_file_path):
 
     :param micromeda_file_path: The path to a micromeda file.
     """
+    log.info('Opening {}'.format(micromeda_file_path))
     input_engine = sqlalchemy.create_engine("sqlite:///" + micromeda_file_path)
     session = sessionmaker(bind=input_engine)()
 
@@ -206,10 +207,13 @@ def preprocess_fasta(input_file_path, output_file_path):
     :param input_file_path: The path and name of the input FASTA file.
     :param output_file_path: The path and name of the output FASTA file.
     """
+    log.info('Opening {}'.format(input_file_path))
+
     if not output_file_path:
         base_file_path, extension = os.path.splitext(input_file_path)
         output_file_path = base_file_path + "_numeric_ids" + extension
 
+    log.info('Writing to {}'.format(output_file_path))
     counter = 1
     with open(output_file_path, 'w') as output_fasta_file:
         with open(input_file_path) as input_fasta_file:
@@ -217,6 +221,7 @@ def preprocess_fasta(input_file_path, output_file_path):
                 sequence.metadata['id'] = "Prot_{}".format(counter)
                 sequence.write(output_fasta_file, format='fasta')
                 counter = counter + 1
+    log.info('Wrote {} sequences'.format(counter))
 
 
 if __name__ == '__main__':
@@ -259,8 +264,8 @@ if __name__ == '__main__':
 
     # ========================
     # Declare Info Sub-command
-    preprocess_help = """Summarize the contents of a Micromeda file."""
-    parser_build = subparsers.add_parser('info', help=preprocess_help)
+    info_help = """Summarize the contents of a Micromeda file."""
+    parser_build = subparsers.add_parser('info', help=info_help)
 
     parser_build.add_argument('-i', '--input_file_path', metavar='MICRO', required=True,
                               help='path to a Micromeda file')
