@@ -10,6 +10,7 @@ import argparse
 import logging
 import os
 
+import skbio
 import sqlalchemy
 from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
 from pygenprop.assignment_database import Sample, PropertyAssignment, StepAssignment, InterProScanMatch, \
@@ -33,7 +34,9 @@ def main(args):
     """
 
     if hasattr(args, 'output_file_path'):
-        output_file_path = sanitize_cli_path(args.output_file_path)
+        output_file_path = args.output_file_path
+        if output_file_path:
+            output_file_path = sanitize_cli_path(output_file_path)
     else:
         output_file_path = None
 
@@ -46,6 +49,9 @@ def main(args):
         merge_micromeda_files(genome_properties_tree, sanitized_input_file_paths, output_file_path)
     elif hasattr(args, 'info'):
         micromeda_file_info(args.input_file_path)
+    elif hasattr(args, 'preprocess'):
+        input_file_path = sanitize_cli_path(args.input_file_path)
+        preprocess_fasta(input_file_path, output_file_path)
     else:
         parser.print_help()
 
@@ -193,6 +199,26 @@ def micromeda_file_info(micromeda_file_path):
     print(output)
 
 
+def preprocess_fasta(input_file_path, output_file_path):
+    """
+    Replaces FASTA header accessions with a numeric identifiers.
+
+    :param input_file_path: The path and name of the input FASTA file.
+    :param output_file_path: The path and name of the output FASTA file.
+    """
+    if not output_file_path:
+        base_file_path, extension = os.path.splitext(input_file_path)
+        output_file_path = base_file_path + "_numeric_ids" + extension
+
+    counter = 1
+    with open(output_file_path, 'w') as output_fasta_file:
+        with open(input_file_path) as input_fasta_file:
+            for sequence in skbio.io.read(input_fasta_file, format='fasta'):
+                sequence.metadata['id'] = "Prot_{}".format(counter)
+                sequence.write(output_fasta_file, format='fasta')
+                counter = counter + 1
+
+
 if __name__ == '__main__':
     cli_title = """A command-line interface for generating and manipulating Micromeda pathway annotation files."""
     parser = argparse.ArgumentParser(description=cli_title)
@@ -233,12 +259,23 @@ if __name__ == '__main__':
 
     # ========================
     # Declare Info Sub-command
-    info_help = """Summarize the contents of a Micromeda file."""
-    parser_build = subparsers.add_parser('info', help=info_help)
+    preprocess_help = """Summarize the contents of a Micromeda file."""
+    parser_build = subparsers.add_parser('info', help=preprocess_help)
 
     parser_build.add_argument('-i', '--input_file_path', metavar='MICRO', required=True,
                               help='path to a Micromeda file')
     parser_build.set_defaults(info=True)
+
+    # ========================
+    # Declare Preprocess Sub-command
+    preprocess_help = """Replace FASTA header accessions with a numeric identifiers."""
+    parser_build = subparsers.add_parser('preprocess', help=preprocess_help)
+
+    parser_build.add_argument('-i', '--input_file_path', metavar='FASTA', required=True,
+                              help='path to a FASTA file')
+    parser_build.add_argument('-o', '--output_file_path', metavar='OUT',
+                              help='output path with the new FASTA filename')
+    parser_build.set_defaults(preprocess=True)
 
     cli_args = parser.parse_args()
     main(cli_args)
