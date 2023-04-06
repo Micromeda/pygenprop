@@ -17,7 +17,7 @@ from pygenprop.lib import sanitize_cli_path
 
 def main(args):
     """
-    Prints a human readable output of a genome properties assignment file.
+    Prints a human-readable output of a genome properties assignment file.
     :param args: The command line arguments.
     """
 

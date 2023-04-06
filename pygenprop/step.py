@@ -81,7 +81,7 @@ class Step(object):
         """
         All InterPro consortium signature identifiers (PFAM, TIGRFAM, etc.) used by the step.
 
-        :return: A set of all unique consortium identifiers used used by the step.
+        :return: A set of all unique consortium identifiers used by the step.
         """
         return self._get_evidence_identifiers(consortium=True)
 
@@ -90,7 +90,7 @@ class Step(object):
         """
         All global InterPro identifiers (IPRXXXX, etc.) used by the step.
 
-        :return: A set of all unique InterPro identifiers used used by the step.
+        :return: A set of all unique InterPro identifiers used by the step.
         """
         return self._get_evidence_identifiers()
 
