@@ -1,10 +1,10 @@
 
 # Pygenprop
-| Branch     |  Status     |
-|---------    |----------------------------------------------------------------------------------------------------------------------------    |
-| Master     | [![Build Python Package Conda](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml/badge.svg?branch=master)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml) [![Build Python Package PIP](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml/badge.svg?branch=master)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml)    |
-| Develop     | [![Build Python Package Conda](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml/badge.svg?branch=develop)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml) [![Build Python Package PIP](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml/badge.svg?branch=develop)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml)     |
-| Docs         | [![Documentation Status](https://readthedocs.org/projects/pygenprop/badge/?version=latest)](https://pygenprop.readthedocs.io/en/latest/?badge=latest)
+| Branch  | Status                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Master  | [![Build Python Package Conda](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml/badge.svg?branch=master)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml) [![Build Python Package PIP](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml/badge.svg?branch=master)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml)   |
+| Develop | [![Build Python Package Conda](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml/badge.svg?branch=develop)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-conda.yml) [![Build Python Package PIP](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml/badge.svg?branch=develop)](https://github.com/Micromeda/pygenprop/actions/workflows/python-ci-pip.yml) |
+| Docs    | [![Documentation Status](https://readthedocs.org/projects/pygenprop/badge/?version=latest)](https://pygenprop.readthedocs.io/en/latest/?badge=latest)                                                                                                                                                                                                                                                                               |
 
 Pygenprop is a python library for programmatic exploration and usage of the [EBI Genome Properties database](https://github.com/ebi-pf-team/genome-properties).   
 
@@ -32,6 +32,11 @@ Pygenprop is compatible with Python 3.6 or higher (3.5 may work, but it is not t
 pip install pygenprop
 ```
 
+#### To install from Conda
+```shell
+conda install -c conda-forge -c lbergstrand pygenprop
+```
+
 #### To install from source (for development)
 
 ```shell
@@ -52,11 +57,11 @@ Before Pygenprop can assign genome properties to an organism, it first has to ga
 
 Pygenprop will be continually updated to take into account changes in the schema of the Genome Properties database. Below is a compatibility table that maps between Genome Properties and Pygenprop releases.
 
-| Genome Properties Release     | genomeProperties.txt URL    | Compatible Pygenprop Release     |
-|---------------------------    |----------------------        |-------------------    |
-| 1.1     | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel1.1/flatfiles/genomeProperties.txt     | >= 0.6     |
-| 2.0     |  https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel2.0/flatfiles/genomeProperties.txt    | >= 0.6     |
-| Latest    | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt | >= 0.6
+| Genome Properties Release | genomeProperties.txt URL                                                                              | Compatible Pygenprop Release |
+|---------------------------|-------------------------------------------------------------------------------------------------------|------------------------------|
+| 1.1                       | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel1.1/flatfiles/genomeProperties.txt | >= 0.6                       |
+| 2.0                       | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/rel2.0/flatfiles/genomeProperties.txt | >= 0.6                       |
+| Latest                    | https://raw.githubusercontent.com/ebi-pf-team/genome-properties/master/flatfiles/genomeProperties.txt | >= 0.6                       |
 
 #### Accessing Non-public Properties
 
@@ -194,23 +199,20 @@ results_reconstituted_with_proteins = GenomePropertiesResultsWithMatches(*assign
 The command-line interface of Pygenprop is used primarily for generating and working with [Micromeda files](https://github.com/Micromeda/pygenprop/blob/master/README.md#micromeda-files). It possesses three sub-commands and is installed when Pygenprop is installed.
 
 ```
-usage: pygenprop [-h] {build,merge,info} ...
+usage: pygenprop [-h] {build,merge,info,preprocess} ...
 
-A command-line interface for generating and manipulating Micromeda pathway
-annotation files.
+A command-line interface for generating and manipulating Micromeda pathway annotation files.
 
 positional arguments:
-  {build,merge,info}  Available Sub-commands
-    build             Generate a Micromeda file containing pathway annotations
-                      for one or more genomes. Supporting InterProScan and
-                      protein sequence information can also be optionally
-                      incorporated.
-    merge             Merge multiple Micromeda files into a single output
-                      Micromeda file.
-    info              Summarize the contents of a Micromeda file.
+  {build,merge,info,preprocess}
+                        Available Sub-commands
+    build               Generate a Micromeda file containing pathway annotations for one or more genomes. Supporting InterProScan and protein sequence information can also be optionally incorporated.
+    merge               Merge multiple Micromeda files into a single output Micromeda file.
+    info                Summarize the contents of a Micromeda file.
+    preprocess          Replace FASTA header accessions with a numeric identifiers.
 
 optional arguments:
-  -h, --help          show this help message and exit
+  -h, --help            show this help message and exit
 ```
 
 The **build** command is used to generate Micromeda files. It requires a copy of ```genomeProperties.txt```. InterProScan TSV files are used as input.
@@ -264,81 +266,6 @@ Trouble Shooting
 ----------------
 
 Please report issues to the **[issues page](https://github.com/Micromeda/pygenprop/issues)**.
-
-File Manifest
--------------
-```
-.
-├── LICENSE
-├── README.md
-├── docs
-│   ├── Makefile
-│   ├── build
-│   ├── make.bat
-│   └── source
-│       ├── _static
-│       │   ├── Figure_1A.jpg
-│       │   ├── Figure_1B.jpg
-│       │   └── tutorial
-│       │       ├── E_coli_K12.faa
-│       │       ├── E_coli_K12.tsv
-│       │       ├── E_coli_O157_H7.faa
-│       │       ├── E_coli_O157_H7.tsv
-│       │       └── tutorial.ipynb
-│       ├── _templates
-│       ├── conf.py
-│       ├── index.rst
-│       ├── modules.rst
-│       ├── pygenprop.rst
-│       └── pygenprop.testing.rst
-├── environment.yaml
-├── meta.yaml
-├── pygenprop
-│   ├── __init__.py
-│   ├── assign.py
-│   ├── assignment_database.py
-│   ├── assignment_file_parser.py
-│   ├── database_file_parser.py
-│   ├── database_reference.py
-│   ├── evidence.py
-│   ├── functional_element.py
-│   ├── genome_property.py
-│   ├── lib.py
-│   ├── literature_reference.py
-│   ├── results.py
-│   ├── step.py
-│   ├── testing
-│   │   ├── __init__.py
-│   │   ├── compare_assignment_to_assign_properties_perl.ipynb
-│   │   ├── test_assign.py
-│   │   ├── test_cli.sh
-│   │   ├── test_constants
-│   │   │   ├── C_chlorochromatii_CaD3.faa
-│   │   │   ├── C_chlorochromatii_CaD3.tsv
-│   │   │   ├── C_chlorochromatii_CaD3.txt
-│   │   │   ├── C_luteolum_DSM_273.faa
-│   │   │   ├── C_luteolum_DSM_273.tsv
-│   │   │   ├── C_luteolum_DSM_273.txt
-│   │   │   ├── test_genome_properties.txt
-│   │   │   └── test_genome_properties_two.txt
-│   │   ├── test_database_reference.py
-│   │   ├── test_evidence.py
-│   │   ├── test_functional_element.py
-│   │   ├── test_genome_property.py
-│   │   ├── test_lib.py
-│   │   ├── test_literature_reference.py
-│   │   ├── test_parse.py
-│   │   ├── test_parse_genome_properties_assignments.py
-│   │   ├── test_parse_genome_properties_end_to_end.sh
-│   │   ├── test_parse_genome_properties_file.py
-│   │   ├── test_parse_interproscan.py
-│   │   ├── test_results.py
-│   │   ├── test_results_with_matches.py
-│   │   ├── test_step.py
-│   │   └── test_tree.py
-│   └── tree.py
-└── setup.py
-```
 
 Licence
 -------

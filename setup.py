@@ -15,7 +15,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as readme_fi
     long_description = readme_file.read()
 
 setup(name='pygenprop',
-      version='1.1',
+      version='1.3',
       description='A python library for programmatic usage of EBI InterPro Genome Properties.',
       url='https://github.com/Micromeda/pygenprop',
       author='Lee Bergstrand',
@@ -26,7 +26,7 @@ setup(name='pygenprop',
           'numpy>=1.16.5',
           'Cython>=0.29.13',
           'pandas>=1.1.5',
-          'sqlalchemy>=1.3.23,<=1.4.46',
+          'sqlalchemy>=1.3.23,<=1.4.47',
           'scikit-bio>=0.5.5'
       ],
       scripts=['bin/pygenprop'],

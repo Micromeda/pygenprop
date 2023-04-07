@@ -15,6 +15,7 @@ import pandas as pd
 import pickle
 from skbio.sequence import Protein
 from sqlalchemy import engine as SQLAlchemyEngine
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
 from pygenprop.assign import AssignmentCache, AssignmentCacheWithMatches
@@ -373,7 +374,7 @@ def load_assignment_caches_from_database(engine):
     assignment_caches = []
     for sample in current_session.query(Sample):
         sample_cache = AssignmentCache(sample_name=sample.name)
-        load_sample_assignments_from_database(sample_cache, sample)
+        load_sample_assignments_from_database(sample_cache, sample, engine)
         assignment_caches.append(sample_cache)
 
     current_session.close()
@@ -381,18 +382,37 @@ def load_assignment_caches_from_database(engine):
     return assignment_caches
 
 
-def load_sample_assignments_from_database(sample_cache, sample):
+def load_sample_assignments_from_database(sample_cache, sample, engine):
     """
     For a given sample, loads the sample property and step assignments from the database.
 
     :param sample_cache: A sample cache to put property and step assignments into.
     :param sample: A Sample object (SQLAlchemy table class)
+    :param engine: An SQLAlchemy engine
     """
-    for property_assignment in sample.property_assignments:
-        sample_cache.cache_property_assignment(property_assignment.identifier, property_assignment.assignment)
-        for step_assignment in property_assignment.step_assignments:
-            sample_cache.cache_step_assignment(property_assignment.identifier, step_assignment.number,
-                                               step_assignment.assignment)
+    property_id_col = 'property_identifier'
+    assignment_col = 'assignment'
+
+    statement = select(PropertyAssignment.property_number, PropertyAssignment.numeric_assignment).join(
+        PropertyAssignment.sample).where(Sample.name == sample.name)
+
+    prop_result = pd.read_sql(statement, engine)
+    prop_result.columns = [property_id_col, assignment_col]
+    prop_result[property_id_col] = prop_result[property_id_col].apply(lambda x: 'GenProp{0:04d}'.format(x))
+    prop_result[assignment_col] = prop_result[assignment_col].map({0: 'YES', 1: 'PARTIAL', 2: 'NO'})
+
+    for property_identifier, property_assignment in prop_result.itertuples(index=False, name=None):
+        sample_cache.cache_property_assignment(property_identifier, property_assignment)
+
+    statement2 = select(PropertyAssignment.property_number, StepAssignment.number).join(
+        StepAssignment.property_assignment).join(PropertyAssignment.sample).where(Sample.name == sample.name)
+
+    step_result = pd.read_sql(statement2, engine)
+    step_result.columns = [property_id_col, 'step_number']
+    step_result[property_id_col] = step_result[property_id_col].apply(lambda x: 'GenProp{0:04d}'.format(x))
+
+    for property_identifier, step_number in step_result.itertuples(index=False, name=None):
+        sample_cache.cache_step_assignment(property_identifier, step_number, 'YES')
 
 
 class GenomePropertiesResultsWithMatches(GenomePropertiesResults):
@@ -776,7 +796,7 @@ def load_assignment_caches_from_database_with_matches(engine):
         sample_cache = AssignmentCacheWithMatches(sample_name=sample.name)
         sample_cache.matches = matches_frame
 
-        load_sample_assignments_from_database(sample_cache, sample)
+        load_sample_assignments_from_database(sample_cache, sample, engine)
 
         assignment_caches.append(sample_cache)
 
